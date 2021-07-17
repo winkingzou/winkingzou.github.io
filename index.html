@@ -12,7 +12,7 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
 <script id="hexo-configurations">
@@ -215,7 +215,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-07-17 09:35:48 / 修改时间：09:41:45" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
+              <time title="创建时间：2021-07-17 09:35:48 / 修改时间：14:13:41" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,11 +238,162 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="基于实时深度学习的推荐系统架构设计和技术演进"><a href="#基于实时深度学习的推荐系统架构设计和技术演进" class="headerlink" title="基于实时深度学习的推荐系统架构设计和技术演进"></a>基于实时深度学习的推荐系统架构设计和技术演进</h1><h1 id="一、实时推荐系统的原理"><a href="#一、实时推荐系统的原理" class="headerlink" title="一、实时推荐系统的原理"></a>一、实时推荐系统的原理</h1><p>在介绍实时推荐系统的原理之前，先来看一个传统、经典的静态推荐系统。</p>
+          <h1 id="一、实时推荐系统的原理"><a href="#一、实时推荐系统的原理" class="headerlink" title="一、实时推荐系统的原理"></a>一、实时推荐系统的原理</h1><p>在介绍实时推荐系统的原理之前，先来看一个传统、经典的静态推荐系统。</p>
 <p>用户的行为日志会出现在消息队列里，然后被ETL到特征生成和模型训练中。这部分的数据是离线的，离线的模型更新和特征更新会被推到在线系统里面，比如特征库和在线推理的服务中，然后去服务在线的搜索推广应用。这个推荐系统本身是一个服务，前端展示的服务推广应用可能有搜索推荐、广告推荐等。那么这个静态系统到底是怎么工作的？我们来看下面的例子。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2021/07/17/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%9F%BA%E4%BA%8E%E5%AE%9E%E6%97%B6%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%92%8C%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/java/spring/springboot/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blob">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/17/java/spring/springboot/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">SpringBoot配置文件密码加密</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-17 09:35:48 / 修改时间：12:45:30" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在日常开发中，可能很随意把数据库密码直接明文暴露在配置文件中，在开发环境可以这么做，但是在生产环境，是相当不建议这么做，毕竟安全无小事，谁也不知道哪天密码就莫名其妙泄露了。springboot项目中如何对数据库密码进行加密</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/17/java/spring/springboot/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blob">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/" class="post-title-link" itemprop="url">Java应用迁移到容器后会出现OOM</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-17 09:35:48 / 修改时间：12:44:56" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index"><span itemprop="name">java</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>JVM启动后默认将最大使用堆大小设置为物理内存的四分之一，譬如一台普通的x86服务器配置128G内存，那么启动在容器的内启动JVM会将自己最大允许使用的堆内存调整为32G内存，如果容器启动时设置JVM只允许使用4G大小的内存，那么当JVM使用内存超过4G后，将会导致内核杀死JVM。</p>
+<p>JAVA 10版本后，已经原生支持容器环境,最大堆调整到内存限制的四分之一，而非物理内存的四分之一。还可以支持CPU自适应。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -485,20 +636,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
