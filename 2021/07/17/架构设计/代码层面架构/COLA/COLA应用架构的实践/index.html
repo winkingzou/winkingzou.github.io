@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="COLA架构COLA 概述COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。 COLA分为两个部分，COLA架构和COLA组件。 源码地址：https:&#x2F;&#x2F;gitee.com&#x2F;mirrors&#x2F;cola-framework?utm_source&#x3D;alading&amp;utm_campaign&#x3D;repo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="COLA应用架构的实践">
+<meta property="og:url" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="Winking&#39;s blob">
+<meta property="og:description" content="COLA架构COLA 概述COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。 COLA分为两个部分，COLA架构和COLA组件。 源码地址：https:&#x2F;&#x2F;gitee.com&#x2F;mirrors&#x2F;cola-framework?utm_source&#x3D;alading&amp;utm_campaign&#x3D;repo">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png">
+<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2020120918285068-6516197.png">
+<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png">
+<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png">
+<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png">
+<meta property="article:published_time" content="2021-07-17T09:57:45.000Z">
+<meta property="article:modified_time" content="2021-07-17T10:21:55.176Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="架构设计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png">
+
+<link rel="canonical" href="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>COLA应用架构的实践 | Winking's blob</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blob</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blob">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          COLA应用架构的实践
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-17 17:57:45 / 修改时间：18:21:55" itemprop="dateCreated datePublished" datetime="2021-07-17T17:57:45+08:00">2021-07-17</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">架构设计</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="COLA架构"><a href="#COLA架构" class="headerlink" title="COLA架构"></a>COLA架构</h1><h2 id="COLA-概述"><a href="#COLA-概述" class="headerlink" title="COLA 概述"></a>COLA 概述</h2><p><strong>COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。</strong></p>
+<p>COLA分为两个部分，COLA架构和COLA组件。</p>
+<p>源码地址：<a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework?utm_source=alading&amp;utm_campaign=repo">https://gitee.com/mirrors/cola-framework?utm_source=alading&amp;utm_campaign=repo</a></p>
+<span id="more"></span>
+
+<p><strong>架构</strong>的<strong>意义</strong> 就是 要素结构：</p>
+<ul>
+<li>要素 是 组成架构的重要元素；</li>
+<li>结构 是 要素之间的关系。</li>
+</ul>
+<p>而 <strong>应用架构</strong>的<strong>意义</strong> 就在于</p>
+<ul>
+<li>定义一套良好的结构；</li>
+<li>治理应用复杂度，降低系统熵值；</li>
+<li>从随心所欲的混乱状态，走向井井有条的有序状态。</li>
+</ul>
+<h2 id="包结构"><a href="#包结构" class="headerlink" title="包结构"></a>包结构</h2><p>分层是属于大粒度的职责划分，太粗，我们有必要往下再down一层，细化到包结构的粒度，才能更好的指导我们的工作。</p>
+<p>还是拿一堆玩具举例子，分层类似于拿来了一个架子，分包类似于在每一层架子上又放置了多个收纳盒。所谓的内聚，就是把功能类似的玩具放在一个盒子里，这样可以让应用结构清晰，极大的降低系统的认知成本和维护成本。</p>
+<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png" alt="archWhy"></p>
+<p>COLA架构就是为此而生，其核心职责就是定义良好的应用结构，提供最佳应用架构的最佳实践。通过不断探索，我们发现良好的分层结构，良好的包结构定义，可以帮助我们治理混乱不堪的业务应用系统。</p>
+<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2020120918285068-6516197.png" alt="cure"></p>
+<p>那么，对于一个后端应用来说，应该需要哪些收纳盒呢？这一块的设计真可谓是费了老鼻子劲了，基本上每一次COLA的迭代都会涉及到包结构的调整，迭代到现在，才算基本稳定下来。</p>
+<p>下图是可靠的应用架构：COLA 4.0</p>
+<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png" alt="cola"></p>
+<h2 id><a href="#" class="headerlink" title></a></h2><h2 id="COLA-Archetype"><a href="#COLA-Archetype" class="headerlink" title="COLA Archetype"></a>COLA Archetype</h2><p>好的应用架构，都遵循一些共同模式，不管是六边形架构、洋葱圈架构、整洁架构、还是COLA架构，<strong>都提倡以业务为核心，解耦外部依赖，分离业务复杂度和技术复杂度等</strong>。</p>
+<p>COLA架构区别于这些架构的地方，在于除了思想之外，我们还提供了可落地的工具和实践指导。</p>
+<p>为了能够快速创建满足COLA架构的应用，我们提供了两个<code>archetype</code>，位于<a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework/blob/master/cola-archetypes"><code>cola-archetypes</code>目录</a>下：</p>
+<ol>
+<li><code>cola-archetype-service</code>：用来创建纯后端服务的<code>archetype</code>。</li>
+<li><code>cola-archetype-web</code>：用来创建<code>adapter</code>和后端服务一体的<code>web</code>应用<code>archetype</code>。</li>
+</ol>
+<h1 id="COLA-Components"><a href="#COLA-Components" class="headerlink" title="COLA Components"></a>COLA Components</h1><p>此外，我们还提供了一些非常有用的通用组件，这些组件可以帮助我们提升研发效率。</p>
+<p>这些功能组件被收拢在<a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework/blob/master/cola-components"><code>cola-components</code>目录</a>下面。到目前为止，我们已经沉淀了以下组件：</p>
+<table>
+<thead>
+<tr>
+<th>组件名称</th>
+<th>功能</th>
+<th>版本</th>
+<th>依赖</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cola-component-dto</code></td>
+<td>定义了<code>DTO</code>格式，包括分页</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>cola-component-exception</code></td>
+<td>定义了异常格式， 主要有<code>BizException</code>和<code>SysException</code></td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>cola-component-statemachine</code></td>
+<td>状态机组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>cola-component-domain-starter</code></td>
+<td><code>Spring</code>托管的领域实体组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>cola-component-catchlog-starter</code></td>
+<td>异常处理和日志组件</td>
+<td>1.0.0</td>
+<td><code>exception</code> 、<code>dto</code>组件</td>
+</tr>
+<tr>
+<td><code>cola-component-extension-starter</code></td>
+<td>扩展点组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+<tr>
+<td><code>cola-component-test-container</code></td>
+<td>测试容器组件</td>
+<td>1.0.0</td>
+<td>无</td>
+</tr>
+</tbody></table>
+<h1 id="如何使用COLA"><a href="#如何使用COLA" class="headerlink" title="如何使用COLA"></a>如何使用COLA</h1><h2 id="创建应用"><a href="#创建应用" class="headerlink" title="创建应用"></a>创建应用</h2><p>执行以下命令创建web服务：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mvn archetype:generate  \</span><br><span class="line">    -DgroupId=com.alibaba.cola.demo.web \</span><br><span class="line">    -DartifactId=demo-web \</span><br><span class="line">    -Dversion=1.0.0-SNAPSHOT \</span><br><span class="line">    -Dpackage=com.alibaba.demo \</span><br><span class="line">    -DarchetypeArtifactId=cola-framework-archetype-web \</span><br><span class="line">    -DarchetypeGroupId=com.alibaba.cola \</span><br><span class="line">    -DarchetypeVersion=4.0.1</span><br></pre></td></tr></table></figure>
+
+<p>指定自己的DgroupId、DartifactId、Dpackage等</p>
+<p>命令执行成功的话，会看到如下的应用代码结构：</p>
+<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png" alt="demo"></p>
+<p>注：也可以使用阿里云的应用生成器：<a target="_blank" rel="noopener" href="https://start.aliyun.com/bootstrap.html">https://start.aliyun.com/bootstrap.html</a> 生成cola应用。</p>
+<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png" alt="image.png"></p>
+<p>1）适配层（Adapter Layer）：负责对前端展示（web，wireless，wap）的路由和适配，对于传统B/S系统而言，adapter就相当于MVC中的controller；</p>
+<p>2）应用层（Application Layer）：主要负责获取输入，组装上下文，参数校验，调用领域层做业务处理，如果需要的话，发送消息通知等。层次是开放的，应用层也可以绕过领域层，直接访问基础实施层；</p>
+<p>3）领域层（Domain Layer）：主要是封装了核心业务逻辑，并通过领域服务（Domain Service）和领域对象（Domain Entity）的方法对App层提供业务实体和业务逻辑计算。领域是应用的核心，不依赖任何其他层次；</p>
+<p>4）基础实施层（Infrastructure Layer）：主要负责技术细节问题的处理，比如数据库的CRUD、搜索引擎、文件系统、分布式服务的RPC等。此外，领域防腐的重任也落在这里，外部依赖需要通过gateway的转义处理，才能被上面的App层和Domain层使用。</p>
+<h2 id="运行应用"><a href="#运行应用" class="headerlink" title="运行应用"></a>运行应用</h2><ul>
+<li>在<code>项目</code>目录下运行<code>mvn install</code>（如果不想运行测试，可以加上<code>-DskipTests</code>参数）。</li>
+<li>进入<code>start</code>目录，执行<code>mvn spring-boot:run</code>。<br>运行成功的话，可以看到<code>SpringBoot</code>启动成功的界面。</li>
+<li>生成的应用中，已经实现了一个简单的<code>Rest</code>请求，可以在浏览器中输入 <a target="_blank" rel="noopener" href="http://localhost:8080/helloworld">http://localhost:8080/helloworld</a> 进行测试。</li>
+</ul>
+<p>如果要生成不是<code>web</code>工程而是<code>service</code>工程也类似，执行的是下面的命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mvn archetype:generate  \</span><br><span class="line">    -DgroupId=com.alibaba.cola.demo.service \</span><br><span class="line">    -DartifactId=demo-service \</span><br><span class="line">    -Dversion=1.0.0-SNAPSHOT \</span><br><span class="line">    -Dpackage=com.alibaba.demo \</span><br><span class="line">    -DarchetypeArtifactId=cola-framework-archetype-service \</span><br><span class="line">    -DarchetypeGroupId=com.alibaba.cola \</span><br><span class="line">    -DarchetypeVersion=4.0.1</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="tag"># 架构设计</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/17/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%9F%BA%E4%BA%8E%E5%AE%9E%E6%97%B6%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%92%8C%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B/" rel="prev" title="基于实时深度学习的推荐系统架构设计和技术演进">
+      <i class="fa fa-chevron-left"></i> 基于实时深度学习的推荐系统架构设计和技术演进
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/20/tools/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/" rel="next" title="Flyway使用">
+      Flyway使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#COLA%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">COLA架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#COLA-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">COLA 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%85%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">包结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.3.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#COLA-Archetype"><span class="nav-number">1.4.</span> <span class="nav-text">COLA Archetype</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#COLA-Components"><span class="nav-number">2.</span> <span class="nav-text">COLA Components</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8COLA"><span class="nav-number">3.</span> <span class="nav-text">如何使用COLA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%94%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">创建应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E5%BA%94%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">运行应用</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
