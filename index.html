@@ -215,7 +215,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-07-23 17:58:23 / 修改时间：18:18:25" itemprop="dateCreated datePublished" datetime="2021-07-23T17:58:23+08:00">2021-07-23</time>
+              <time title="创建时间：2021-07-23 17:58:23 / 修改时间：20:55:05" itemprop="dateCreated datePublished" datetime="2021-07-23T17:58:23+08:00">2021-07-23</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -242,204 +242,14 @@
 <p>关系型数据库：表格，行，列</p>
 <p>泛指非关系型数据库的，随着 web 2.0 互联网的诞生！传统的关系型数据库很难对付 web 2.0 时代！尤其是超大规模的高并发的社区！暴露出来很多难以克服的问题 NoSQL 在当今大数据环境下发展的十分迅速，Redis 是发展最快，而且是我们当下必须要掌握的一个技术！</p>
 <p>很多的数据类型比如用户的个人信息，社交网络，地理位置。这些数据类型的存储不需要一个固定的格式！不需要多余的操作就可以横向扩展的。Map&lt;String, Object&gt; 使用键值对来控制。</p>
-<p>NoSQL 的特点：</p>
-<p>1、<strong>方便扩展</strong>（数据之间没有关系，很好扩展）</p>
-<p>2、<strong>大数据量高性能（Redis一秒写8万次，读取 11 万次</strong>，NoSQL的缓存记录级，是一种细粒度的缓存，性能会比较高）</p>
-<p>3、<strong>数据类型是多样型的</strong>（不需要事先设计数据库，随取随用）</p>
-<p>传统 RDBMS 和 NoSQL的比较：</p>
-<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">传统的 RDBS</span><br><span class="line">- 结构化组织</span><br><span class="line">- SQL</span><br><span class="line">- 数据和关系都存在单独的表中</span><br><span class="line">- 操作语言，数据库定义语言</span><br><span class="line">- 严格的一致性</span><br><span class="line">- 基础的事务</span><br><span class="line">- ...</span><br><span class="line">NoSQL</span><br><span class="line">- 不仅仅是数据</span><br><span class="line">- 没有固定的查询语言</span><br><span class="line">- 键值对存储，列存储，文档存储，图形数据库</span><br><span class="line">- 最终一致性</span><br><span class="line">- CAP 定理和 BASE （异地多活）</span><br><span class="line">- 高性能，高可用，高可扩</span><br></pre></td></tr></table></figure>
-
-<h1 id="NoSQL-的四大分类"><a href="#NoSQL-的四大分类" class="headerlink" title="NoSQL 的四大分类"></a>NoSQL 的四大分类</h1><p><strong>KV 键值对：Redis</strong></p>
-<p><strong>文档型数据库（bson 和 json 一样）：</strong></p>
-<ul>
-<li>MongoDB：<ul>
-<li>MongoDB 是一个基于分布式文件储存的数据库，使用 C++编写，主要用来处理大量的文档。</li>
-<li>MongoDB 是一个介于关系型数据库和非关系型数据中间的产品！MongoDB 是非关系型数据中功能最丰富，最像关系型数据库的。</li>
-</ul>
-</li>
-<li>ConthDB</li>
-</ul>
-<p><strong>列存储数据库：</strong></p>
-<ul>
-<li><strong>HBase</strong></li>
-<li><strong>分布式文件系统</strong></li>
-</ul>
-<p><strong>图关系数据库：</strong></p>
-<ul>
-<li><strong>他不是存图形，放的是关系，比如：朋友圈社交网络，广告推荐</strong></li>
-<li>Neo4j、InfoGrid</li>
-</ul>
-<h1 id="Redis-入门"><a href="#Redis-入门" class="headerlink" title="Redis 入门"></a>Redis 入门</h1><p>Redis （Remote Dictionary Server），即远程字典服务！</p>
-<p>是一个开源的使用 <strong>ANSI C语言编写、</strong>支持网络、可基于内存亦可持久刷的日志型、key-value 数据库，并提供多种语言的 API。免费和开源！是当下最热门的NoSQL 技术之一，也被人们称之为机构化数据库。</p>
-<p>Redis 的作用：</p>
-<p>1、内存存储、持久化（RDB 和 AOF）</p>
-<p>2、效率高，可以用于高速缓存</p>
-<p>3、发布订阅系统</p>
-<p>4、地图信息分析</p>
-<p>5、计数器、计时器（比如浏览量）</p>
-<p>Redis 的特征：</p>
-<p>1、多样化的数据类型</p>
-<p>2、持久化</p>
-<p>3、集群</p>
-<p>4、事务</p>
-<p>Redis 官网： <a target="_blank" rel="noopener" href="https://redis.io/">https://redis.io/</a></p>
-<p>Redis 中文网： <a target="_blank" rel="noopener" href="http://www.redis.cn/">http://www.redis.cn/</a></p>
-<h1 id="Redis-安装启动"><a href="#Redis-安装启动" class="headerlink" title="Redis 安装启动"></a>Redis 安装启动</h1><p>到官网下载压缩包，上传到服务器</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">make					   <span class="comment"># 安装</span></span><br><span class="line">make install</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/bin		    <span class="comment"># 进入Redis的默认安装目录</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拷贝配置文件：</span></span><br><span class="line">cp redis.conf config/</span><br></pre></td></tr></table></figure>
-
-<p>修改配置文件为后台启动：</p>
-<p>修改配置项：</p>
-<ul>
-<li><code>daemonize</code>为<code>yes</code>。</li>
-<li>注释掉 <code>bind 127.0.0.1</code></li>
-<li>修改<code>protected-mode no</code></li>
-</ul>
-<p>启动 Redis</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server config/redis.conf <span class="comment">#通过特定的配置文件启动Redis</span></span><br></pre></td></tr></table></figure>
-
-<p>使用客户端连接和测试：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -p 6379 </span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line">PONG</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> name <span class="built_in">test</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line"><span class="string">&quot;test&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; </span><br></pre></td></tr></table></figure>
-
-<p>退出Redis：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; shutdown		<span class="comment"># 关闭Redis </span></span><br><span class="line">not connected&gt; <span class="built_in">exit</span>				<span class="comment"># 退出</span></span><br><span class="line">ps -ef|grep redis</span><br><span class="line">root      8330  3437  0 08:49 pts/1    00:00:00 grep --color=auto redis</span><br></pre></td></tr></table></figure>
-
-<h1 id="Redis-性能测试"><a href="#Redis-性能测试" class="headerlink" title="Redis 性能测试"></a>Redis 性能测试</h1><p><strong>redis-benchmark 是官网自带的压力测试工具。</strong></p>
-<table>
-<thead>
-<tr>
-<th>序号</th>
-<th>选项</th>
-<th>描述</th>
-<th>默认值</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>1</td>
-<td>-h</td>
-<td>指定服务器主机名</td>
-<td>127.0.0.1</td>
-</tr>
-<tr>
-<td>2</td>
-<td>-p</td>
-<td>指定服务器端口</td>
-<td>6379</td>
-</tr>
-<tr>
-<td>3</td>
-<td>-s</td>
-<td>指定服务器 socket</td>
-<td></td>
-</tr>
-<tr>
-<td>4</td>
-<td>-c</td>
-<td>指定并发连接数</td>
-<td>50</td>
-</tr>
-<tr>
-<td>5</td>
-<td>-n</td>
-<td>指定请求数</td>
-<td>10000</td>
-</tr>
-<tr>
-<td>6</td>
-<td>-d</td>
-<td>以字节的形式指定 SET/GET 值的数据大小</td>
-<td>2</td>
-</tr>
-<tr>
-<td>7</td>
-<td>-k</td>
-<td>1=keep alive 0=reconnect</td>
-<td>1</td>
-</tr>
-<tr>
-<td>8</td>
-<td>-r</td>
-<td>SET/GET/INCR 使用随机 key, SADD 使用随机值</td>
-<td></td>
-</tr>
-<tr>
-<td>9</td>
-<td>-P</td>
-<td>通过管道传输 请求</td>
-<td>1</td>
-</tr>
-<tr>
-<td>10</td>
-<td>-q</td>
-<td>强制退出 redis。仅显示 query/sec 值</td>
-<td></td>
-</tr>
-<tr>
-<td>11</td>
-<td>–csv</td>
-<td>以 CSV 格式输出</td>
-<td></td>
-</tr>
-<tr>
-<td>12</td>
-<td>-l</td>
-<td>生成循环，永久执行测试</td>
-<td></td>
-</tr>
-<tr>
-<td>13</td>
-<td>-t</td>
-<td>仅运行以逗号分隔的测试命令列表。</td>
-<td></td>
-</tr>
-<tr>
-<td>14</td>
-<td>-I</td>
-<td>Idle 模式。仅打开 N 个 idle 连接并等待。</td>
-<td></td>
-</tr>
-</tbody></table>
-<p>使用方式：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 测试 100 个并发连接，100000 个请求</span></span><br><span class="line">redis-benchmark -h localhost -p 6379 -c 100 -n 100000</span><br></pre></td></tr></table></figure>
-
-<p>分析举例：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">====== SET ======</span><br><span class="line">  100000 requests completed <span class="keyword">in</span> 1.97 seconds		  <span class="comment"># 对 10万个请求进行写入测试</span></span><br><span class="line">  100 parallel clients							<span class="comment"># 100 个并发客户端 </span></span><br><span class="line">  3 bytes payload								<span class="comment"># 每次写入 3 个字节</span></span><br><span class="line">  keep alive: 1									<span class="comment"># 只有一台服务器来处理这些请求，即单机性能</span></span><br><span class="line"></span><br><span class="line">19.56% &lt;= 1 milliseconds</span><br><span class="line">98.70% &lt;= 2 milliseconds</span><br><span class="line">99.82% &lt;= 3 milliseconds</span><br><span class="line">99.85% &lt;= 9 milliseconds</span><br><span class="line">99.94% &lt;= 10 milliseconds</span><br><span class="line">99.95% &lt;= 126 milliseconds</span><br><span class="line">99.96% &lt;= 127 milliseconds</span><br><span class="line">100.00% &lt;= 127 milliseconds					<span class="comment"># 所有请求在127 毫秒处理完成</span></span><br><span class="line">50761.42 requests per second				<span class="comment"># 每秒处理 50761.42 个请求</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><p><strong>Redis 默认有 16 个数据库，这个可以在配置文件redis.conf 中查看</strong>。</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Set the number of databases. The default database is DB 0, you can select</span></span><br><span class="line"><span class="comment"># a different one on a per-connection basis using SELECT &lt;dbid&gt; where</span></span><br><span class="line"><span class="comment"># dbid is a number between 0 and &#x27;databases&#x27;-1</span></span><br><span class="line"><span class="attr">databases</span> <span class="string">16</span></span><br></pre></td></tr></table></figure>
-
-<p><strong>默认使用的是第 0 个。</strong></p>
-<p>使用 <code>select</code> 命令切换数据库，使用 <code>dbsize</code>查看数据库大小：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -p 6379</span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line">PONG</span><br><span class="line">127.0.0.1:6379&gt; select 3		<span class="comment"># 切换数据库</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[3]&gt; dbsize		<span class="comment"># 查看数据库大小</span></span><br><span class="line">(<span class="built_in">integer</span>) 0</span><br><span class="line">127.0.0.1:6379[3]&gt; <span class="built_in">set</span> name jack</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[3]&gt; dbsize</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379[3]&gt; </span><br></pre></td></tr></table></figure>
-
-<p>查看数据库中所有的<code>key</code>：</p>
-<p><strong>注意：生产环境禁止使用该命令，在配置中禁用该命令</strong></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[3]&gt; keys *</span><br><span class="line">1) <span class="string">&quot;name&quot;</span></span><br><span class="line">127.0.0.1:6379[3]&gt; </span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>清除当前数据库：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379[3]&gt; flushdb</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379[3]&gt; keys *</span><br><span class="line">(empty list or <span class="built_in">set</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>清除所有数据库：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; flushall</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">(empty list or <span class="built_in">set</span>)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Redis禁用部分危险命令"><a href="#Redis禁用部分危险命令" class="headerlink" title="Redis禁用部分危险命令"></a>Redis禁用部分危险命令</h1><p>禁用keys/flushdb等</p>
-<p>在redis.conf文件【SECURITY】区域配置：</p>
-<p>1、禁用命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rename-command KEYS <span class="string">&quot;&quot;</span></span><br><span class="line">rename-command FLUSHALL <span class="string">&quot;&quot;</span></span><br><span class="line">rename-command FLUSHDB <span class="string">&quot;&quot;</span></span><br><span class="line">rename-command CONFIG <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>2、重命名命令：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rename-command KEYS <span class="string">&quot;xxxxxxxxxxxx&quot;</span></span><br><span class="line">rename-command FLUSHALL <span class="string">&quot;yyyyyyyyyyyyy&quot;</span></span><br><span class="line">rename-command FLUSHDB <span class="string">&quot;qqqqqqqqqqqqq&quot;</span></span><br><span class="line">rename-command CONFIG <span class="string">&quot;aaaaaaaaaaaaaa&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="Redis-是单线程的什么这么快"><a href="#Redis-是单线程的什么这么快" class="headerlink" title="Redis 是单线程的什么这么快"></a>Redis 是单线程的什么这么快</h1><p>针对reids6之前的版本</p>
-<p><strong>Redis 是很快的，官方表示，Redis 是基于内存操作，CPU 不是 Redis 的性能瓶颈，Redis 的性能瓶颈是机器的内存和网络带宽。既然可以单线程来实现，就使用单线程。</strong></p>
-<p>Redis 是 C 语言写的，<strong>官方提供的数据为 100000+ 的 QPS</strong> ，完全不比同样是使用 key-value 的Memecache 差。</p>
-<p><strong>Redis 为什么单线程还这么快呢？</strong></p>
-<p>1、误区1：高性能的服务器一定是多线性的？</p>
-<p>2、误区2：多线程一定比单线程的效率高？</p>
-<p><strong>要了解在执行效率上 CPU &gt; 内存 &gt; 硬盘</strong></p>
-<p><strong>核心：</strong>Redis 是将所有的数据全部放在内存中的，所有说使用单线程去操作执行效率就是最高的，多线程在执行过程中需要进行 CPU 的上下文切换，这个是耗时操作。对于内存系统来说，如果没有上下文切换效率就是最高的，多次读写都是在一个 CPU 上的，在内存情况下，这个就是最佳方案。</p>
-<p><strong>redis 采用网络IO多路复用技术来保证在多连接的时候， 系统的高吞吐量</strong>。</p>
-<p>参考文章：<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/52600663">阿里P8架构师谈：Redis为什么是单线程、及高并发快的3大原因详解</a></p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/23/db-resource/redis/redis%E5%85%A5%E9%97%A8/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
