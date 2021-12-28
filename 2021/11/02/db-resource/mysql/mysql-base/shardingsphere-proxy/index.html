@@ -20,20 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="Mysql8.x二进制安装配置">
+  <meta name="description" content="Shardingsphere-proxy实现分库分表及读写分离一、安装shardingsphere-proxy目前只支持mysql和postgresql 官网下载安装包解压即可。 这里介绍5.0版本的安装配置及使用。 如果是使用mysql,需要在其官网下载对应的驱动，放到lib目录下。 二、配置1.配置文件说明123456789101112# HA配置config-database-discove">
 <meta property="og:type" content="article">
-<meta property="og:title" content="mysql安装配置">
-<meta property="og:url" content="http://example.com/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:title" content="mysql集群方案">
+<meta property="og:url" content="http://example.com/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/index.html">
 <meta property="og:site_name" content="Winking&#39;s blog">
-<meta property="og:description" content="Mysql8.x二进制安装配置">
+<meta property="og:description" content="Shardingsphere-proxy实现分库分表及读写分离一、安装shardingsphere-proxy目前只支持mysql和postgresql 官网下载安装包解压即可。 这里介绍5.0版本的安装配置及使用。 如果是使用mysql,需要在其官网下载对应的驱动，放到lib目录下。 二、配置1.配置文件说明123456789101112# HA配置config-database-discove">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-09-02T15:33:27.000Z">
-<meta property="article:modified_time" content="2021-12-04T16:40:25.717Z">
+<meta property="article:published_time" content="2021-11-02T15:33:27.000Z">
+<meta property="article:modified_time" content="2021-12-28T18:00:44.100Z">
 <meta property="article:author" content="Winking">
 <meta property="article:tag" content="mysql">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">
+<link rel="canonical" href="http://example.com/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>mysql安装配置 | Winking's blog</title>
+  <title>mysql集群方案 | Winking's blog</title>
   
 
 
@@ -194,7 +194,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -207,7 +207,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          mysql安装配置
+          mysql集群方案
         </h1>
 
         <div class="post-meta">
@@ -217,14 +217,14 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-09-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-09-02T23:33:27+08:00">2021-09-02</time>
+              <time title="创建时间：2021-11-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-11-02T23:33:27+08:00">2021-11-02</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-05 00:40:25" itemprop="dateModified" datetime="2021-12-05T00:40:25+08:00">2021-12-05</time>
+                <time title="修改时间：2021-12-29 02:00:44" itemprop="dateModified" datetime="2021-12-29T02:00:44+08:00">2021-12-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -254,16 +254,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Mysql8-x二进制安装配置"><a href="#Mysql8-x二进制安装配置" class="headerlink" title="Mysql8.x二进制安装配置"></a>Mysql8.x二进制安装配置</h1><span id="more"></span>
+        <h1 id="Shardingsphere-proxy实现分库分表及读写分离"><a href="#Shardingsphere-proxy实现分库分表及读写分离" class="headerlink" title="Shardingsphere-proxy实现分库分表及读写分离"></a>Shardingsphere-proxy实现分库分表及读写分离</h1><h1 id="一、安装"><a href="#一、安装" class="headerlink" title="一、安装"></a>一、安装</h1><p>shardingsphere-proxy目前只支持mysql和postgresql</p>
+<p>官网下载安装包解压即可。</p>
+<p>这里介绍5.0版本的安装配置及使用。</p>
+<p>如果是使用mysql,需要在其官网下载对应的驱动，放到lib目录下。</p>
+<h1 id="二、配置"><a href="#二、配置" class="headerlink" title="二、配置"></a>二、配置</h1><h2 id="1-配置文件说明"><a href="#1-配置文件说明" class="headerlink" title="1.配置文件说明"></a>1.配置文件说明</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># HA配置</span></span><br><span class="line">config-database-discovery.yaml</span><br><span class="line">config-encrypt.yaml</span><br><span class="line"><span class="comment"># 读写分离配置</span></span><br><span class="line">config-readwrite-splitting.yaml</span><br><span class="line">config-shadow.yaml</span><br><span class="line"><span class="comment"># 分库分表及规则配置</span></span><br><span class="line">config-sharding.yaml</span><br><span class="line"><span class="comment"># 日志配置</span></span><br><span class="line">logback.xml</span><br><span class="line"><span class="comment"># shardingsphere服务配置，配置用户名密码及zk注册中心</span></span><br><span class="line">server.yaml</span><br></pre></td></tr></table></figure>
 
-<h2 id="下载解压"><a href="#下载解压" class="headerlink" title="下载解压"></a>下载解压</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建用户及用户组 </span></span><br><span class="line">$&gt; groupadd mysql</span><br><span class="line">$&gt; useradd -r -g mysql -s /bin/<span class="literal">false</span> mysql</span><br><span class="line"><span class="comment"># 进入目录 </span></span><br><span class="line"><span class="built_in">cd</span> /opt </span><br><span class="line"><span class="comment"># 下载安装包 </span></span><br><span class="line">wget https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.20-linux-glibc2.12-x86_64.tar.xz </span><br><span class="line"><span class="comment"># 解压 </span></span><br><span class="line">tar -xvf mysql-8.0.20-linux-glibc2.12-x86_64.tar.xz </span><br><span class="line"><span class="comment"># 拷贝到/usr/local </span></span><br><span class="line">mv /opt/mysql-8.0.20-linux-glibc2.12-x86_64 /usr/<span class="built_in">local</span> </span><br><span class="line"><span class="comment"># 进入/usr/local </span></span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span> </span><br><span class="line"><span class="comment"># 修改名称为mysql-8.0.20 （不推荐，一般创建连接）</span></span><br><span class="line">mv mysql-8.0.20-linux-glibc2.12-x86_64 mysql-8.0.20 </span><br><span class="line"><span class="comment"># 创建连接</span></span><br><span class="line">ln -s mysql-8.0.20-linux-glibc2.12-x86_64</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建存放数据文件夹 </span></span><br><span class="line">mkdir /usr/<span class="built_in">local</span>/mysql/data </span><br><span class="line"><span class="comment"># 授权 </span></span><br><span class="line">chown -R mysql.mysql /usr/<span class="built_in">local</span>/mysql-8.0.20 </span><br><span class="line"></span><br><span class="line"><span class="comment"># (官网参考)</span></span><br><span class="line">$&gt; mkdir mysql-files</span><br><span class="line">$&gt; chown mysql:mysql mysql-files</span><br><span class="line">$&gt; chmod 750 mysql-files</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="2-shardingsphere-proxy用户配置"><a href="#2-shardingsphere-proxy用户配置" class="headerlink" title="2.shardingsphere-proxy用户配置"></a>2.shardingsphere-proxy用户配置</h2><p>配置server.yaml文件</p>
+<p>这里先配置用户名密码用于测试，zk暂不配：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="type">!AUTHORITY</span></span><br><span class="line">    <span class="attr">users:</span> <span class="comment"># 用户</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">root@%:root</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">sharding@:sharding</span></span><br><span class="line">    <span class="attr">provider:</span> <span class="comment">#权限</span></span><br><span class="line">      <span class="attr">type:</span> <span class="string">ALL_PRIVILEGES_PERMITTED</span></span><br><span class="line">  <span class="bullet">-</span> <span class="type">!TRANSACTION</span> <span class="comment"># 事务</span></span><br><span class="line">    <span class="attr">defaultType:</span> <span class="string">XA</span></span><br><span class="line">    <span class="attr">providerType:</span> <span class="string">Atomikos</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="初始化安装"><a href="#初始化安装" class="headerlink" title="初始化安装"></a>初始化安装</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置环境变量</span></span><br><span class="line"><span class="comment"># 临时配置</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/usr/<span class="built_in">local</span>/mysql/bin</span><br><span class="line"></span><br><span class="line"><span class="comment"># 初始化数据库(记录临时密码) </span></span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mysql/ </span><br><span class="line">mysqld --user=mysql --lower-case-table-names=1 --basedir=/usr/<span class="built_in">local</span>/mysql/ --datadir=/usr/<span class="built_in">local</span>/mysql/data/ --initialize ; </span><br><span class="line"></span><br><span class="line"><span class="comment"># 将mysql添加到系统服务(官网)</span></span><br><span class="line">cp support-files/mysql.server /etc/init.d/mysql.server</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立Mysql服务,授权以及添加服务</span></span><br><span class="line">cp -a support-files/mysql.server /etc/init.d/mysql </span><br><span class="line">chmod +x /etc/init.d/mysql </span><br><span class="line">chkconfig --add mysql </span><br><span class="line"><span class="comment"># 检查服务是否生效 </span></span><br><span class="line">chkconfig --list mysql</span><br></pre></td></tr></table></figure>
+<p>其它配置项根据示例及官网文档进行配置；</p>
+<h2 id="3-高可用配置"><a href="#3-高可用配置" class="headerlink" title="3.高可用配置"></a>3.高可用配置</h2><p>配置config-database-discovery.yaml</p>
+<p>这里暂时配置一个数据源用于测试：</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 映射到shardingsphere中的数据库名称，例如真实mysql数据库为test，这里配置后连接shardingsphere后显示配置的名称</span></span><br><span class="line"><span class="attr">schemaName:</span> <span class="string">database_discovery_db</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="attr">dataSources:</span></span><br><span class="line">  <span class="attr">ds_0:</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://127.0.0.1:3306/test?serverTimezone=UTC&amp;useSSL=false</span></span><br><span class="line">    <span class="attr">username:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">password:</span> <span class="string">root</span></span><br><span class="line">    <span class="attr">connectionTimeoutMilliseconds:</span> <span class="number">3000</span></span><br><span class="line">    <span class="attr">idleTimeoutMilliseconds:</span> <span class="number">60000</span></span><br><span class="line">    <span class="attr">maxLifetimeMilliseconds:</span> <span class="number">1800000</span></span><br><span class="line">    <span class="attr">maxPoolSize:</span> <span class="number">50</span></span><br><span class="line">    <span class="attr">minPoolSize:</span> <span class="number">1</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置my.cnf </span></span><br><span class="line">vi /etc/my.cnf </span><br><span class="line"><span class="comment"># 清空，使用下面内容 </span></span><br><span class="line"><span class="comment">################### 文件内容开始 ###################</span></span><br><span class="line">[mysqld] </span><br><span class="line">basedir=/usr/<span class="built_in">local</span>/mysql-8.0.20 </span><br><span class="line">datadir=/usr/<span class="built_in">local</span>/mysql-8.0.20/data </span><br><span class="line">character-set-server=utf8 </span><br><span class="line">lower-case-table-names=1 </span><br><span class="line">default_authentication_plugin=mysql_native_password </span><br><span class="line"> </span><br><span class="line"><span class="comment">################### 文件内容结束 ###################</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="启动、授权"><a href="#启动、授权" class="headerlink" title="启动、授权"></a>启动、授权</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动、停止、重启 </span></span><br><span class="line">service mysql start </span><br><span class="line">service mysql stop </span><br><span class="line">service mysql restart </span><br><span class="line"><span class="comment"># 登录（使用临时密码）</span></span><br><span class="line">mysql -uroot -p </span><br><span class="line"><span class="comment"># 修改密码 </span></span><br><span class="line">ALTER USER <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> IDENTIFIED WITH mysql_native_password BY <span class="string">&#x27;new password&#x27;</span>; </span><br><span class="line"><span class="comment"># 退出，使用新密码登录 </span></span><br><span class="line">quit </span><br><span class="line">mysql -uroot -p </span><br><span class="line"><span class="comment"># 修改root权限，增加远程连接 </span></span><br><span class="line">use mysql </span><br><span class="line">update user <span class="built_in">set</span> host =<span class="string">&#x27;%&#x27;</span> <span class="built_in">where</span> user=<span class="string">&#x27;root&#x27;</span>; </span><br><span class="line">alter user <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified with mysql_native_password by <span class="string">&#x27;new password&#x27;</span>; </span><br><span class="line">flush privileges; </span><br><span class="line"><span class="comment"># 退出 quit</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
+<p>暂时配置这两个文件，然后启动shardingsphere.</p>
+<h1 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h1><p>执行如下命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动</span></span><br><span class="line">sh bin/start.sh</span><br><span class="line"><span class="comment"># 停止</span></span><br><span class="line">sh bin/stop.sh</span><br></pre></td></tr></table></figure>
 
 
     </div>
@@ -283,13 +291,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/08/23/db-resource/redis/Redis%E7%B3%BB%E5%88%97(%E5%9B%9B):%20Redis%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" rel="prev" title="Redis系列(四):Redis性能及优化">
-      <i class="fa fa-chevron-left"></i> Redis系列(四):Redis性能及优化
+    <a href="/2021/09/05/db-resource/mysql/mysql-base/%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE/" rel="prev" title="mysql安装配置">
+      <i class="fa fa-chevron-left"></i> mysql安装配置
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/09/05/db-resource/mysql/mysql-base/%E4%B8%BB%E4%BB%8E%E9%85%8D%E7%BD%AE/" rel="next" title="mysql安装配置">
-      mysql安装配置 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -348,7 +353,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Mysql8-x%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE"><span class="nav-number">1.</span> <span class="nav-text">Mysql8.x二进制安装配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E8%A7%A3%E5%8E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">下载解压</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%89%E8%A3%85"><span class="nav-number">1.2.</span> <span class="nav-text">初始化安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E3%80%81%E6%8E%88%E6%9D%83"><span class="nav-number">1.4.</span> <span class="nav-text">启动、授权</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Shardingsphere-proxy%E5%AE%9E%E7%8E%B0%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E5%8F%8A%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB"><span class="nav-number">1.</span> <span class="nav-text">Shardingsphere-proxy实现分库分表及读写分离</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%AE%89%E8%A3%85"><span class="nav-number">2.</span> <span class="nav-text">一、安装</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">二、配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E"><span class="nav-number">3.1.</span> <span class="nav-text">1.配置文件说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-shardingsphere-proxy%E7%94%A8%E6%88%B7%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">2.shardingsphere-proxy用户配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%AB%98%E5%8F%AF%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">3.3.</span> <span class="nav-text">3.高可用配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8"><span class="nav-number">4.</span> <span class="nav-text">启动</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
