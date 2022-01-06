@@ -439,6 +439,252 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/" class="post-title-link" itemprop="url">Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-24 16:13:28" itemprop="dateCreated datePublished" datetime="2021-11-24T16:13:28+08:00">2021-11-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-07 03:41:41" itemprop="dateModified" datetime="2022-01-07T03:41:41+08:00">2022-01-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis系列-七-缓存穿透、缓存击穿和缓存雪崩"><a href="#Redis系列-七-缓存穿透、缓存击穿和缓存雪崩" class="headerlink" title="Redis系列(七):缓存穿透、缓存击穿和缓存雪崩"></a>Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</h1><h1 id="缓存穿透（查不到数据导致）"><a href="#缓存穿透（查不到数据导致）" class="headerlink" title="缓存穿透（查不到数据导致）"></a>缓存穿透（查不到数据导致）</h1><p>缓存穿透的概念简单，用户想要查询一个数据，发现 Redis 内存数据库没有，也就是缓存没有命中。于是向持久层数据库查询。发现也没有，于是本次查询失败。当用户很多的时候，缓存都没有命中，于是都去请求了持久层数据库。这给持久层数据库造成很大的压力，这时候就相当于出现了缓存穿透。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/23/db-resource/redis/Redis-5-config-persistence/" class="post-title-link" itemprop="url">Redis系列(五):Redis配置文件和持久化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-11-23T16:23:28+08:00">2021-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-07 03:18:04" itemprop="dateModified" datetime="2022-01-07T03:18:04+08:00">2022-01-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis系列-五-Redis配置文件和持久化"><a href="#Redis系列-五-Redis配置文件和持久化" class="headerlink" title="Redis系列(五):Redis配置文件和持久化"></a>Redis系列(五):Redis配置文件和持久化</h1><h1 id="Redis-conf-详解"><a href="#Redis-conf-详解" class="headerlink" title="Redis.conf 详解"></a>Redis.conf 详解</h1><p>找到启动时指定的配置文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc ~]<span class="comment"># cd /usr/local/bin</span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">dump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">jemalloc-config  jeprof       libmcrypt-config  luajit-2.0.4  mdecrypt  redis-check-aof  redis-cli        redis-server</span><br><span class="line">[root@itzhouc bin]<span class="comment"># cd kconfig/</span></span><br><span class="line">[root@itzhouc kconfig]<span class="comment"># vim redis.conf</span></span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/23/db-resource/redis/Redis-5-config-persistence/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/23/db-resource/redis/Redis-6-HA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" class="post-title-link" itemprop="url">Redis系列(六):发布订阅模式、主从复制和哨兵模式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-11-23T16:23:28+08:00">2021-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-07 03:36:31" itemprop="dateModified" datetime="2022-01-07T03:36:31+08:00">2022-01-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis系列（六）发布订阅模式、主从复制和哨兵模式"><a href="#Redis系列（六）发布订阅模式、主从复制和哨兵模式" class="headerlink" title="Redis系列（六）发布订阅模式、主从复制和哨兵模式"></a>Redis系列（六）发布订阅模式、主从复制和哨兵模式</h1><h1 id="Redis-订阅发布"><a href="#Redis-订阅发布" class="headerlink" title="Redis 订阅发布"></a>Redis 订阅发布</h1><p>Redis 发布订阅（pub/sub）是一种消息通信模式：发送者发（pub）送消息，订阅者(sub)接收消息。</p>
+<p>Redis 客户端可以订阅任意数量的频道。</p>
+<p>订阅 / 发布消息图：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/23/db-resource/redis/Redis-6-HA/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -688,7 +934,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/23/db-resource/redis/Redis%E7%B3%BB%E5%88%97(%E5%9B%9B):%20Redis%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -702,7 +948,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/08/23/db-resource/redis/Redis%E7%B3%BB%E5%88%97(%E5%9B%9B):%20Redis%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">Redis系列(四):Redis性能及优化</a>
+            <a href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">Redis系列(四):Redis性能及优化</a>
         </h2>
 
         <div class="post-meta">
@@ -719,7 +965,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-10-29 02:30:10" itemprop="dateModified" datetime="2021-10-29T02:30:10+08:00">2021-10-29</time>
+                <time title="修改时间：2022-01-07 03:16:15" itemprop="dateModified" datetime="2022-01-07T03:16:15+08:00">2022-01-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -745,253 +991,7 @@
           <h1 id="Redis系列-四-Redis性能及优化"><a href="#Redis系列-四-Redis性能及优化" class="headerlink" title="Redis系列(四): Redis性能及优化"></a>Redis系列(四): Redis性能及优化</h1><h1 id="Redis6多线程配置"><a href="#Redis6多线程配置" class="headerlink" title="Redis6多线程配置"></a>Redis6多线程配置</h1><p>redis开启多线程io<br>配置参数<br>io-threads-do-redis yes(改为yes开启多线程io模式)<br>io-thread 2 (开启多线程个数，具体个数根据cpu核数具体配置，推荐线程大小小于等于核数，例如4核建议最大开启3个最小开启2个，8核则建议开启6个，具体可进行压测进行评估，看io的大小，最大为最优个数)</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/08/23/db-resource/redis/Redis%E7%B3%BB%E5%88%97(%E5%9B%9B):%20Redis%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">mysql集群方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-08-02 23:33:27 / 修改时间：23:53:40" itemprop="dateCreated datePublished" datetime="2021-08-02T23:33:27+08:00">2021-08-02</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>集群的好处</p>
-<ul>
-<li>高可用性：故障检测及迁移，多节点备份。</li>
-<li>可伸缩性：新增数据库节点便利，方便扩容。</li>
-<li>负载均衡：切换某服务访问某节点，分摊单个节点的数据库压力。</li>
-</ul>
-<p>集群要考虑的风险</p>
-<ul>
-<li>网络分裂：群集还可能由于网络故障而拆分为多个部分，每部分内的节点相互连接，但各部分之间的节点失去连接。</li>
-<li>脑裂：导致数据库节点彼此独立运行的集群故障称为“脑裂”。这种情况可能导致数据不一致，并且无法修复，例如当两个数据库节点独立更新同一表上的同一行时。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/Nginx%E7%B3%BB%E5%88%97(%E4%BA%8C):nginx%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/Nginx%E7%B3%BB%E5%88%97(%E4%BA%8C):nginx%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Nginx系列(二):nginx配置</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-25 15:58:23" itemprop="dateCreated datePublished" datetime="2021-07-25T15:58:23+08:00">2021-07-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-29 00:57:48" itemprop="dateModified" datetime="2021-07-29T00:57:48+08:00">2021-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/loadbalancer/" itemprop="url" rel="index"><span itemprop="name">loadbalancer</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>防盗链</p>
-<p>prometheus+grafnaa监控nginx</p>
-<p>生产级别高性能参考配置：<a target="_blank" rel="noopener" href="https://github.com/hepyu/k8s-app-config/tree/master/yaml/min-cluster-allinone/nginx">https://github.com/hepyu/k8s-app-config/tree/master/yaml/min-cluster-allinone/nginx</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Nginx系列(一):nginx初探安装及配置</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-25 14:58:23" itemprop="dateCreated datePublished" datetime="2021-07-25T14:58:23+08:00">2021-07-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-29 01:02:51" itemprop="dateModified" datetime="2021-07-29T01:02:51+08:00">2021-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/loadbalancer/" itemprop="url" rel="index"><span itemprop="name">loadbalancer</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>官网：<a target="_blank" rel="noopener" href="https://nginx.org/">https://nginx.org</a></p>
-<p>nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP/UDP proxy server</p>
-<p>Nginx专为性能优化而开发，性能是器最重要的考量，实现上非常注重效率，能经受高负载的考验，据报告能支持高达50,000个并发连接数。</p>
-<p>Nginx不仅能做反向代理，实现负载均衡；还能可以作正向代理来进行上网等功能。</p>
-<p>nginx采用master守护进程，worker作为工作进程处理请求。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/#more" rel="contents">
+              <a class="btn" href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1082,7 +1082,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">26</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1122,7 +1122,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2021</span>
+  <span itemprop="copyrightYear">2022</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

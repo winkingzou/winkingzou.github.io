@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Redis系列(五):Redis配置文件和持久化Redis.conf 详解找到启动时指定的配置文件： 123456[root@itzhouc ~]# cd &#x2F;usr&#x2F;local&#x2F;bin[root@itzhouc bin]# lsdump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmar">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis系列(五):Redis配置文件和持久化">
+<meta property="og:url" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="Redis系列(五):Redis配置文件和持久化Redis.conf 详解找到启动时指定的配置文件： 123456[root@itzhouc ~]# cd &#x2F;usr&#x2F;local&#x2F;bin[root@itzhouc bin]# lsdump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmar">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/JvJLdO-1491114.png">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-1491917.jpeg">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107015904797-1491946.jpeg">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107021948044.jpeg">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107024145695-1494507.jpeg">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107024950749-1494992.jpeg">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eae4aa6cd~tplv-t2oaga2asx-watermark-1495269.image">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eafb9d063~tplv-t2oaga2asx-watermark-1495397.image">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eb1887cef~tplv-t2oaga2asx-watermark.image">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eb3719dac~tplv-t2oaga2asx-watermark-1495456.image">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eb3b94dfb~tplv-t2oaga2asx-watermark.image">
+<meta property="og:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345ecdaab9ca~tplv-t2oaga2asx-watermark-1495523.image">
+<meta property="article:published_time" content="2021-11-23T08:23:28.000Z">
+<meta property="article:modified_time" content="2022-01-06T19:18:04.881Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/JvJLdO-1491114.png">
+
+<link rel="canonical" href="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Redis系列(五):Redis配置文件和持久化 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis系列(五):Redis配置文件和持久化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-11-23T16:23:28+08:00">2021-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-07 03:18:04" itemprop="dateModified" datetime="2022-01-07T03:18:04+08:00">2022-01-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Redis系列-五-Redis配置文件和持久化"><a href="#Redis系列-五-Redis配置文件和持久化" class="headerlink" title="Redis系列(五):Redis配置文件和持久化"></a>Redis系列(五):Redis配置文件和持久化</h1><h1 id="Redis-conf-详解"><a href="#Redis-conf-详解" class="headerlink" title="Redis.conf 详解"></a>Redis.conf 详解</h1><p>找到启动时指定的配置文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc ~]<span class="comment"># cd /usr/local/bin</span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">dump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">jemalloc-config  jeprof       libmcrypt-config  luajit-2.0.4  mdecrypt  redis-check-aof  redis-cli        redis-server</span><br><span class="line">[root@itzhouc bin]<span class="comment"># cd kconfig/</span></span><br><span class="line">[root@itzhouc kconfig]<span class="comment"># vim redis.conf</span></span><br></pre></td></tr></table></figure>
+
+<span id="more"></span>
+
+<h2 id="单位"><a href="#单位" class="headerlink" title="单位"></a>单位</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Redis configuration file example.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Note that in order to read the configuration file, Redis must be</span></span><br><span class="line"><span class="comment"># started with the file path as first argument:</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># ./redis-server /path/to/redis.conf</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Note on units: when memory size is needed, it is possible to specify</span></span><br><span class="line"><span class="comment"># it in the usual form of 1k 5GB 4M and so forth:</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># 1k =&gt; 1000 bytes</span></span><br><span class="line"><span class="comment"># 1kb =&gt; 1024 bytes</span></span><br><span class="line"><span class="comment"># 1m =&gt; 1000000 bytes</span></span><br><span class="line"><span class="comment"># 1mb =&gt; 1024*1024 bytes</span></span><br><span class="line"><span class="comment"># 1g =&gt; 1000000000 bytes</span></span><br><span class="line"><span class="comment"># 1gb =&gt; 1024*1024*1024 bytes</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># units are case insensitive so 1GB 1Gb 1gB are all the same.</span></span><br></pre></td></tr></table></figure>
+
+<p>配置文件中 unit 单位对大小写不敏感。</p>
+<h2 id="包含"><a href="#包含" class="headerlink" title="包含"></a>包含</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">################################## INCLUDES ###################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Include one or more other config files here.  This is useful if you</span></span><br><span class="line"><span class="comment"># have a standard template that goes to all Redis servers but also need</span></span><br><span class="line"><span class="comment"># to customize a few per-server settings.  Include files can include</span></span><br><span class="line"><span class="comment"># other files, so use this wisely.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Notice option &quot;include&quot; won&#x27;t be rewritten by command &quot;CONFIG REWRITE&quot;</span></span><br><span class="line"><span class="comment"># from admin or Redis Sentinel. Since Redis always uses the last processed</span></span><br><span class="line"><span class="comment"># line as value of a configuration directive, you&#x27;d better put includes</span></span><br><span class="line"><span class="comment"># at the beginning of this file to avoid overwriting config change at runtime.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># If instead you are interested in using includes to override configuration</span></span><br><span class="line"><span class="comment"># options, it is better to use include as the last line.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># include /path/to/local.conf</span></span><br><span class="line"><span class="comment"># include /path/to/other.conf</span></span><br></pre></td></tr></table></figure>
+
+<p>配置文件可以将多个配置文件合起来使用。</p>
+<h2 id="NETWORK-网络"><a href="#NETWORK-网络" class="headerlink" title="NETWORK 网络"></a>NETWORK 网络</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">bind</span> 127.0.0.1		<span class="comment"># 绑定的 IP</span></span><br><span class="line">protected-mode no   <span class="comment"># 保护模式</span></span><br><span class="line">port 6379			<span class="comment"># 端口设置</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="GENERAL-通用"><a href="#GENERAL-通用" class="headerlink" title="GENERAL 通用"></a>GENERAL 通用</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">daemonize yes		<span class="comment"># 以守护进程的方式运行，默认是 no ，我们需要自己开启为 yes</span></span><br><span class="line">pidfile /var/run/redis_6379.pid		<span class="comment">#  如果是后台启动，我们需要指定一个pid 文件</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 日志级别</span></span><br><span class="line"><span class="comment"># Specify the server verbosity level.</span></span><br><span class="line"><span class="comment"># This can be one of:</span></span><br><span class="line"><span class="comment"># debug (a lot of information, useful for development/testing)</span></span><br><span class="line"><span class="comment"># verbose (many rarely useful info, but not a mess like the debug level)</span></span><br><span class="line"><span class="comment"># notice (moderately verbose, what you want in production probably)</span></span><br><span class="line"><span class="comment"># warning (only very important / critical messages are logged)</span></span><br><span class="line">loglevel notice</span><br><span class="line">logfile <span class="string">&quot;&quot;</span>		<span class="comment"># 日志文件的位置</span></span><br><span class="line">databases 16	<span class="comment"># 数据库的数量，默认是 16</span></span><br><span class="line">always-show-logo yes  <span class="comment"># 是否总是显示 LOGO</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="快照-SNAPSHOTTING"><a href="#快照-SNAPSHOTTING" class="headerlink" title="快照 SNAPSHOTTING"></a>快照 SNAPSHOTTING</h2><p>持久化，在规定的时间内，执行了多少次操作则会持久化到文件</p>
+<p>Redis 是内存数据库，如果没有持久化，那么数据断电即失。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">################################ SNAPSHOTTING  ################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Save the DB on disk:</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   save &lt;seconds&gt; &lt;changes&gt;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   Will save the DB if both the given number of seconds and the given</span></span><br><span class="line"><span class="comment">#   number of write operations against the DB occurred.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   In the example below the behaviour will be to save:</span></span><br><span class="line"><span class="comment">#   after 900 sec (15 min) if at least 1 key changed</span></span><br><span class="line"><span class="comment">#   after 300 sec (5 min) if at least 10 keys changed</span></span><br><span class="line"><span class="comment">#   after 60 sec if at least 10000 keys changed</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   Note: you can disable saving completely by commenting out all &quot;save&quot; lines.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   It is also possible to remove all the previously configured save</span></span><br><span class="line"><span class="comment">#   points by adding a save directive with a single empty string argument</span></span><br><span class="line"><span class="comment">#   like in the following example:</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   save &quot;&quot;</span></span><br><span class="line"><span class="comment"># 如果 900s 内，至少有 1 个 key 进行了修改，进行持久化操作</span></span><br><span class="line">save 900 1</span><br><span class="line"></span><br><span class="line"><span class="comment"># 如果 300s 内，至少有 10 个 key 进行了修改，进行持久化操作</span></span><br><span class="line">save 300 10</span><br><span class="line">save 60 10000</span><br><span class="line"></span><br><span class="line">stop-writes-on-bgsave-error yes  <span class="comment"># 如果持久化出错，是否还要继续工作</span></span><br><span class="line">rdbcompression yes    <span class="comment"># 是否压缩 rdb 文件，需要消耗一些 cpu 资源</span></span><br><span class="line">rdbchecksum yes <span class="comment"># 保存 rdb 文件的时候，进行错误的检查校验</span></span><br><span class="line">dir ./  <span class="comment"># rdb 文件保存的目录</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="SECURITY-安全"><a href="#SECURITY-安全" class="headerlink" title="SECURITY 安全"></a>SECURITY 安全</h2><p>可以设置 Redis 的密码，默认是没有密码的。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># redis-cli -p 6379</span></span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line">PONG</span><br><span class="line">127.0.0.1:6379&gt; config get requirepass		<span class="comment"># 获取 redis 密码</span></span><br><span class="line">1) <span class="string">&quot;requirepass&quot;</span></span><br><span class="line">2) <span class="string">&quot;&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; config <span class="built_in">set</span> requirepass <span class="string">&quot;123456&quot;</span>  <span class="comment"># 设置 redis 密码</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; ping</span><br><span class="line">(error) NOAUTH Authentication required.		<span class="comment"># 发现所有的命令都没有权限了</span></span><br><span class="line">127.0.0.1:6379&gt; auth 123456			<span class="comment"># 使用密码登录</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; config get requirepass</span><br><span class="line">1) <span class="string">&quot;requirepass&quot;</span></span><br><span class="line">2) <span class="string">&quot;123456&quot;</span></span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="CLIENTS-限制"><a href="#CLIENTS-限制" class="headerlink" title="CLIENTS 限制"></a>CLIENTS 限制</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">################################### CLIENTS ####################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Set the max number of connected clients at the same time. By default</span></span><br><span class="line"><span class="comment"># this limit is set to 10000 clients, however if the Redis server is not</span></span><br><span class="line"><span class="comment"># able to configure the process file limit to allow for the specified limit</span></span><br><span class="line"><span class="comment"># the max number of allowed clients is set to the current file limit</span></span><br><span class="line"><span class="comment"># minus 32 (as Redis reserves a few file descriptors for internal uses).</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Once the limit is reached Redis will close all the new connections sending</span></span><br><span class="line"><span class="comment"># an error &#x27;max number of clients reached&#x27;.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># maxclients 10000		# 设置能链接上 redis 的最大客户端数量</span></span><br><span class="line"><span class="comment"># maxmemory &lt;bytes&gt;		# redis 设置最大的内存容量</span></span><br><span class="line"> maxmemory-policy noeviction  <span class="comment"># 内存达到上限之后的处理策略</span></span><br><span class="line">     - noeviction：当内存使用达到阈值的时候，所有引起申请内存的命令会报错。</span><br><span class="line">    - allkeys-lru：在所有键中采用lru算法删除键，直到腾出足够内存为止。</span><br><span class="line">    - volatile-lru：在设置了过期时间的键中采用lru算法删除键，直到腾出足够内存为止。</span><br><span class="line">    - allkeys-random：在所有键中采用随机删除键，直到腾出足够内存为止。</span><br><span class="line">    - volatile-random：在设置了过期时间的键中随机删除键，直到腾出足够内存为止。</span><br><span class="line">    - volatile-ttl：在设置了过期时间的键空间中，具有更早过期时间的key优先移除。</span><br></pre></td></tr></table></figure>
+
+<h2 id="APPEND-ONLY-模式-AOF-配置"><a href="#APPEND-ONLY-模式-AOF-配置" class="headerlink" title="APPEND ONLY 模式 AOF 配置"></a>APPEND ONLY 模式 AOF 配置</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">appendonly no  <span class="comment"># 默认是不开启 AOF 模式的，默认使用 rdb 方式持久化，大部分情况下，rdb 完全够用</span></span><br><span class="line"></span><br><span class="line">appendfilename <span class="string">&quot;appendonly.aof&quot;</span>		<span class="comment"># 持久化的文件的名字</span></span><br><span class="line"><span class="comment"># appendfsync always  # 每次修改都会 sync 消耗性能</span></span><br><span class="line">appendfsync everysec  <span class="comment"># 每秒执行一次 sync 可能会丢失这 1s 的数据。</span></span><br><span class="line"><span class="comment"># appendfsync no      # 不执行 sync 这个时候操作系统自己同步数据，速度最快。</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h1><p>Redis 是内存数据库，如果不将内存中的数据库状态保存到磁盘，那么一旦服务器进程退出，服务器中的数据库状态就会消失，所以 Redis 提供了持久化功能。</p>
+<h2 id="RDB-Redis-DataBase"><a href="#RDB-Redis-DataBase" class="headerlink" title="RDB (Redis DataBase)"></a>RDB (Redis DataBase)</h2><p>什么是 RDB</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/JvJLdO-1491114.png" alt="img"></p>
+<p>在指定的时间间隔内，将内存中的数据集快照写入磁盘，也就是 Snapshot 快照，它恢复时是将快照文件直接读取到内存里的。</p>
+<p>Redis 会单独创建（fork）一个子进程进行持久化，会先将数据写入一个临时文件中，待持久化过程结束了，再用这个临时文件替换上次持久化好的文件。整个过程中，主进程不进行任何 IO 操作，这就确保的极高的性能。如果需要大规模的数据的恢复，且对数据恢复的完整性不是非常敏感，那 RDB 方式要比 AOF 方式更加高效。RDB 唯一的缺点是最后一次持久化的数据可能会丢失。</p>
+<p>生产环境下，需要对这个文件记性</p>
+<p>默认持久化方式是 RDB，一般不需要修改。</p>
+<p>rdb 保存的文件是 dump.rdb ：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The filename where to dump the DB</span></span><br><span class="line">dbfilename dump.rdb</span><br></pre></td></tr></table></figure>
+
+<h3 id="RDB-持久化详解"><a href="#RDB-持久化详解" class="headerlink" title="RDB 持久化详解"></a>RDB 持久化详解</h3><p>Redis 是一种内存数据库，将数据保存在内存中，读写效率要比传统的将数据保存在磁盘上的数据库要快很多。但是一旦进程退出，Redis 的数据就会丢失。</p>
+<p>为了解决这个问题，Redis 提供了 RDB 和 AOF 两种持久化方案，将内存中的数据保存到磁盘中，避免数据丢失。</p>
+<p>antirez 在《Redis 持久化解密》一文中说，一般来说有三种常见的策略来进行持久化操作，防止数据损坏：</p>
+<ul>
+<li>方法1 是数据库不关心发生故障，在数据文件损坏后通过数据备份或者快照来进行恢复。Redis 的 RDB 持久化就是这种方式。</li>
+<li>方法2 是数据库使用操作日志，每次操作时记录操作行为，以便在故障后通过日志恢复到一致性的状态。因为操作日志是顺序追加的方式写的，所以不会出现操作日志也无法恢复的情况。类似于 Mysql 的 redo 和 undo 日志，具体可以看这篇<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg2NjE5NDQyOA==&mid=2247483785&idx=1&sn=e40537c048f0880daf441350c695ffc6&scene=21#wechat_redirect">《InnoDB的磁盘文件及落盘机制》</a>文章。</li>
+<li>方法3 是数据库不进行老数据的修改，只是以追加方式去完成写操作，这样数据本身就是一份日志，这样就永远不会出现数据无法恢复的情况了。CouchDB就是此做法的优秀范例。</li>
+</ul>
+<p>RDB 就是第一种方法，它就是把当前 Redis 进程的数据生成时间点快照( point-in-time snapshot ) 保存到存储设备的过程。</p>
+<p><strong>RDB 的使用</strong></p>
+<p>RDB 触发机制分为使用指令手动触发和 redis.conf 配置自动触发。</p>
+<p>手动触发 Redis 进行 RDB 持久化的指令的为:</p>
+<ul>
+<li>save ，该指令会阻塞当前 Redis 服务器，执行 save 指令期间，Redis 不能处理其他命令，直到 RDB 过程完成为止。</li>
+<li>bgsave，执行该命令时，Redis 会在后台异步执行快照操作，此时 Redis 仍然可以相应客户端请求。具体操作是 Redis 进程执行 <code>fork</code> 操作创建子进程，RDB 持久化过程由子进程负责，完成后自动结束。Redis 只会在 <code>fork</code> 期间发生阻塞，但是一般时间都很短。但是如果 Redis 数据量特别大， <code>fork</code> 时间就会变长，而且占用内存会加倍，这一点需要特别注意。</li>
+</ul>
+<p>自动触发 RDB 的默认配置如下所示:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">save 900 1 <span class="comment"># 表示900 秒内如果至少有 1 个 key 的值变化，则触发RDB</span></span><br><span class="line">save 300 10 <span class="comment"># 表示300 秒内如果至少有 10 个 key 的值变化，则触发RDB</span></span><br><span class="line">save 60 10000 <span class="comment"># 表示60 秒内如果至少有 10000 个 key 的值变化，则触发RDB</span></span><br></pre></td></tr></table></figure>
+
+<p>如果不需要 Redis 进行持久化，那么可以注释掉所有的 save 行来停用保存功能，也可以直接一个空字符串来停用持久化：save “”。</p>
+<p>Redis 服务器周期操作函数 <code>serverCron</code> 默认每个 100 毫秒就会执行一次，该函数用于正在运行的服务器进行维护，它的一项工作就是检查 save 选项所设置的条件是否有一项被满足，如果满足的话，就执行 bgsave 指令。</p>
+<p>如果不需要 Redis 进行持久化，那么可以注释掉所有的 save 行来停用保存功能，也可以直接一个空字符串来停用持久化：save “”。</p>
+<p>Redis 服务器周期操作函数 <code>serverCron</code> 默认每个 100 毫秒就会执行一次，该函数用于正在运行的服务器进行维护，它的一项工作就是检查 save 选项所设置的条件是否有一项被满足，如果满足的话，就执行 bgsave 指令。</p>
+<p><strong>RDB 整体流程</strong></p>
+<p>了解了 RDB 的基础使用后，我们要继续深入对 RDB持久化的学习。在此之前，我们可以先思考一下如何实现一个持久化机制，毕竟这是很多中间件所需的一个模块。</p>
+<p>首先，持久化保存的文件内容结构必须是紧凑的，特别对于数据库来说，需要持久化的数据量十分大，需要保证持久化文件不至于占用太多存储。其次，进行持久化时，中间件应该还可以快速地响应用户请求，持久化的操作应该尽量少影响中间件的其他功能。最后，毕竟持久化会消耗性能，如何在性能和数据安全性之间做出平衡，如何灵活配置触发持久化操作。</p>
+<p>接下来我们将带着这些问题，到源码中寻求答案。</p>
+<p>本文中的源码来自 Redis 4.0 ，RDB持久化过程的相关源码都在 rdb.c 文件中。其中大概的流程如下图所示。</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-1491917.jpeg" alt="图片"></p>
+<p>上图表明了三种触发 RDB 持久化的手段之间的整体关系。通过 <code>serverCron</code> 自动触发的 RDB 相当于直接调用了 bgsave 指令的流程进行处理。而 bgsave 的处理流程启动子进程后，调用了 save 指令的处理流程。</p>
+<p>下面我们从 <code>serverCron</code> 自动触发逻辑开始研究。</p>
+<p><strong>自动触发 RDB 持久化</strong></p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107015904797-1491946.jpeg" alt="图片"></p>
+<p>如上图所示， <code>redisServer</code> 结构体的 <code>save_params</code>指向拥有三个值的数组，该数组的值与 redis.conf 文件中 save 配置项一一对应。分别是 <code>save9001</code>、 <code>save30010</code> 和 <code>save6010000</code>。<code>dirty</code> 记录着有多少键值发生变化， <code>lastsave</code>记录着上次 RDB 持久化的时间。</p>
+<p>而 <code>serverCron</code> 函数就是遍历该数组的值，检查当前 Redis 状态是否符合触发 RDB 持久化的条件，比如说距离上次 RDB 持久化过去了 900 秒并且有至少一条数据发生变更。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">serverCron</span><span class="params">(struct aeEventLoop *eventLoop, <span class="keyword">long</span> <span class="keyword">long</span> id, <span class="keyword">void</span> *clientData)</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">   <span class="comment">/* Check if a background saving or AOF rewrite in progress terminated. */</span></span><br><span class="line">  <span class="comment">/*判断后台是否正在进行rdb或者aof操作*/</span></span><br><span class="line">   <span class="keyword">if</span> (server.rdb_child_pid != -<span class="number">1</span> || server.aof_child_pid != -<span class="number">1</span> || ldbPendingChildren())</span><br><span class="line">   &#123; </span><br><span class="line">     ...</span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">       <span class="comment">//到这儿就能确定当前木有进行rdb或者aof操作</span></span><br><span class="line">       <span class="comment">//遍历每一个rdb保存条件</span></span><br><span class="line">        <span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; server.saveparamslen; j++) &#123;</span><br><span class="line">          struct saveparam *sp = server.saveparams+j;</span><br><span class="line">          <span class="comment">//如果数据保存记录大于规定的修改次数且距离上一次保存的时间大于规定时间或者上次BG 行成功，才执行BGSAVE操作</span></span><br><span class="line">          <span class="keyword">if</span> (server.dirty &gt;= sp-&gt;changes &amp;&amp;</span><br><span class="line">              server.unixtime-server.lastsave &gt; sp-&gt;seconds &amp;&amp;</span><br><span class="line">              (server.unixtime-server.lastbgsave_try &gt;</span><br><span class="line">              CONFIG_BGSAVE_RETRY_DELAY ||</span><br><span class="line">               server.lastbgsave_status == C_0K)) &#123;</span><br><span class="line">              <span class="comment">//记录日志</span></span><br><span class="line">              serverLog(LL_NOTICE,<span class="string">&quot;%d changes in %d seconds. Saving…&quot;</span>,</span><br><span class="line">                        sp-&gt;changesf (<span class="keyword">int</span>)sp-&gt;seconds);</span><br><span class="line">              rdbSavelnfo rsi, *rsiptr;</span><br><span class="line">              rsiptr = rdbPopulateSaveInfo(&amp;rsi);</span><br><span class="line">              <span class="comment">//异步保存操作</span></span><br><span class="line">              rdbSaveBackground(server.rdb_filename,rsiptr);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">   &#125; </span><br><span class="line">  ...</span><br><span class="line">   server.cronloops++;</span><br><span class="line">   <span class="keyword">return</span> <span class="number">1000</span>/server.hz;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果符合触发 RDB 持久化的条件， <code>serverCron</code>会调用 <code>rdbSaveBackground</code>函数，也就是 bgsave 指令会触发的函数。</p>
+<p><strong>子进程后台执行 RDB 持久化</strong></p>
+<p>执行 bgsave 指令时，Redis 会先触发 <code>bgsaveCommand</code> 进行当前状态检查，然后才会调用 <code>rdbSaveBackground</code>，其中的逻辑如下图所示。</p>
+<img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107021948044.jpeg" alt="图片" style="zoom:50%;">
+
+<p><code>rdbSaveBackground</code> 函数中最主要的工作就是调用 <code>fork</code> 命令生成子流程，然后在子流程中执行 <code>rdbSave</code>函数，也就是 save 指令最终会触发的函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rdbSaveBackground</span><span class="params">(<span class="keyword">char</span> *filename, rdbSavelnfo *rsi)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">pid_t</span> childpid;</span><br><span class="line">	<span class="keyword">long</span> <span class="keyword">long</span> start;</span><br><span class="line">	<span class="comment">//检查后台是否正在执行aof或者rdb操作</span></span><br><span class="line">	<span class="keyword">if</span> (server.aof_child_pid != <span class="number">-1</span> || server.rdb_child_pid != <span class="number">-1</span>) <span class="keyword">return</span> C_ERR;</span><br><span class="line">	<span class="comment">//拿出 数据保存记录，保存为 上次记录</span></span><br><span class="line">	server.dirty_before_bgsave = server.dirty;</span><br><span class="line">	<span class="comment">// bgsave 时间</span></span><br><span class="line">	server.<span class="keyword">lastbgsave_t</span> ry = time(<span class="literal">NULL</span>);</span><br><span class="line">	start = ustime();</span><br><span class="line">	<span class="comment">// fork子进程</span></span><br><span class="line">	<span class="keyword">if</span> ((childpid = fork()) == <span class="number">0</span>) &#123;</span><br><span class="line">			<span class="keyword">int</span> retval;</span><br><span class="line">			<span class="comment">/*关闭子进程继承的socket监听*/</span></span><br><span class="line">			closeListeningSockets(<span class="number">0</span>);</span><br><span class="line">			<span class="comment">//子进程title修改</span></span><br><span class="line">			redisSetProcTitleC redis-rdb-bgsave<span class="string">&quot;); //执行rdb写入操作</span></span><br><span class="line"><span class="string">			retval = rdbSave(filename,rsi);</span></span><br><span class="line"><span class="string">			//执行完毕以后</span></span><br><span class="line"><span class="string">			...</span></span><br><span class="line"><span class="string">			//退出子进程</span></span><br><span class="line"><span class="string">			exitFromChilcK (retval == C_0K) ? 0 : 1); </span></span><br><span class="line"><span class="string">&#125; else &#123;</span></span><br><span class="line"><span class="string">	/*父进程，进行fork时间的统计和信息记录，比如说rdb_save_time_start、rdb_child_pid和 rdb_child_type */</span></span><br><span class="line"><span class="string">	...</span></span><br><span class="line"><span class="string">	// rdb保存开始时间bgsave子进程 </span></span><br><span class="line"><span class="string">    server.rdb_save_time_start = time(NULL); </span></span><br><span class="line"><span class="string">    server.rdb_child_pid = 	childpid; </span></span><br><span class="line"><span class="string">    server.rdb_child_type = RDB_CHILD_TYPE_DISK; </span></span><br><span class="line"><span class="string">    updateDictResizePolicy();</span></span><br><span class="line"><span class="string">		return C_0K;</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">return C_0K; /* unreached */</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>为什么 Redis 使用子进程而不是线程来进行后台 RDB 持久化呢？主要是出于Redis性能的考虑，我们知道Redis对客户端响应请求的工作模型是单进程和单线程的，如果在主进程内启动一个线程，这样会造成对数据的竞争条件。所以为了避免使用锁降低性能，Redis选择启动新的子进程，独立拥有一份父进程的内存拷贝，以此为基础执行RDB持久化。</p>
+<p>但是需要注意的是，fork 会消耗一定时间，并且父子进程所占据的内存是相同的，当 Redis 键值较大时，fork 的时间会很长，这段时间内 Redis 是无法响应其他命令的。除此之外，Redis 占据的内存空间会翻倍。</p>
+<p><strong>生成 RDB 文件，并且持久化到硬盘</strong></p>
+<p>Redis 的 <code>rdbSave</code> 函数是真正进行 RDB 持久化的函数，它的大致流程如下：</p>
+<ul>
+<li>首先打开一个临时文件，</li>
+<li>调用 <code>rdbSaveRio</code>函数，将当前 Redis 的内存信息写入到这个临时文件中，</li>
+<li>接着调用 <code>fflush</code>、 <code>fsync</code> 和 <code>fclose</code> 接口将文件写入磁盘中，</li>
+<li>使用 <code>rename</code> 将临时文件改名为 正式的 RDB 文件，</li>
+<li>最后记录 <code>dirty</code> 和 <code>lastsave</code>等状态信息。这些状态信息在 <code>serverCron</code>时会使用到。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rdbSave</span><span class="params">(<span class="keyword">char</span> *filename, rdbSavelnfo *rsi)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">char</span> tmpfile[<span class="number">256</span>];</span><br><span class="line">	<span class="comment">//当前工作目录</span></span><br><span class="line">	<span class="keyword">char</span> cwd[MAXPATHLEN];</span><br><span class="line">	FILE *fp;</span><br><span class="line">	rio rdb;</span><br><span class="line">	<span class="keyword">int</span> error = <span class="number">0</span>;</span><br><span class="line">	<span class="comment">/* 生成tmpfile文件名 temp-[pid]. rdb */</span></span><br><span class="line">	<span class="built_in">snprintf</span>(tmpfile,<span class="number">256</span>,temp-%d.rdb<span class="string">&quot;, (int) getpid()); </span></span><br><span class="line"><span class="string">           /*打开文件*/</span></span><br><span class="line"><span class="string">    fp = fopen(tmpfile/&#x27;w&quot;</span>);</span><br><span class="line">	<span class="comment">/*初始化rio结构*/</span></span><br><span class="line">	rioInitWithFile(&amp;rdbffp);</span><br><span class="line">	<span class="keyword">if</span> (rdbSaveRio(&amp;rdb,&amp;errorfRDB.SAVE.NONE,rsi) == C.ERR) &#123;</span><br><span class="line">		errno = error;</span><br><span class="line">		<span class="keyword">goto</span> werr;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (fflush(fp) == EOF) <span class="keyword">goto</span> werr;</span><br><span class="line">	<span class="keyword">if</span> (fsync(fileno(fp)) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">	<span class="keyword">if</span> (fclose(fp) == EOF) <span class="keyword">goto</span> werr;</span><br><span class="line">	<span class="comment">/*重新命名rdb文件，把之前临时的名称修改为正式的rdb文件名称*/</span></span><br><span class="line">	<span class="keyword">if</span> (rename(tmpfile,filename) == <span class="number">-1</span>) &#123;</span><br><span class="line">		<span class="comment">//异常处理</span></span><br><span class="line">		...</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//写入完成，打印日志</span></span><br><span class="line">	serverLog(LL_N0TICE,<span class="string">&quot;DB saved on disk&quot;</span>);</span><br><span class="line">	<span class="comment">//清理数据保存记录</span></span><br><span class="line">	server.dirty = <span class="number">0</span>;</span><br><span class="line">	<span class="comment">//最后一次完成SAVE命令的时间</span></span><br><span class="line">	server.lastsave = time(<span class="literal">NULL</span>);</span><br><span class="line">	<span class="comment">//最后一次bgsave的状态置位 成功</span></span><br><span class="line">	server.lastbgsave_status = C_0K;</span><br><span class="line">	<span class="keyword">return</span> C_OK;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里要简单说一下 <code>fflush</code>和 <code>fsync</code>的区别。它们俩都是用于刷缓存，但是所属的层次不同。<code>fflush</code>函数用于 <code>FILE*</code> 指针上，将缓存数据从应用层缓存刷新到内核中，而 <code>fsync</code>函数则更加底层，作用于文件描述符，用于将内核缓存刷新到物理设备上。</p>
+<p>关于 Linux IO 的具体原理可以参考<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg2NjE5NDQyOA==&mid=2247483824&idx=1&sn=48d3fd8374c035361a9df4e67b6528df&scene=21#wechat_redirect">《聊聊Linux IO》</a></p>
+<p><strong>内存数据到 RDB 文件</strong></p>
+<p><code>rdbSaveRio</code> 会将 Redis 内存中的数据以相对紧凑的格式写入到文件中，其文件格式的示意图如下所示。</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107024145695-1494507.jpeg" alt="图片"></p>
+<p><code>rdbSaveRio</code>函数的写入大致流程如下：</p>
+<ul>
+<li>先写入 REDIS 魔法值，然后是 RDB 文件的版本( rdb_version )，额外辅助信息 ( aux )。辅助信息中包含了 Redis 的版本，内存占用和复制库( repl-id )和偏移量( repl-offset )等。</li>
+<li>然后 <code>rdbSaveRio</code> 会遍历当前 Redis 的所有数据库，将数据库的信息依次写入。先写入 <code>RDB_OPCODE_SELECTDB</code>识别码和数据库编号，接着写入 <code>RDB_OPCODE_RESIZEDB</code>识别码和数据库键值数量和待失效键值数量，最后会遍历所有的键值，依次写入。</li>
+<li>在写入键值时，当该键值有失效时间时，会先写入 <code>RDB_OPCODE_EXPIRETIME_MS</code>识别码和失效时间，然后写入键值类型的识别码，最后再写入键和值。</li>
+<li>写完数据库信息后，还会把 Lua 相关的信息写入，最后再写入 <code>RDB_OPCODE_EOF</code>结束符识别码和校验值。</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rdbSaveRio</span><span class="params">(rio *rdb, <span class="keyword">int</span> terror, <span class="keyword">int</span> flags, rdbSavelnfo *rsi)</span> </span>&#123;</span><br><span class="line">	<span class="built_in">snprintf</span> (magic, <span class="keyword">sizeof</span> (magic)/,,REDIS%<span class="number">04</span>d,,/RDB_VERSION);</span><br><span class="line">	<span class="comment">/* 1写入magic字符BREDIS，和RDB版本*/</span></span><br><span class="line">	<span class="keyword">if</span> (rdbWriteRaw( rdb^magic^) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">	<span class="comment">/* 2写入辅助信息 REDIS版本，服务器操作系统位数，当前时间，复制信息比如repl-stream-db, rep -id 和 repl-off set 等等数据*/</span></span><br><span class="line">	<span class="keyword">if</span> (rdbSaveInfoAuxFields(rdb,flags,rsi) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">	<span class="comment">/* 3遍历每一个数据库，逐个数据库数据保存*/</span></span><br><span class="line">	<span class="keyword">for</span> (j = <span class="number">0</span>; j &lt; server.dbnum; j++) &#123;</span><br><span class="line">		<span class="comment">/*获取数据库指针地址和数据库字典*/</span></span><br><span class="line">		redisDb *db = server.db+j;</span><br><span class="line">		diet *d = db-&gt;dict;</span><br><span class="line">		<span class="comment">/* 3.1写入数据库部分的开始标识*/</span></span><br><span class="line">		<span class="keyword">if</span> (rdbSaveType(rdb,RDB_OPCODE_SELECTDB) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">		<span class="comment">/* 3.2写入当前数据库号*/</span></span><br><span class="line">		<span class="keyword">if</span> (rdbSaveLen(rdb,j) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">		<span class="keyword">uint32_t</span> db_size/ expires_size;</span><br><span class="line">		<span class="comment">/*获取数据库字典大小和过期键字典大小，此处代码逻辑有简化*/</span></span><br><span class="line">		db_size = dictSize(db-&gt;dict);</span><br><span class="line">		expires_size = dictSize(db-&gt;expires);</span><br><span class="line">		<span class="comment">/* 3.3写入当前待写入数据的类型，此处为RDB_OPCODE_RESIZEDB,表示数据库大小*/</span></span><br><span class="line">		<span class="keyword">if</span> (rdbSaveType(rdb,RDB_OPCODE_RESIZEDB) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">		<span class="comment">/* 3.4写入获取数据库字典大小和过期键字典大小*/</span></span><br><span class="line">		<span class="keyword">if</span> (rdbSaveLen(rdb,db_size) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">		<span class="keyword">if</span> (rdbSaveLen(rdb,expires_size) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">		<span class="comment">/* 4遍历当前数据库的键值对*/</span></span><br><span class="line">		<span class="keyword">while</span>((de = dictNext(di)) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">			sds keystr = dictGetKey(de);</span><br><span class="line">			robj key, *o = dictGetVal(de);</span><br><span class="line">			<span class="keyword">long</span> <span class="keyword">long</span> expire;</span><br><span class="line">			<span class="comment">/*初始化key,因为操作的是key字符串对象，而不是直接操作键的字符串内容*/</span></span><br><span class="line">			initStaticStringObject(key,keystr);</span><br><span class="line">			<span class="comment">/*获取键的过期数据*/</span></span><br><span class="line">			expire = getExpire(db,&amp;key);</span><br><span class="line">			<span class="comment">/* 4,1保存键值对数据*/</span></span><br><span class="line">			<span class="keyword">if</span> (rdbSaveKeyValuePair(rdb^&amp;key,o,expire) == <span class="number">-1</span>) <span class="keyword">goto</span> werr;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/* 5保存Lua脚本*/</span></span><br><span class="line">	<span class="keyword">if</span> (rsi &amp;&amp; dictSize(server.lua_scripts)) &#123;</span><br><span class="line">		di = dictGetIterator(server.lua_scripts);</span><br><span class="line">		<span class="keyword">while</span>((de = dictNext(di)) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">			robj *body = dictGetVal(de);</span><br><span class="line">			<span class="keyword">if</span> (rdbSaveAuxField(rdb/<span class="string">&#x27;lua&quot;『3-body-Aptr,sdslen(body-&gt;ptr)) == -1) goto werr;</span></span><br><span class="line"><span class="string">    &#125; </span></span><br><span class="line"><span class="string">    dictReleaselterator(di); </span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">		/* 6写入结束符*/ </span></span><br><span class="line"><span class="string">  	if (rdbSaveType(rdb,RDB_0PC0DE_E0F) == -1) goto werr;</span></span><br><span class="line"><span class="string">		/* 7写入CRC64校验和*/ </span></span><br><span class="line"><span class="string">		cksum = rdb-&gt;cksum; </span></span><br><span class="line"><span class="string">		memrev64ifbe(&amp;cksum); </span></span><br><span class="line"><span class="string">		if (rioWrite( rdb^cksum,S) == 0) goto werr;</span></span><br><span class="line"><span class="string"> 		return C_0K;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>rdbSaveRio</code>在写键值时，会调用 <code>rdbSaveKeyValuePair</code> 函数。该函数会依次写入键值的过期时间，键的类型，键和值。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">rdbSaveKeyValuePair</span><span class="params">(rio *rdbf robj *key, robj *valf <span class="keyword">long</span> <span class="keyword">long</span> expiretime)</span> </span>&#123;</span><br><span class="line">	<span class="comment">/*如果有过期信息*/</span></span><br><span class="line">	<span class="keyword">if</span> (expiretime != <span class="number">-1</span>) &#123;</span><br><span class="line">		<span class="comment">/*保存过期信息标识*/</span></span><br><span class="line">		<span class="keyword">if</span> (rdbSaveType(rdbfRDB_OPCODE_EXPIRETIME_MS) == <span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">		<span class="comment">/*保存过期具体数据内容*/</span></span><br><span class="line">		<span class="keyword">if</span> (rdbSaveMillisecondTime(rdbfexpiretime) == <span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">/* Save type, key, value */</span></span><br><span class="line">	<span class="comment">/*保存键值对类型的标识*/</span></span><br><span class="line">	<span class="keyword">if</span> (rdbSaveObjectType(rdbfval) == <span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	<span class="comment">/*保存键值对键的内容*/</span></span><br><span class="line">	<span class="keyword">if</span> (rdbSaveStringObject(rdbf key) == <span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	<span class="comment">/*保存键值对值的内容*/</span></span><br><span class="line">	<span class="keyword">if</span> (rdbSaveObject(rdb,val) == <span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据键的不同类型写入不同格式，各种键值的类型和格式如下所示。</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/640-20220107024950749-1494992.jpeg" alt="图片"></p>
+<p>Redis 有庞大的对象和数据结构体系，它使用六种底层数据结构构建了包含字符串对象、列表对象、哈希对象、集合对象和有序集合对象的对象系统。感兴趣的同学可以参考 <a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg2NjE5NDQyOA==&mid=2247483760&idx=1&sn=a601a4425e6316a4bba8d7936ce7c988&scene=21#wechat_redirect">《十二张图带你了解 Redis 的数据结构和对象系统》</a>一文。</p>
+<p>不同的数据结构进行 RDB 持久化的格式都不同。我们今天只看一下集合对象是如何持久化的。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">ssize_t</span> <span class="title">rdbSaveObject</span><span class="params">(rio *rdbf robj *o)</span> </span>&#123;</span><br><span class="line">	ssize-t n = <span class="number">0</span>, nwritten = <span class="number">0</span>;</span><br><span class="line">	...</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (o-&gt;type == <span class="number">0B</span>J_SET) &#123;</span><br><span class="line">	<span class="comment">/* Save a set value */</span></span><br><span class="line">	<span class="keyword">if</span> (o-&gt;encoding == OBJ,ENCODING.HT) &#123;</span><br><span class="line">		diet *<span class="built_in">set</span> = o-&gt;ptr;</span><br><span class="line">		<span class="comment">//集合迭代器 </span></span><br><span class="line">    dictlterator *di = dictGetIterator(<span class="built_in">set</span>); </span><br><span class="line">    dictEntry *de; </span><br><span class="line">    <span class="comment">//写入集合长度 </span></span><br><span class="line">    <span class="keyword">if</span> ((n = rdbSaveLen(rdbfdictSize(<span class="built_in">set</span>))) == <span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">    nwritten += n; </span><br><span class="line">    <span class="comment">//遍历集合元素</span></span><br><span class="line">    <span class="keyword">while</span>((de = dictNext(di)) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">      sds ele = dictGetKey(de);</span><br><span class="line">		<span class="comment">//以字符串的形式写入，因为是SET所以只写入Key即可</span></span><br><span class="line">      <span class="keyword">if</span> ((n = rdbSaveRawString(rdb,(<span class="keyword">unsigned</span> <span class="keyword">char</span>*)ele,sdslen(ele))) ==<span class="number">-1</span>) <span class="keyword">return</span> <span class="number">-1</span>;</span><br><span class="line">      nwritten += n;</span><br><span class="line">	&#125;</span><br><span class="line">	dictReleaselterator(di);</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">return</span> nwritten;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>测试1：</strong></p>
+<p>首先修改配置文件保存快照的策略</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">################################ SNAPSHOTTING  ################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Save the DB on disk:</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   save &lt;seconds&gt; &lt;changes&gt;</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#   save &quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># save 900 1</span></span><br><span class="line"><span class="comment"># save 300 10</span></span><br><span class="line"><span class="comment"># save 60 10000</span></span><br><span class="line">save 60 5  <span class="comment"># 只要 60s 内修改了 5 次 key 就会触发 rdb 操作。</span></span><br></pre></td></tr></table></figure>
+
+<p>保存配置文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; save</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; </span><br></pre></td></tr></table></figure>
+
+<p>删除原始的 dump.rdb 文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">dump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">jemalloc-config  jeprof       libmcrypt-config  luajit-2.0.4  mdecrypt  redis-check-aof  redis-cli        redis-server</span><br><span class="line">[root@itzhouc bin]<span class="comment"># rm -rf dump.rdb </span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">jemalloc-config  jeprof   libmcrypt-config  luajit-2.0.4  mdecrypt         redis-check-aof  redis-cli       redis-server</span><br><span class="line">jemalloc.sh      kconfig  luajit            mcrypt        redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">[root@itzhouc bin]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k3 v3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k4 v4</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k5 v5</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p>dump.rdb 文件再次出现。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">dump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">jemalloc-config  jeprof       libmcrypt-config  luajit-2.0.4  mdecrypt  redis-check-aof  redis-cli        redis-server</span><br><span class="line">[root@itzhouc bin]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+<p>恢复数据：</p>
+<p>关闭 Redis 服务和客户端，再次进入时数据被自动恢复：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; shutdown		<span class="comment"># 关闭 Redis 服务</span></span><br><span class="line">not connected&gt; <span class="built_in">exit</span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ps -ef|grep redis		# redis 已经关闭了</span></span><br><span class="line">root     25989 23576  0 14:27 pts/1    00:00:00 grep --color=auto redis</span><br><span class="line">[root@itzhouc bin]<span class="comment"># redis-server kconfig/redis.conf 		# 再次开启服务</span></span><br><span class="line">25994:C 02 May 2020 14:28:01.003 <span class="comment"># oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo</span></span><br><span class="line">25994:C 02 May 2020 14:28:01.003 <span class="comment"># Redis version=5.0.8, bits=64, commit=00000000, modified=0, pid=25994, just started</span></span><br><span class="line">25994:C 02 May 2020 14:28:01.003 <span class="comment"># Configuration loaded</span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># redis-cli -p 6379		# 客户端连接</span></span><br><span class="line">127.0.0.1:6379&gt; get k2						<span class="comment"># 可以直接获取数据，说明k2 被持久化了。</span></span><br><span class="line"><span class="string">&quot;v2&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; </span><br></pre></td></tr></table></figure>
+
+<p><strong>测试2：</strong></p>
+<p>删除 dump.rdb 文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@itzhouc bin]<span class="comment"># rm -rf dump.rdb </span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">jemalloc-config  jeprof   libmcrypt-config  luajit-2.0.4  mdecrypt         redis-check-aof  redis-cli       redis-server</span><br><span class="line">jemalloc.sh      kconfig  luajit </span><br></pre></td></tr></table></figure>
+
+<p>在客户端清除所有数据：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; flushall</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<p>再次检验 dump.rdb 文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">dump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">jemalloc-config  jeprof       libmcrypt-config  luajit-2.0.4  mdecrypt  redis-check-aof  redis-cli        redis-server</span><br><span class="line">[root@itzhouc bin]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+<p>dump.rdb 文件再次出现。</p>
+<blockquote>
+<p>触发机制</p>
+</blockquote>
+<p>1、save 的规则满足的情况下，会自动触发 rdb 规则</p>
+<p>2、执行 flushall 命令，也会触发 rdb 规则</p>
+<p>3、退出 redis 也会产生 rdb 文件</p>
+<p>备份就自动生成一个 dump.rdb 文件。</p>
+<blockquote>
+<p>如何恢复 rdb 文件</p>
+</blockquote>
+<p>1、只需要将 rdb 文件放在 Redis 启动目录就可以，Redis 启动的时候会自动检查 dump.rdb ，恢复其中的数据；</p>
+<p>2、查看存放 rdb 文件的位置，在客户端中使用如下命令。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; config get dir</span><br><span class="line">1) <span class="string">&quot;dir&quot;</span></span><br><span class="line">2) <span class="string">&quot;/usr/local/bin&quot;</span>  <span class="comment"># 如果在这个目录下存在 dump.rdb 文件，启动就会自动恢复其中的数据</span></span><br><span class="line">127.0.0.1:6379&gt; </span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>RDB 的优缺点</p>
+</blockquote>
+<p><strong>优点：</strong></p>
+<p>1、适合大规模的数据恢复</p>
+<p>2、对数据的完整性要求不高</p>
+<p><strong>缺点：</strong></p>
+<p>1、需要一定的时间间隔进行操作，如果 Redis 意外宕机，最后一次修改的数据就没有了</p>
+<p>2、fork 进程的时候，会占用一定的空间。</p>
+<h2 id="AOF-（Append-Only-File）"><a href="#AOF-（Append-Only-File）" class="headerlink" title="AOF （Append Only File）"></a>AOF （Append Only File）</h2><p>AOF( append only file )持久化以独立日志的方式记录每次写命令，并在 Redis 重启时在重新执行 AOF 文件中的命令以达到恢复数据的目的。AOF 的主要作用是解决数据持久化的实时性。</p>
+<h3 id="AOF-持久化的实现"><a href="#AOF-持久化的实现" class="headerlink" title="AOF 持久化的实现"></a>AOF 持久化的实现</h3><p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eae4aa6cd~tplv-t2oaga2asx-watermark-1495269.image" alt="示意图"></p>
+<p>如上图所示，AOF 持久化功能的实现可以分为命令追加( append )、文件写入( write )、文件同步( sync )、文件重写(rewrite)和重启加载(load)。其流程如下：</p>
+<ul>
+<li>所有的写命令会追加到 AOF 缓冲中。</li>
+<li>AOF 缓冲区根据对应的策略向硬盘进行同步操作。</li>
+<li>随着 AOF 文件越来越大，需要定期对 AOF 文件进行重写，达到压缩的目的。</li>
+<li>当 Redis 重启时，可以加载 AOF 文件进行数据恢复。</li>
+</ul>
+<p><strong>命令追加</strong></p>
+<p>当 AOF 持久化功能处于打开状态时，Redis 在执行完一个写命令之后，会以协议格式(也就是RESP，即 Redis 客户端和服务器交互的通信协议 )将被执行的写命令追加到 Redis 服务端维护的 AOF 缓冲区末尾。</p>
+<p>比如说 SET mykey myvalue 这条命令就以如下格式记录到 AOF 缓冲中。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;*3\r\n<span class="variable">$3</span>\r\nSET\r\n<span class="variable">$5</span>\r\nmykey\r\n<span class="variable">$7</span>\r\nmyvalue\r\n&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Redis 协议格式本文不再赘述，AOF之所以直接采用文本协议格式，是因为所有写入命令都要进行追加操作，直接采用协议格式，避免了二次处理开销。</p>
+<p><strong>文件写入和同步</strong></p>
+<p>Redis 每次结束一个事件循环之前，它都会调用 <code>flushAppendOnlyFile</code>函数，判断是否需要将 AOF 缓存区中的内容写入和同步到 AOF 文件中。</p>
+<p><code>flushAppendOnlyFile</code>函数的行为由 redis.conf 配置中的 <code>appendfsync</code>选项的值来决定。该选项有三个可选值，分别是 <code>always</code>、<code>everysec</code>和 <code>no</code>：</p>
+<ul>
+<li><code>always</code>：Redis 在每个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件，并且同步 AOF 文件，所以 <code>always</code>的效率是 <code>appendfsync</code>选项三个值当中最差的一个，但从安全性来说，也是最安全的。当发生故障停机时，AOF 持久化也只会丢失一个事件循环中所产生的命令数据。</li>
+<li><code>everysec</code>：Redis 在每个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件中，并且每隔一秒就要在子线程中对 AOF 文件进行一次同步。从效率上看，该模式足够快。当发生故障停机时，只会丢失一秒钟的命令数据。</li>
+<li><code>no</code>：Redis 在每一个事件循环都要将 AOF 缓冲区中的所有内容写入到 AOF 文件。而 AOF 文件的同步由操作系统控制。这种模式下速度最快，但是同步的时间间隔较长，出现故障时可能会丢失较多数据。</li>
+</ul>
+<p>Linux 系统下 <code>write</code>操作会触发延迟写( delayed write )机制。Linux 在内核提供页缓存区用来提供硬盘 IO 性能。<code>write</code>操作在写入系统缓冲区之后直接返回。同步硬盘操作依赖于系统调度机制，例如：缓冲区页空间写满或者达到特定时间周期。同步文件之前，如果此时系统故障宕机，缓冲区内数据将丢失。</p>
+<p>而 <code>fsync</code>针对单个文件操作，对其进行强制硬盘同步，<code>fsync</code>将阻塞直到写入磁盘完成后返回，保证了数据持久化。</p>
+<p><code>appendfsync</code>的三个值代表着三种不同的调用 <code>fsync</code>的策略。调用<code>fsync</code>周期越频繁，读写效率就越差，但是相应的安全性越高，发生宕机时丢失的数据越少。</p>
+<p>有关 Linux 的I/O和各个系统调用的作用如下图所示。具体内容可以查看<a href="https://link.juejin.cn/?target=https://mp.weixin.qq.com/s/3mKxTH2pfXFpDvvJnDtgEQ">《聊聊 Linux I/O》</a>一文。</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eafb9d063~tplv-t2oaga2asx-watermark-1495397.image" alt="示意图"></p>
+<h3 id="AOF-数据恢复"><a href="#AOF-数据恢复" class="headerlink" title="AOF 数据恢复"></a>AOF 数据恢复</h3><p>AOF 文件里边包含了重建 Redis 数据所需的所有写命令，所以 Redis 只要读入并重新执行一遍 AOF 文件里边保存的写命令，就可以还原 Redis 关闭之前的状态。</p>
+<img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eb1887cef~tplv-t2oaga2asx-watermark.image" alt="示意图" style="zoom:50%;">
+
+<p>Redis 读取 AOF 文件并且还原数据库状态的详细步骤如下：</p>
+<ul>
+<li>创建一个不带网络连接的的伪客户端( fake client)，因为 Redis 的命令只能在客户端上下文中执行，而载入 AOF 文件时所使用的的命令直接来源于 AOF 文件而不是网络连接，所以服务器使用了一个没有网络连接的伪客户端来执行 AOF 文件保存的写命令，伪客户端执行命令的效果和带网络连接的客户端执行命令的效果完全一样的。</li>
+<li>从 AOF 文件中分析并取出一条写命令。</li>
+<li>使用伪客户端执行被读出的写命令。</li>
+<li>一直执行步骤 2 和步骤3，直到 AOF 文件中的所有写命令都被处理完毕为止。</li>
+</ul>
+<p>当完成以上步骤之后，AOF 文件所保存的数据库状态就会被完整还原出来。</p>
+<h3 id="AOF-重写"><a href="#AOF-重写" class="headerlink" title="AOF 重写"></a>AOF 重写</h3><p>因为 AOF 持久化是通过保存被执行的写命令来记录 Redis 状态的，所以随着 Redis 长时间运行，AOF 文件中的内容会越来越多，文件的体积也会越来越大，如果不加以控制的话，体积过大的 AOF 文件很可能对 Redis 甚至宿主计算机造成影响。</p>
+<p>为了解决 AOF 文件体积膨胀的问题，Redis 提供了 AOF 文件重写( rewrite) 功能。通过该功能，Redis 可以创建一个新的 AOF 文件来替代现有的 AOF 文件。新旧两个 AOF 文件所保存的 Redis 状态相同，但是新的 AOF 文件不会包含任何浪费空间的荣誉命令，所以新 AOF 文件的体积通常比旧 AOF 文件的体积要小得很多。</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eb3719dac~tplv-t2oaga2asx-watermark-1495456.image" alt="示意图"></p>
+<p>如上图所示，重写前要记录名为<code>list</code>的键的状态，AOF 文件要保存五条命令，而重写后，则只需要保存一条命令。</p>
+<p>AOF 文件重写并不需要对现有的 AOF 文件进行任何读取、分析或者写入操作，而是通过读取服务器当前的数据库状态来实现的。首先从数据库中读取键现在的值，然后用一条命令去记录键值对，代替之前记录这个键值对的多条命令，这就是 AOF 重写功能的实现原理。</p>
+<p>在实际过程中，为了避免在执行命令时造成客户端输入缓冲区溢出，AOF 重写在处理列表、哈希表、集合和有序集合这四种可能会带有多个元素的键时，会先检查键所包含的元素数量，如果数量超过 REDIS_AOF_REWRITE_ITEMS_PER_CMD ( 一般为64 )常量，则使用多条命令记录该键的值，而不是一条命令。</p>
+<p>rewrite的触发机制主要有一下三个：</p>
+<ul>
+<li>手动调用 bgrewriteaof 命令，如果当前有正在运行的 rewrite 子进程，则本次rewrite 会推迟执行，否则，直接触发一次 rewrite。</li>
+<li>通过配置指令手动开启 AOF 功能，如果没有 RDB 子进程的情况下，会触发一次 rewrite，将当前数据库中的数据写入 rewrite 文件。</li>
+<li>在 Redis 定时器中，如果有需要退出执行的 rewrite 并且没有正在运行的 RDB 或者 rewrite 子进程时，触发一次或者 AOF 文件大小已经到达配置的 rewrite 条件也会自动触发一次。</li>
+</ul>
+<h3 id="AOF-后台重写"><a href="#AOF-后台重写" class="headerlink" title="AOF 后台重写"></a>AOF 后台重写</h3><p>AOF 重写函数会进行大量的写入操作，调用该函数的线程将被长时间阻塞，所以 Redis 在子进程中执行 AOF 重写操作。</p>
+<ul>
+<li>子进程进行 AOF 重写期间，Redis 进程可以继续处理客户端命令请求。</li>
+<li>子进程带有父进程的内存数据拷贝副本，在不适用锁的情况下，也可以保证数据的安全性。</li>
+</ul>
+<p>但是，在子进程进行 AOF 重启期间，Redis接收客户端命令，会对现有数据库状态进行修改，从而导致数据当前状态和 重写后的 AOF 文件所保存的数据库状态不一致。</p>
+<p>为此，Redis 设置了一个 AOF 重写缓冲区，这个缓冲区在服务器创建子进程之后开始使用，当 Redis 执行完一个写命令之后，它会同时将这个写命令发送给 AOF 缓冲区和 AOF 重写缓冲区。</p>
+<img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345eb3b94dfb~tplv-t2oaga2asx-watermark.image" alt="示意图" style="zoom: 50%;">
+
+<p>当子进程完成 AOF 重写工作之后，它会向父进程发送一个信号，父进程在接收到该信号之后，会调用一个信号处理函数，并执行以下工作：</p>
+<ul>
+<li>将 AOF 重写缓冲区中的所有内容写入到新的 AOF 文件中，保证新 AOF 文件保存的数据库状态和服务器当前状态一致。</li>
+<li>对新的 AOF 文件进行改名，原子地覆盖现有 AOF 文件，完成新旧文件的替换</li>
+<li>继续处理客户端请求命令。</li>
+</ul>
+<p>在整个 AOF 后台重写过程中，只有信号处理函数执行时会对 Redis 主进程造成阻塞，在其他时候，AOF 后台重写都不会阻塞主进程。</p>
+<p><img src="/2021/11/23/db-resource/redis/Redis-5-config-persistence/16c4345ecdaab9ca~tplv-t2oaga2asx-watermark-1495523.image" alt="示意图"></p>
+<p>以日志形式来记录每个操作，将 Redis 执行的过程的所有指令记录下来（读操作不记录），只追加文件但不可以改写文件，redis 启动之初会读取该文件重新构建数据，换言之，redis 重启的话就根据日志文件的内容将写指令从前到后执行一遍以完成数据的恢复工作。</p>
+<p>AOF 保存的是 appendonly.aof 文件。</p>
+<h3 id="开启-AOF-模式"><a href="#开启-AOF-模式" class="headerlink" title="开启 AOF 模式"></a>开启 AOF 模式</h3><p>将配置文件中默认为 no 的 appendonly 修改为 yes ，重启服务。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes</span><br><span class="line"><span class="comment"># The name of the append only file (default: &quot;appendonly.aof&quot;)</span></span><br><span class="line">appendfilename <span class="string">&quot;appendonly.aof&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>重启后可以看到 AOF 文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">appendonly.aof  ipsort           jeprof            logs          mcrypt    redis-benchmark  redis-cli       tntrecht</span><br><span class="line">backup.db       jemalloc-config  kconfig           luajit        mdecrypt  redis-check-aof  redis-sentinel</span><br><span class="line">dump.rdb        jemalloc.sh      libmcrypt-config  luajit-2.0.4  pnscan    redis-check-rdb  redis-server</span><br></pre></td></tr></table></figure>
+
+<p>但是文件是空的。使用客户端添加一些数据再次查看：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># redis-cli -p 6379</span></span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k1 v1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k2 v2</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> k3 v3</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># cat appendonly.aof </span></span><br><span class="line">*2</span><br><span class="line"><span class="variable">$6</span></span><br><span class="line">SELECT</span><br><span class="line"><span class="variable">$1</span></span><br><span class="line">0</span><br><span class="line">*3</span><br><span class="line"><span class="variable">$3</span></span><br><span class="line"><span class="built_in">set</span></span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">k1</span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">v1</span><br><span class="line">*3</span><br><span class="line"><span class="variable">$3</span></span><br><span class="line"><span class="built_in">set</span></span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">k2</span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">v2</span><br><span class="line">*3</span><br><span class="line"><span class="variable">$3</span></span><br><span class="line"><span class="built_in">set</span></span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">k3</span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">v3</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>自动修复 AOF文件</p>
+</blockquote>
+<p>如果手动修改AOF 文件，可能导致 Redis 服务不能启动。比如这里我手动在 AOF 文件的最后一行随便添加一些命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">set</span></span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">k3</span><br><span class="line"><span class="variable">$2</span></span><br><span class="line">v3</span><br><span class="line">gjjjjjjjjj</span><br></pre></td></tr></table></figure>
+
+<p>删除 dump.rdb 文件，重启服务：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># rm -rf dump.rdb </span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">appendonly.aof   jemalloc.sh  libmcrypt-config  luajit-2.0.4  pnscan           redis-check-rdb  redis-server</span><br><span class="line">ipsort           jeprof       logs              mcrypt        redis-benchmark  redis-cli        tntrecht</span><br><span class="line">jemalloc-config  kconfig      luajit            mdecrypt      redis-check-aof  redis-sentinel</span><br><span class="line">[root@itzhouc bin]<span class="comment"># redis-server kconfig/redis.conf </span></span><br><span class="line">13746:C 02 May 2020 16:22:43.345 <span class="comment"># oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo</span></span><br><span class="line">13746:C 02 May 2020 16:22:43.346 <span class="comment"># Redis version=5.0.8, bits=64, commit=00000000, modified=0, pid=13746, just started</span></span><br><span class="line">13746:C 02 May 2020 16:22:43.346 <span class="comment"># Configuration loaded</span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># redis-cli -p 6379</span></span><br><span class="line">Could not connect to Redis at 127.0.0.1:6379: Connection refused		<span class="comment"># 连接失败</span></span><br><span class="line">not connected&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果这个 AOF 文件有错位，客户端就不能链接了，需要修复 AOF 文件。Redis 提供了工具 <code>redis-check-aof --fix</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc bin]<span class="comment"># redis-check-aof --fix appendonly.aof </span></span><br><span class="line">0x              6e: Expected prefix <span class="string">&#x27;*&#x27;</span>, got: <span class="string">&#x27;g&#x27;</span></span><br><span class="line">AOF analyzed: size=122, ok_up_to=110, diff=12</span><br><span class="line">This will shrink the AOF from 122 bytes, with 12 bytes, to 110 bytes</span><br><span class="line">Continue? [y/N]: y</span><br><span class="line">Successfully truncated AOF</span><br><span class="line">[root@itzhouc bin]<span class="comment"># </span></span><br></pre></td></tr></table></figure>
+
+<p>重启服务，再次尝试链接成功。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">appendonly yes		<span class="comment"># 默认是 no</span></span><br><span class="line">appendfilename <span class="string">&quot;appendonly.aof&quot;</span>  <span class="comment"># 持久化的文件的名字</span></span><br><span class="line"><span class="comment"># appendfsync always   # 每次修改都会 sync ，消耗性能</span></span><br><span class="line">appendfsync everysec   <span class="comment"># 每秒执行一次 sync ，可能会丢失这 1s 的数据</span></span><br><span class="line"><span class="comment"># appendfsync no       # 不执行 sync，这个时候操作系统自己同步数据，速度最快</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>优点：</strong></p>
+<p>1、每一次修改都同步，文件的完整性更加好</p>
+<p>2、每秒同步一次，可能会丢失一秒的数据</p>
+<p>3、从不同步，效率最高的</p>
+<p><strong>缺点：</strong></p>
+<p>1、相对于数据文件来说， AOF 远远大于 RDB ，修复的速度也比 RDB 慢</p>
+<p>2、AOF 的运行效率也比 RDB 慢，所以 Redis 默认的配置就是 RDB 持久化。</p>
+<h3 id="3、扩展"><a href="#3、扩展" class="headerlink" title="3、扩展"></a>3、扩展</h3><p>1、RDB 持久化方式能够在指定的时间间隔内对你的数据进行快照存储</p>
+<p>2、AOF 持久化方式记录每次对服务器写的操作，当服务器重启的时候会重新执行这些命令来恢复原始的数据，AOF 命令以Redis 协议追加保存每次写的操作到文件尾部，Redis 还能对 AOF 文件记性后台重写，使得AOF 文件的体积不至于过大</p>
+<p>3、只做缓存，如果你只希望你的数据在服务器运行的时候存在，你也可以不使用任何持久化</p>
+<p>4、同时开启两种持久化方式</p>
+<ul>
+<li>在这种情况下，当 Redis 重启的时候会优先加载AOF 文件来恢复原始的数据，因为在通常情况下，AOF 文件保存的数据集要比 RDB 文件保存的数据集要完整。</li>
+<li>RDB 的数据不实时，同步使用两者时服务器重启也只会找 AOF 文件。那要不要只使用 AOF 呢？作者建议不要，因为 RDB 更适合用于备份数据库（AOF 在不断变化不好备份），快速重启，而且不会有 AOF 可能潜在的 BUG，留着作为一个万一的手段。</li>
+</ul>
+<p>5、性能建议</p>
+<ul>
+<li>因为 RDB 文件只用作后备用途，建议只在 Slave 上持久化 RDB 文件，而且只要 15 分钟备份一次就够了，只保留save 900 1 这条规则。</li>
+<li>如果 Enable AOF ，好处是在最恶劣情况下也只会丢失不超过两秒的数据，启动脚本较简单只 load 自己的 AOF 文件就可以了，代价是一是带来了持续的IO，而是 AOF rewrite 的最后将rewrite 过程中产生的新数据写到新文件造成的阻塞几乎是不可避免的。只要硬盘许可，应该尽量减少 AOF rewrite 的频率，AOF 重写的基础大小默认值是 64M 太小了，可以设置到 5G 以上，默认值超过原大小 100% 大小重写可以改到适当的数值。</li>
+<li>如果不 Enable AOF ，仅靠 Master-Slave Repllcation 实现高可用也可以，能省掉一大笔 IO ，也减少了 rewrite 时带来的系统波动。代价是如果 Master/Slave 同时宕掉，会丢失十几分钟的数据，启动脚本也要比较两个 Master/Slave 中的 RDB 文件，载入较新的那个，微博就是这种架构。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" rel="prev" title="Redis系列(六):发布订阅模式、主从复制和哨兵模式">
+      <i class="fa fa-chevron-left"></i> Redis系列(六):发布订阅模式、主从复制和哨兵模式
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/" rel="next" title="Redis系列(七):缓存穿透、缓存击穿和缓存雪崩">
+      Redis系列(七):缓存穿透、缓存击穿和缓存雪崩 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis%E7%B3%BB%E5%88%97-%E4%BA%94-Redis%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">Redis系列(五):Redis配置文件和持久化</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis-conf-%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">Redis.conf 详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%95%E4%BD%8D"><span class="nav-number">2.1.</span> <span class="nav-text">单位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%85%E5%90%AB"><span class="nav-number">2.2.</span> <span class="nav-text">包含</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NETWORK-%E7%BD%91%E7%BB%9C"><span class="nav-number">2.3.</span> <span class="nav-text">NETWORK 网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GENERAL-%E9%80%9A%E7%94%A8"><span class="nav-number">2.4.</span> <span class="nav-text">GENERAL 通用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%AB%E7%85%A7-SNAPSHOTTING"><span class="nav-number">2.5.</span> <span class="nav-text">快照 SNAPSHOTTING</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SECURITY-%E5%AE%89%E5%85%A8"><span class="nav-number">2.6.</span> <span class="nav-text">SECURITY 安全</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CLIENTS-%E9%99%90%E5%88%B6"><span class="nav-number">2.7.</span> <span class="nav-text">CLIENTS 限制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#APPEND-ONLY-%E6%A8%A1%E5%BC%8F-AOF-%E9%85%8D%E7%BD%AE"><span class="nav-number">2.8.</span> <span class="nav-text">APPEND ONLY 模式 AOF 配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">持久化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDB-Redis-DataBase"><span class="nav-number">3.1.</span> <span class="nav-text">RDB (Redis DataBase)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RDB-%E6%8C%81%E4%B9%85%E5%8C%96%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.1.1.</span> <span class="nav-text">RDB 持久化详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AOF-%EF%BC%88Append-Only-File%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">AOF （Append Only File）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF-%E6%8C%81%E4%B9%85%E5%8C%96%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.1.</span> <span class="nav-text">AOF 持久化的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF-%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D"><span class="nav-number">3.2.2.</span> <span class="nav-text">AOF 数据恢复</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF-%E9%87%8D%E5%86%99"><span class="nav-number">3.2.3.</span> <span class="nav-text">AOF 重写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AOF-%E5%90%8E%E5%8F%B0%E9%87%8D%E5%86%99"><span class="nav-number">3.2.4.</span> <span class="nav-text">AOF 后台重写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%90%AF-AOF-%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.2.5.</span> <span class="nav-text">开启 AOF 模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E6%89%A9%E5%B1%95"><span class="nav-number">3.2.6.</span> <span class="nav-text">3、扩展</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
