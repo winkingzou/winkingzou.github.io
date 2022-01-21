@@ -23,26 +23,26 @@
   <meta name="description" content="COLA架构COLA 概述COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。 COLA分为两个部分，COLA架构和COLA组件。 源码地址：https:&#x2F;&#x2F;gitee.com&#x2F;mirrors&#x2F;cola-framework?utm_source&#x3D;alading&amp;utm_campaign&#x3D;repo">
 <meta property="og:type" content="article">
 <meta property="og:title" content="COLA应用架构的实践">
-<meta property="og:url" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:url" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/index.html">
 <meta property="og:site_name" content="Winking&#39;s blog">
 <meta property="og:description" content="COLA架构COLA 概述COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。 COLA分为两个部分，COLA架构和COLA组件。 源码地址：https:&#x2F;&#x2F;gitee.com&#x2F;mirrors&#x2F;cola-framework?utm_source&#x3D;alading&amp;utm_campaign&#x3D;repo">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2020120918285068-6516197.png">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/e12229272ac44b5aae514424528cca42-6762421.png">
-<meta property="og:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/COLA应用架构的实践/ab0e4c8d4d8b441ea1bf798e1f22cc1b-6762454.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2020120918285068-6516197.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/e12229272ac44b5aae514424528cca42-6762421.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/COLA应用架构的实践/ab0e4c8d4d8b441ea1bf798e1f22cc1b-6762454.png">
 <meta property="article:published_time" content="2021-07-17T09:57:45.000Z">
 <meta property="article:modified_time" content="2021-07-20T06:28:09.938Z">
 <meta property="article:author" content="Winking">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="架构设计">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png">
+<meta name="twitter:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png">
 
-<link rel="canonical" href="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
+<link rel="canonical" href="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
 
 
 <script id="page-configurations">
@@ -203,7 +203,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -281,12 +281,12 @@
 </ul>
 <h2 id="包结构"><a href="#包结构" class="headerlink" title="包结构"></a>包结构</h2><p>分层是属于大粒度的职责划分，太粗，我们有必要往下再down一层，细化到包结构的粒度，才能更好的指导我们的工作。</p>
 <p>还是拿一堆玩具举例子，分层类似于拿来了一个架子，分包类似于在每一层架子上又放置了多个收纳盒。所谓的内聚，就是把功能类似的玩具放在一个盒子里，这样可以让应用结构清晰，极大的降低系统的认知成本和维护成本。</p>
-<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png" alt="archWhy"></p>
+<p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png" alt="archWhy"></p>
 <p>COLA架构就是为此而生，其核心职责就是定义良好的应用结构，提供最佳应用架构的最佳实践。通过不断探索，我们发现良好的分层结构，良好的包结构定义，可以帮助我们治理混乱不堪的业务应用系统。</p>
-<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2020120918285068-6516197.png" alt="cure"></p>
+<p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2020120918285068-6516197.png" alt="cure"></p>
 <p>那么，对于一个后端应用来说，应该需要哪些收纳盒呢？这一块的设计真可谓是费了老鼻子劲了，基本上每一次COLA的迭代都会涉及到包结构的调整，迭代到现在，才算基本稳定下来。</p>
 <p>下图是可靠的应用架构：COLA 4.0</p>
-<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png" alt="cola"></p>
+<p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png" alt="cola"></p>
 <h2 id><a href="#" class="headerlink" title></a></h2><h2 id="COLA-Archetype"><a href="#COLA-Archetype" class="headerlink" title="COLA Archetype"></a>COLA Archetype</h2><p>好的应用架构，都遵循一些共同模式，不管是六边形架构、洋葱圈架构、整洁架构、还是COLA架构，<strong>都提倡以业务为核心，解耦外部依赖，分离业务复杂度和技术复杂度等</strong>。</p>
 <p>COLA架构区别于这些架构的地方，在于除了思想之外，我们还提供了可落地的工具和实践指导。</p>
 <p>为了能够快速创建满足COLA架构的应用，我们提供了两个<code>archetype</code>，位于<a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework/blob/master/cola-archetypes"><code>cola-archetypes</code>目录</a>下：</p>
@@ -353,9 +353,9 @@
 
 <p>指定自己的DgroupId、DartifactId、Dpackage等</p>
 <p>命令执行成功的话，会看到如下的应用代码结构：</p>
-<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png" alt="demo"></p>
+<p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png" alt="demo"></p>
 <p>注：也可以使用阿里云的应用生成器：<a target="_blank" rel="noopener" href="https://start.aliyun.com/bootstrap.html">https://start.aliyun.com/bootstrap.html</a> 生成cola应用。</p>
-<p><img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png" alt="image.png"></p>
+<p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png" alt="image.png"></p>
 <p>1）适配层（Adapter Layer）：负责对前端展示（web，wireless，wap）的路由和适配，对于传统B/S系统而言，adapter就相当于MVC中的controller；</p>
 <p>2）应用层（Application Layer）：主要负责获取输入，组装上下文，参数校验，调用领域层做业务处理，如果需要的话，发送消息通知等。层次是开放的，应用层也可以绕过领域层，直接访问基础实施层；</p>
 <p>3）领域层（Domain Layer）：主要是封装了核心业务逻辑，并通过领域服务（Domain Service）和领域对象（Domain Entity）的方法对App层提供业务实体和业务逻辑计算。领域是应用的核心，不依赖任何其他层次；</p>
@@ -370,12 +370,12 @@
 
 
 
-<h1 id="COLA-架构中建议的命名规范参考"><a href="#COLA-架构中建议的命名规范参考" class="headerlink" title="COLA 架构中建议的命名规范参考"></a>COLA 架构中建议的命名规范参考</h1><p>​    <img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/e12229272ac44b5aae514424528cca42-6762421.png" alt="COLA 架构中建议的命名规范"></p>
+<h1 id="COLA-架构中建议的命名规范参考"><a href="#COLA-架构中建议的命名规范参考" class="headerlink" title="COLA 架构中建议的命名规范参考"></a>COLA 架构中建议的命名规范参考</h1><p>​    <img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/e12229272ac44b5aae514424528cca42-6762421.png" alt="COLA 架构中建议的命名规范"></p>
 <p>在COLA架构中，我们也能找到以前熟悉的VO，DTO等对象，只不过在COLA中后缀名变了：</p>
 <p>VO-&gt;CO，COLA中CO对象用于展示给前端。</p>
 <p>DTO-&gt;Cmd或Qry，COLA中Cmd或Qry对象用于前端和后端的数据交互，Cmd表示命令对象，Qry表示查询对象。</p>
 <p>Entity-&gt;DO，数据持久化对象。</p>
-<img src="/2021/07/17/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E6%9E%B6%E6%9E%84/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/COLA应用架构的实践/ab0e4c8d4d8b441ea1bf798e1f22cc1b-6762454.png" alt="COLA 架构中建议的命名规范" style="zoom:50%;">
+<img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/COLA应用架构的实践/ab0e4c8d4d8b441ea1bf798e1f22cc1b-6762454.png" alt="COLA 架构中建议的命名规范" style="zoom:50%;">
 
 <p>此外，对于领域对象domain，比如UserDomain，我们在COLA中称之为UserE。</p>
 <p>领域事件的命名，如创建一个新客户，命令为CustomerCreatedEvent。</p>
@@ -479,20 +479,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

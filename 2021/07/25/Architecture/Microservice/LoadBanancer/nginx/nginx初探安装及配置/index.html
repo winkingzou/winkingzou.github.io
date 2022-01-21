@@ -23,26 +23,26 @@
   <meta name="description" content="简介官网：https:&#x2F;&#x2F;nginx.org nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP&#x2F;UDP proxy server Nginx专为性能优化而开发，性能是器最重要的考量，实现上非常注重效率，能经受高负载的考验，据报告能支持高达50,000个并发连接数。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Nginx系列(一):nginx初探安装及配置">
-<meta property="og:url" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/index.html">
+<meta property="og:url" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/index.html">
 <meta property="og:site_name" content="Winking&#39;s blog">
 <meta property="og:description" content="简介官网：https:&#x2F;&#x2F;nginx.org nginx [engine x] is an HTTP and reverse proxy server, a mail proxy server, and a generic TCP&#x2F;UDP proxy server Nginx专为性能优化而开发，性能是器最重要的考量，实现上非常注重效率，能经受高负载的考验，据报告能支持高达50,000个并发连接数。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/0b46f21fbe096b6374cfa9b3b745c043e9f8acf9.jpeg">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/f9dcd100baa1cd11fb027fc104648ffbc2ce2d1c.jpeg">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210728232316334-7485803.png">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000733208-7488454.png">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000901750-7488543.png">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000949604-7488590.png">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001128645-7488689.png">
-<meta property="og:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001216534-7488737.png">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/0b46f21fbe096b6374cfa9b3b745c043e9f8acf9.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/f9dcd100baa1cd11fb027fc104648ffbc2ce2d1c.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210728232316334-7485803.png">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000733208-7488454.png">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000901750-7488543.png">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000949604-7488590.png">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001128645-7488689.png">
+<meta property="og:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001216534-7488737.png">
 <meta property="article:published_time" content="2021-07-25T06:58:23.000Z">
 <meta property="article:modified_time" content="2021-07-28T17:02:51.015Z">
 <meta property="article:author" content="Winking">
 <meta property="article:tag" content="nginx">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/0b46f21fbe096b6374cfa9b3b745c043e9f8acf9.jpeg">
+<meta name="twitter:image" content="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/0b46f21fbe096b6374cfa9b3b745c043e9f8acf9.jpeg">
 
-<link rel="canonical" href="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/">
+<link rel="canonical" href="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/">
 
 
 <script id="page-configurations">
@@ -203,7 +203,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -272,10 +272,10 @@
 
 <p><strong>原理</strong></p>
 <p>master接收信号后将任务分配给worker进行执行，worker可有多个。</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/0b46f21fbe096b6374cfa9b3b745c043e9f8acf9.jpeg" alt="img"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/0b46f21fbe096b6374cfa9b3b745c043e9f8acf9.jpeg" alt="img"></p>
 <p><strong>worker如何工作</strong></p>
 <p>客户端发送一个请求到master后，worker获取任务的机制不是直接分配也不是轮询，而是一种争抢的机制，“抢”到任务后再执行任务，即选择目标服务器tomcat等，然后返回结果。</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/f9dcd100baa1cd11fb027fc104648ffbc2ce2d1c.jpeg" alt="img"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/f9dcd100baa1cd11fb027fc104648ffbc2ce2d1c.jpeg" alt="img"></p>
 <p><strong>worker_connection</strong></p>
 <p>发送请求占用了woker两个或四个连接数。</p>
 <p>普通的静态访问最大并发数是：worker_connections *worker_processes/ 2 /2/2若是 HTTP 作 为反向代理来说，最大并发数量应该是 worker_connections *worker_processes/ 4 /4/4。当然了，worker数也不是越多越好，worker数和服务器的CPU数相等时最适宜的。</p>
@@ -363,7 +363,7 @@
 <p>这里介绍采用keepalived搭建高可用。</p>
 <h2 id="安装keepalived"><a href="#安装keepalived" class="headerlink" title="安装keepalived"></a>安装keepalived</h2><p>官网：<a target="_blank" rel="noopener" href="https://www.keepalived.org/">https://www.keepalived.org</a></p>
 <p>keepalived高可用架构示意图</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210728232316334-7485803.png" alt="img"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210728232316334-7485803.png" alt="img"></p>
 <p>说明：</p>
 <ul>
 <li>虚拟ip(VIP):192.168.152.200，对外提供服务的ip，也可称作浮动ip</li>
@@ -418,20 +418,20 @@
 <p>启动命令：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/keepalived/sbin/keepalived  </span><br></pre></td></tr></table></figure>
 
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000733208-7488454.png" alt="image-20210729000733208"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000733208-7488454.png" alt="image-20210729000733208"></p>
 <p>可以看到keepalived和nginx都启动了</p>
 <p>在浏览器输入<a target="_blank" rel="noopener" href="http://www.dpspread.com域名访问/">www.dpspread.com域名访问</a></p>
 <p><strong>停掉主节点192.168.152.130的keepalived和nginx</strong></p>
 <p>下面停掉主节点192.168.152.130的keepalived和nginx</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000901750-7488543.png" alt="image-20210729000901750"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000901750-7488543.png" alt="image-20210729000901750"></p>
 <p>可以看到从节点变为主节点了</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000949604-7488590.png" alt="image-20210729000949604"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729000949604-7488590.png" alt="image-20210729000949604"></p>
 <p>在浏览器输入地址<a target="_blank" rel="noopener" href="http://www.dpspread.com访问,可以看到访问正常/">www.dpspread.com访问，可以看到访问正常</a></p>
 <p><strong>重新启动主节点192.168.152.130</strong></p>
 <p>可以看到主节点重新启动以后变为主节点了</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001128645-7488689.png" alt="image-20210729001128645"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001128645-7488689.png" alt="image-20210729001128645"></p>
 <p>之前变为主节点的从节点又变回从节点了</p>
-<p><img src="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001216534-7488737.png" alt="image-20210729001216534"></p>
+<p><img src="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/nginx%E5%88%9D%E6%8E%A2%E5%AE%89%E8%A3%85%E5%8F%8A%E9%85%8D%E7%BD%AE/image-20210729001216534-7488737.png" alt="image-20210729001216534"></p>
 <p>至此，keepalive+nginx高可用搭建完成。</p>
 
     </div>
@@ -455,7 +455,7 @@
       <i class="fa fa-chevron-left"></i> 阿里云Redis开发规范
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/07/25/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%88%86%E5%B8%83%E5%BC%8F%E5%BE%AE%E6%9C%8D%E5%8A%A1/LoadBanancer/nginx/Nginx%E7%B3%BB%E5%88%97(%E4%BA%8C):nginx%E9%85%8D%E7%BD%AE/" rel="next" title="Nginx系列(二):nginx配置">
+    <a href="/2021/07/25/Architecture/Microservice/LoadBanancer/nginx/Nginx%E7%B3%BB%E5%88%97(%E4%BA%8C):nginx%E9%85%8D%E7%BD%AE/" rel="next" title="Nginx系列(二):nginx配置">
       Nginx系列(二):nginx配置 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
@@ -532,20 +532,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">26</span>
+          <span class="site-state-item-count">27</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-count">12</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
