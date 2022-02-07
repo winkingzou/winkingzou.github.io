@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="基于Kubernetes安装Istio环境操作系统: centos7 k8s: v1.22.x istio: v1.12.2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于Kubernetes安装Istio">
+<meta property="og:url" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="基于Kubernetes安装Istio环境操作系统: centos7 k8s: v1.22.x istio: v1.12.2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/e4a5af064502474e81715428572c2395.png">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/3854635088594cdc8c5bbc550b87bc07.jpeg">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/6f150194de7843428509d93f94002065.png">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/a1fae85066cb48c4bd31b3fa7cafe4d2.png">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/dfcd657eb83047019b5fb62a9dadab4f.png">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/3c1cb0aeb4ed4bf6b6d2173695dd1412.png">
+<meta property="og:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/32727fe6eb3a4e6d914c6cc5b6df2249.png">
+<meta property="article:published_time" content="2021-12-19T01:35:48.000Z">
+<meta property="article:modified_time" content="2022-02-07T19:07:58.485Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="istio">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/e4a5af064502474e81715428572c2395.png">
+
+<link rel="canonical" href="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>基于Kubernetes安装Istio | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基于Kubernetes安装Istio
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-19 09:35:48" itemprop="dateCreated datePublished" datetime="2021-12-19T09:35:48+08:00">2021-12-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-08 03:07:58" itemprop="dateModified" datetime="2022-02-08T03:07:58+08:00">2022-02-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/istio/" itemprop="url" rel="index"><span itemprop="name">istio</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基于Kubernetes安装Istio"><a href="#基于Kubernetes安装Istio" class="headerlink" title="基于Kubernetes安装Istio"></a>基于Kubernetes安装Istio</h1><h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><p>操作系统: centos7</p>
+<p>k8s: v1.22.x</p>
+<p>istio: v1.12.2</p>
+<span id="more"></span>
+
+<h1 id="下载安装istio"><a href="#下载安装istio" class="headerlink" title="下载安装istio"></a>下载安装istio</h1><p><a target="_blank" rel="noopener" href="https://github.com/istio/istio/releases">https://github.com/istio/istio/releases</a></p>
+<h2 id="添加环境变量"><a href="#添加环境变量" class="headerlink" title="添加环境变量"></a>添加环境变量</h2><p>首先，打开“/etc/profile”文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>然后，在文件的最后添加以下内容后，保存并退出：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:/opt/istio-1.12.2/bin</span><br></pre></td></tr></table></figure>
+
+<p>之后，执行以下命令，使环境变量生效：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+
+<p>执行以下命令来查看Istio的版本，同时验证命令可用：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">istioctl version</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装Istio"><a href="#安装Istio" class="headerlink" title="安装Istio"></a>安装Istio</h2><p>执行以下命令来安装Istio：</p>
+<p>istio有多种安装方式，可以通过–set进行设置，主要区别在于安装不同的服务</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">istioctl install --<span class="built_in">set</span> profile=demo -y</span><br></pre></td></tr></table></figure>
+
+<p>安装Istio需要花费一些时间，安装完成后的输出信息如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">✔ Istio core installed</span><br><span class="line">✔ Istiod installed</span><br><span class="line">✔ Egress gateways installed</span><br><span class="line">✔ Ingress gateways installed</span><br><span class="line">✔ Installation complete</span><br><span class="line">Making this installation the default <span class="keyword">for</span> injection and validation.</span><br><span class="line"></span><br><span class="line">Thank you <span class="keyword">for</span> installing Istio 1.12.  Please take a few minutes to tell us about your install/upgrade experience!  https://forms.gle/FegQbc9UvePd4Z9z7</span><br></pre></td></tr></table></figure>
+
+<p>执行以下命令，我们可以看到“istio-system”命名空间下的POD的运行情况：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods -n istio-system</span><br></pre></td></tr></table></figure>
+
+<p>运行Istio的诊断工具，来检查配置是否存在问题：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">istioctl analyze</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Info [IST0102] (Namespace default) The namespace is not enabled <span class="keyword">for</span> Istio injection. Run <span class="string">&#x27;kubectl label namespace default istio-injection=enabled&#x27;</span> to <span class="built_in">enable</span> it, or <span class="string">&#x27;kubectl label namespace default istio-injection=disabled&#x27;</span> to explicitly mark it as not needing injection.</span><br></pre></td></tr></table></figure>
+
+<p>说明此时需要我们为“default”命名空间开启Istio的注入能力，我们按照提示执行命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl label namespace default istio-injection=enabled</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">namespace/default labeled</span><br></pre></td></tr></table></figure>
+
+<p>然后我们重新运行诊断工具：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">istioctl analyze</span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">✔ No validation issues found when analyzing namespace: default.</span><br></pre></td></tr></table></figure>
+
+<p>说明Istio的状态正常。</p>
+<h1 id="部署示例应用"><a href="#部署示例应用" class="headerlink" title="部署示例应用"></a>部署示例应用</h1><p>Istio的安装包中提供了一系列的示例应用：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ll samples/</span><br></pre></td></tr></table></figure>
+
+<p>部署“bookinfo”应用来看下Istio的效果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/bookinfo/platform/kube/bookinfo.yaml</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">service/details created</span><br><span class="line">serviceaccount/bookinfo-details created</span><br><span class="line">deployment.apps/details-v1 created</span><br><span class="line">service/ratings created</span><br><span class="line">serviceaccount/bookinfo-ratings created</span><br><span class="line">deployment.apps/ratings-v1 created</span><br><span class="line">service/reviews created</span><br><span class="line">serviceaccount/bookinfo-reviews created</span><br><span class="line">deployment.apps/reviews-v1 created</span><br><span class="line">deployment.apps/reviews-v2 created</span><br><span class="line">deployment.apps/reviews-v3 created</span><br><span class="line">service/productpage created</span><br><span class="line">serviceaccount/bookinfo-productpage created</span><br><span class="line">deployment.apps/productpage-v1 created</span><br></pre></td></tr></table></figure>
+
+<p>部署完成后，我们可以通过以下命令来查看服务的信息：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get services</span><br></pre></td></tr></table></figure>
+
+<p>其输出结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">NAME          TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE</span><br><span class="line">details       ClusterIP   10.10.156.45    &lt;none&gt;        9080/TCP   14s</span><br><span class="line">kubernetes    ClusterIP   10.10.0.1       &lt;none&gt;        443/TCP    3d21h</span><br><span class="line">productpage   ClusterIP   10.10.84.191    &lt;none&gt;        9080/TCP   14s</span><br><span class="line">ratings       ClusterIP   10.10.82.143    &lt;none&gt;        9080/TCP   14s</span><br><span class="line">reviews       ClusterIP   10.10.121.212   &lt;none&gt;        9080/TCP   14s</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们查看POD状态：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NAME                              READY   STATUS            RESTARTS   AGE</span><br><span class="line">details-v1-5498c86cf5-clnv9       0/2     PodInitializing   0          46s</span><br><span class="line">productpage-v1-65b75f6885-52kvx   0/2     PodInitializing   0          46s</span><br><span class="line">ratings-v1-b477cf6cf-dhq75        0/2     PodInitializing   0          46s</span><br><span class="line">reviews-v1-79d546878f-2c8wx       0/2     PodInitializing   0          46s</span><br><span class="line">reviews-v2-548c57f459-kjwbx       0/2     PodInitializing   0          46s</span><br><span class="line">reviews-v3-6dd79655b9-5xqsl       0/2     PodInitializing   0          46s</span><br></pre></td></tr></table></figure>
+
+<p>这里我们需要等待所有POD的状态都变为“Running”后再执行后续操作。</p>
+<p>我这边约等待了6分钟，所有POD都成功变为了“Running”状态：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pods</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NAME                              READY   STATUS    RESTARTS   AGE</span><br><span class="line">details-v1-5498c86cf5-clnv9       2/2     Running   0          5m59s</span><br><span class="line">productpage-v1-65b75f6885-52kvx   2/2     Running   0          5m59s</span><br><span class="line">ratings-v1-b477cf6cf-dhq75        2/2     Running   0          5m59s</span><br><span class="line">reviews-v1-79d546878f-2c8wx       2/2     Running   0          5m59s</span><br><span class="line">reviews-v2-548c57f459-kjwbx       2/2     Running   0          5m59s</span><br><span class="line">reviews-v3-6dd79655b9-5xqsl       2/2     Running   0          5m59s</span><br></pre></td></tr></table></figure>
+
+<p>下面，我们来测试下“productpage”是否可以正常提供服务。<br>因为样例使用的是ClusterIp，因此在宿主机访问会比较麻烦，我们选择通过命令在“ratings”服务中通过“curl”命令来对“productpage”服务页面进行访问：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl <span class="built_in">exec</span> <span class="string">&quot;<span class="subst">$(kubectl get pod -l app=ratings | grep Running | awk &#x27;&#123;print $1&#125;&#x27;)</span>&quot;</span> -- curl -s productpage:9080/productpage | grep -o <span class="string">&quot;&lt;title&gt;.*&lt;/title&gt;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>执行结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;title&gt;Simple Bookstore App&lt;/title&gt;</span><br></pre></td></tr></table></figure>
+
+<p>说明页面服务正常，且可以在集群内部访问。</p>
+<p>然后我们继续部署“bookinfo-gateway”样例：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/bookinfo/networking/bookinfo-gateway.yaml</span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gateway.networking.istio.io/bookinfo-gateway created</span><br><span class="line">virtualservice.networking.istio.io/bookinfo created</span><br></pre></td></tr></table></figure>
+
+<p>为“bookinfo-gateway”配置端口：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath=<span class="string">&#x27;&#123;.spec.ports[?(@.name==&quot;http2&quot;)].nodePort&#125;&#x27;</span>)</span><br><span class="line"><span class="built_in">export</span> SECURE_INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath=<span class="string">&#x27;&#123;.spec.ports[?(@.name==&quot;https&quot;)].nodePort&#125;&#x27;</span>)</span><br><span class="line"><span class="built_in">export</span> INGRESS_HOST=$(kubectl get po -l istio=ingressgateway -n istio-system -o jsonpath=<span class="string">&#x27;&#123;.items[0].status.hostIP&#125;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>设置“bookinfo-gateway”的URL：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> GATEWAY_URL=<span class="variable">$INGRESS_HOST</span>:<span class="variable">$INGRESS_PORT</span></span><br></pre></td></tr></table></figure>
+
+<p>然后，我们查看URL：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="variable">$GATEWAY_URL</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">192.168.3.22:31618</span><br></pre></td></tr></table></figure>
+
+<p>我们通过这个地址在浏览器中访问“productpage”页面：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.3.22:31618/productpage</span><br></pre></td></tr></table></figure>
+
+<h1 id="部署Kiali-Dashboard"><a href="#部署Kiali-Dashboard" class="headerlink" title="部署Kiali Dashboard"></a>部署Kiali Dashboard</h1><p>接下来，我们部署Kiali Dashboard样例：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/addons</span><br></pre></td></tr></table></figure>
+
+<p>输出结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">serviceaccount/grafana created</span><br><span class="line">configmap/grafana created</span><br><span class="line">service/grafana created</span><br><span class="line">deployment.apps/grafana created</span><br><span class="line">configmap/istio-grafana-dashboards created</span><br><span class="line">configmap/istio-services-grafana-dashboards created</span><br><span class="line">deployment.apps/jaeger created</span><br><span class="line">service/tracing created</span><br><span class="line">service/zipkin created</span><br><span class="line">service/jaeger-collector created</span><br><span class="line">serviceaccount/kiali created</span><br><span class="line">configmap/kiali created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/kiali-viewer created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/kiali created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/kiali created</span><br><span class="line">role.rbac.authorization.k8s.io/kiali-controlplane created</span><br><span class="line">rolebinding.rbac.authorization.k8s.io/kiali-controlplane created</span><br><span class="line">service/kiali created</span><br><span class="line">deployment.apps/kiali created</span><br><span class="line">serviceaccount/prometheus created</span><br><span class="line">configmap/prometheus created</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/prometheus created</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/prometheus created</span><br><span class="line">service/prometheus created</span><br><span class="line">deployment.apps/prometheus created</span><br></pre></td></tr></table></figure>
+
+<p>执行以下命令，查看“Kiali”的部署情况：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get deployment kiali -n istio-system</span><br></pre></td></tr></table></figure>
+
+<p>部署完成后的输出为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NAME    READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">kiali   1/1     1            1           3m1s</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们需要对Kiali的配置进行修改，使其通过NodePort支持外网访问，以便我们在宿主机访问。</p>
+<p>首先，我们修改“<br>samples/addons/prometheus.yaml”配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi samples/addons/prometheus.yaml</span><br></pre></td></tr></table></figure>
+
+<p>通过关键字查找“kind: Service”，找到服务定义的部分，增加NodePort配置：</p>
+<p><img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/e4a5af064502474e81715428572c2395.png" alt="基于Kubernetes安装Istio"></p>
+<p>需要注意的是，该配置片段的最后，原本有“type: “ClusterIP””的配置，需要将其删除。</p>
+<p>执行以下命令应用修改后的配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/addons/prometheus.yaml</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">serviceaccount/prometheus unchanged</span><br><span class="line">configmap/prometheus unchanged</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/prometheus unchanged</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/prometheus unchanged</span><br><span class="line">service/prometheus configured</span><br><span class="line">deployment.apps/prometheus configured</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们来修改“<br>samples/addons/grafana.yaml”配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi samples/addons/grafana.yaml</span><br></pre></td></tr></table></figure>
+
+<p>类似地，我们通过关键字搜索“kind: Service”找到服务定义的部分，增加NodePort配置：</p>
+<img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/3854635088594cdc8c5bbc550b87bc07.jpeg" alt="基于Kubernetes安装Istio" style="zoom:67%;">
+
+<p>执行以下命令应用修改后的配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/addons/grafana.yaml</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">serviceaccount/grafana unchanged</span><br><span class="line">configmap/grafana unchanged</span><br><span class="line">service/grafana configured</span><br><span class="line">deployment.apps/grafana configured</span><br><span class="line">configmap/istio-grafana-dashboards configured</span><br><span class="line">configmap/istio-services-grafana-dashboards configured</span><br></pre></td></tr></table></figure>
+
+<p>之后，我们来修改“<br>samples/addons/jaeger.yaml”配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi samples/addons/jaeger.yaml</span><br></pre></td></tr></table></figure>
+
+<p>同样地，我们通过关键字搜索“kind: Service”找到服务定义的部分，增加NodePort配置。需要注意的是，该配置中定义了三个服务：</p>
+<p><img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/6f150194de7843428509d93f94002065.png" alt="基于Kubernetes安装Istio"></p>
+<p>修改jaeger.yaml中的tracing服务配置</p>
+<p><img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/a1fae85066cb48c4bd31b3fa7cafe4d2.png" alt="基于Kubernetes安装Istio"></p>
+<p>修改jaeger.yaml中的zipkin服务配置</p>
+<p><img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/dfcd657eb83047019b5fb62a9dadab4f.png" alt="基于Kubernetes安装Istio"></p>
+<p>修改jaeger.yaml中的jaeger-collector服务配置</p>
+<p>执行以下命令应用修改后的配置：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples<span class="regexp">/addons/</span>jaeger.yaml</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deployment.apps/jaeger unchanged</span><br><span class="line"><span class="class"><span class="keyword">service</span>/<span class="title">tracing</span> configured</span></span><br><span class="line"><span class="class">service/zipkin configured</span></span><br><span class="line"><span class="class">service/jaeger-collector configured</span></span><br></pre></td></tr></table></figure>
+
+<p>最后，我们修改“samples/addons/kiali.yaml”配置：</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vi samples<span class="regexp">/addons/</span>kiali.yaml</span><br></pre></td></tr></table></figure>
+
+<p>同样的，我们通过关键字搜索“kind: Service”找到服务定义的部分，增加NodePort配置：</p>
+<p><img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/3c1cb0aeb4ed4bf6b6d2173695dd1412.png" alt="基于Kubernetes安装Istio"></p>
+<p>执行以下命令应用修改后的配置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl apply -f samples/addons/kiali.yaml</span><br></pre></td></tr></table></figure>
+
+<p>执行结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">serviceaccount/kiali unchanged</span><br><span class="line">configmap/kiali unchanged</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/kiali-viewer unchanged</span><br><span class="line">clusterrole.rbac.authorization.k8s.io/kiali unchanged</span><br><span class="line">clusterrolebinding.rbac.authorization.k8s.io/kiali unchanged</span><br><span class="line">role.rbac.authorization.k8s.io/kiali-controlplane unchanged</span><br><span class="line">rolebinding.rbac.authorization.k8s.io/kiali-controlplane unchanged</span><br><span class="line">service/kiali configured</span><br><span class="line">deployment.apps/kiali unchanged</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们通过访问虚拟机的“31009”端口，即可访问到Kiali Dashboard的页面，之后对“productpage”页面进行几次刷新，即可在Kiali Dashboard看到mesh收集到的服务间的关系：</p>
+<p><img src="/2021/12/19/cloud-native/ServerMash/istio/istio-install/32727fe6eb3a4e6d914c6cc5b6df2249.png" alt="基于Kubernetes安装Istio"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/istio/" rel="tag"># istio</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/" rel="prev" title="EFK环境搭建">
+      <i class="fa fa-chevron-left"></i> EFK环境搭建
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EKubernetes%E5%AE%89%E8%A3%85Istio"><span class="nav-number">1.</span> <span class="nav-text">基于Kubernetes安装Istio</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83"><span class="nav-number">2.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85istio"><span class="nav-number">3.</span> <span class="nav-text">下载安装istio</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-number">3.1.</span> <span class="nav-text">添加环境变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85Istio"><span class="nav-number">3.2.</span> <span class="nav-text">安装Istio</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E7%A4%BA%E4%BE%8B%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">部署示例应用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2Kiali-Dashboard"><span class="nav-number">5.</span> <span class="nav-text">部署Kiali Dashboard</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
