@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署需求 开发人员通过上传 gitlab 新分支代码，通过 jenkinsfile 结合jenkins 自动发现分支并自动化部署该分支对应的容器   更新代码可以实现容器平滑更新">
+<meta property="og:type" content="article">
+<meta property="og:title" content="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署">
+<meta property="og:url" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署需求 开发人员通过上传 gitlab 新分支代码，通过 jenkinsfile 结合jenkins 自动发现分支并自动化部署该分支对应的容器   更新代码可以实现容器平滑更新">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125141849185-334156959.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125143435101-913922106.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125143249758-1684761678.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125144919474-80284710.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125144032262-423381139.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125151746795-360378419.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125152606984-986336302.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125153316139-1108575452.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125153637583-1995337330.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125154552178-650412326.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125154801871-685279111.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125154906363-1557408259.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125155008400-1103485718.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125161103532-1868457757.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125161445406-1151808761.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125180130538-760589525.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125175701015-1704681465.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125175732076-1667174861.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125180030419-406971674.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210127110723835-1473141819.png">
+<meta property="og:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210127110825181-1366655406.png">
+<meta property="article:published_time" content="2021-10-11T03:33:27.000Z">
+<meta property="article:modified_time" content="2022-04-07T15:47:38.904Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="devops">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125141849185-334156959.png">
+
+<link rel="canonical" href="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-11 11:33:27" itemprop="dateCreated datePublished" datetime="2021-10-11T11:33:27+08:00">2021-10-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-07 23:47:38" itemprop="dateModified" datetime="2022-04-07T23:47:38+08:00">2022-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/devops/" itemprop="url" rel="index"><span itemprop="name">devops</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署"><a href="#k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署" class="headerlink" title="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署"></a>k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署</h1><h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><ol>
+<li>开发人员通过上传 gitlab 新分支代码，通过 jenkinsfile 结合jenkins 自动发现分支并自动化部署该分支对应的容器 </li>
+<li> 更新代码可以实现容器平滑更新</li>
+</ol>
+<span id="more"></span>
+
+<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><ol>
+<li>k8s 1.16 高可用集群环境 </li>
+<li>harbor 私有仓库已搭建 </li>
+<li>gitlab 可以使用 </li>
+<li>部署nfs server，可提供给jenkins 存储使用</li>
+</ol>
+<h1 id="部署jenkins"><a href="#部署jenkins" class="headerlink" title="部署jenkins"></a>部署jenkins</h1><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建新名称空间</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span>  <span class="string">ns</span>   <span class="string">myjenkins</span> </span><br><span class="line"> </span><br><span class="line"><span class="comment"># 准备配置文件 deployment、 svc 、ingress 、证书</span></span><br><span class="line"><span class="number">1</span><span class="string">.</span> <span class="string">mkdir</span> <span class="string">/myjenkins/jenkins</span></span><br><span class="line"><span class="number">2</span><span class="string">.</span> <span class="string">deployment</span> <span class="string">准备配置yaml文件，jenkins-deployment.yaml</span> </span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">apps/v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">myjenkins</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">replicas:</span> <span class="number">1</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">matchLabels:</span></span><br><span class="line">      <span class="attr">app:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">strategy:</span></span><br><span class="line">    <span class="attr">rollingUpdate:</span></span><br><span class="line">      <span class="attr">maxSurge:</span> <span class="number">1</span></span><br><span class="line">      <span class="attr">maxUnavailable:</span> <span class="number">0</span></span><br><span class="line">    <span class="attr">type:</span> <span class="string">RollingUpdate</span></span><br><span class="line">  <span class="attr">template:</span></span><br><span class="line">    <span class="attr">metadata:</span></span><br><span class="line">      <span class="attr">creationTimestamp:</span> <span class="literal">null</span></span><br><span class="line">      <span class="attr">labels:</span></span><br><span class="line">        <span class="attr">app:</span> <span class="string">jenkins</span></span><br><span class="line">    <span class="attr">spec:</span></span><br><span class="line">      <span class="attr">containers:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">env:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">JAVA_OPTS</span></span><br><span class="line">          <span class="attr">value:</span> <span class="string">-Duser.timezone=Asia/Shanghai</span></span><br><span class="line">        <span class="attr">image:</span> <span class="string">jenkins:lts</span></span><br><span class="line">        <span class="attr">imagePullPolicy:</span> <span class="string">IfNotPresent</span></span><br><span class="line">        <span class="attr">name:</span> <span class="string">jenkins</span></span><br><span class="line">        <span class="attr">ports:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">8080</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">web</span></span><br><span class="line">          <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">containerPort:</span> <span class="number">50000</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">agent</span></span><br><span class="line">          <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">        <span class="attr">resources:</span> &#123;&#125;</span><br><span class="line">        <span class="attr">securityContext:</span></span><br><span class="line">          <span class="attr">runAsUser:</span> <span class="number">0</span></span><br><span class="line">        <span class="attr">volumeMounts:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">mountPath:</span> <span class="string">/var/jenkins_home</span></span><br><span class="line">          <span class="attr">name:</span> <span class="string">jenkinshome</span></span><br><span class="line">      <span class="attr">dnsPolicy:</span> <span class="string">ClusterFirst</span></span><br><span class="line">      <span class="attr">restartPolicy:</span> <span class="string">Always</span></span><br><span class="line">      <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">jenkinshome</span></span><br><span class="line">        <span class="attr">nfs:</span></span><br><span class="line">          <span class="attr">path:</span> <span class="string">/data/upload/myjenkins</span></span><br><span class="line">          <span class="attr">server:</span> <span class="number">172.24</span><span class="number">.119</span><span class="number">.30</span></span><br><span class="line"></span><br><span class="line"><span class="number">3.</span><span class="string">jenkins</span> <span class="string">agent</span> <span class="string">准备配置yaml</span> <span class="string">文件，这是jenkins</span> <span class="string">的</span> <span class="string">agent</span> <span class="string">配置，jenkins-agent.yaml</span> </span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">jenkins-agent</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">myjenkins</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">agent</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">50000</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">50000</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">sessionAffinity:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line"><span class="attr">status:</span></span><br><span class="line">  <span class="attr">loadBalancer:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="number">4</span><span class="string">.</span> <span class="string">jenkins</span> <span class="string">svc</span> <span class="string">配置yaml</span> <span class="string">文件</span> <span class="string">jenkins-svc.yaml</span> </span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">labels:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">myjenkins</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">ports:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">name:</span> <span class="string">web</span></span><br><span class="line">    <span class="attr">port:</span> <span class="number">8080</span></span><br><span class="line">    <span class="attr">protocol:</span> <span class="string">TCP</span></span><br><span class="line">    <span class="attr">targetPort:</span> <span class="number">8080</span></span><br><span class="line">  <span class="attr">selector:</span></span><br><span class="line">    <span class="attr">app:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">sessionAffinity:</span> <span class="string">None</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">ClusterIP</span></span><br><span class="line"><span class="attr">status:</span></span><br><span class="line">  <span class="attr">loadBalancer:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="number">5</span><span class="string">.</span> <span class="string">jenkins</span> <span class="string">ingress</span> <span class="string">配置yaml</span> <span class="string">文件</span> <span class="string">jenkins-ingress.yaml</span> </span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line">  <span class="attr">annotations:</span></span><br><span class="line">    <span class="attr">kubernetes.io/ingress.class:</span> <span class="string">nginx</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">jenkins</span></span><br><span class="line">  <span class="attr">namespace:</span> <span class="string">myjenkins</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line">  <span class="attr">rules:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">host:</span> <span class="string">myjenkins.tagtic.cn</span></span><br><span class="line">    <span class="attr">http:</span></span><br><span class="line">      <span class="attr">paths:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="attr">backend:</span></span><br><span class="line">          <span class="attr">serviceName:</span> <span class="string">jenkins</span></span><br><span class="line">          <span class="attr">servicePort:</span> <span class="number">8080</span></span><br><span class="line">        <span class="attr">path:</span> <span class="string">/</span></span><br><span class="line">  <span class="attr">tls:</span></span><br><span class="line">  <span class="bullet">-</span> <span class="attr">hosts:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="string">myjenkins.tagtic.cn</span></span><br><span class="line">    <span class="attr">secretName:</span> <span class="string">all-tagtic.cn</span></span><br><span class="line"><span class="attr">status:</span></span><br><span class="line">  <span class="attr">loadBalancer:</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建以上准备好的yaml 文件</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">-f</span> <span class="string">jenkins-deployment.yaml</span>  </span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">-f</span> <span class="string">jenkins-agent.yaml</span> </span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">-f</span> <span class="string">jenkins-svc.yaml</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">-f</span> <span class="string">jenkins-ingress.yaml</span> </span><br><span class="line"></span><br><span class="line"><span class="comment">#创建证书,已准备好服务器证书</span></span><br><span class="line"><span class="string">kubectl</span> <span class="string">create</span> <span class="string">secret</span> <span class="string">tls</span> <span class="string">tls-secret</span> <span class="string">--cert=1979891tagtic.cn.pem</span>    <span class="string">--key=1979891tagtic.cn.key</span>  <span class="string">-n</span> <span class="string">myjenkins</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#登陆jenkins </span></span><br><span class="line"><span class="string">通过执行</span>  <span class="string">kubectl</span> <span class="string">logs</span> <span class="string">-n</span> <span class="string">myjenkins</span>  <span class="string">jenkins-7f89966ff9-622xm</span>  <span class="string">获取jenkins</span> <span class="string">登陆密码</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#访问jenkins，浏览器输入</span></span><br><span class="line"><span class="string">https://myjenkins.tagtic.cn/</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="配置jenkins"><a href="#配置jenkins" class="headerlink" title="配置jenkins"></a>配置jenkins</h1><figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">1.按照推荐安装插件</span><br><span class="line">FAQ</span><br><span class="line">部署jenkins服务器出现Please wait while Jenkins is getting ready to work ...一直进不去该怎么办？</span><br><span class="line">需要你进入jenkins的工作目录，打开-----hudson.model.UpdateCenter.xml将 url 中的 </span><br><span class="line">https://updates.jenkins.io/update-center.json</span><br><span class="line">更改为https://mirrors.tuna.tsinghua.edu.cn/jenkins/updates/update-center.json</span><br><span class="line">是国内的清华大学的镜像地址。</span><br><span class="line"></span><br><span class="line">2.安装完插件修改 admin 权限密码</span><br><span class="line"></span><br><span class="line">3.jenkins 安装插件</span><br><span class="line">Gitlab Gitlab API Kubernetes</span><br><span class="line"></span><br><span class="line">4.点击系统管理--系统配置</span><br><span class="line">  4.1 修改用法、jenkins url 、系统管理员邮件地址（报警邮箱地址） </span><br><span class="line">   用法： 尽可能的使用这个节点</span><br><span class="line">   Jenkins URL：https://myjenkins.tagtic.cn/</span><br><span class="line">   系统管理员邮件地址： yunweimonitor@infinities.com</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125141849185-334156959.png" alt="img"></p>
+<p>4.2.全局属性，增加环境变量键值对，这个环境变量在后续的 jenkinsfile 中会用到       键： URL_SUFFIX   值：xy.a9vg.com</p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125143435101-913922106.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">4.3 Gitlab  需要填写 Connection name、Gitlab host URL、Credentials，写完 Test Connections</span><br><span class="line">    Connection name：  duoniu glab </span><br><span class="line">    Gitlab host URL：  https://glab.tag.cn</span><br><span class="line">    Credentials：Gitlab API token，这个凭据的tocken 需要在gitlab 的个人账户中生成，下面有详细生成方式。</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125143249758-1684761678.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">4.4 添加Gitlab API token 凭据</span><br><span class="line">   点击 系统管理--&gt;安全--&gt;Manage Credentials--&gt;添加凭据-凭据类型为 GitLab API token、API token 是以下说明在 gitlab 中生成的、ID 为自定义名称 glab<span class="built_in">_</span>token</span><br><span class="line">   Gitlab API Token 获取方式：</span><br><span class="line">   登陆个人gitlab 账号--&gt;点击个人头像--&gt; 选择 settings--&gt;选择 Access Tokens --&gt; 输入 Name 和 Expries at --&gt; 勾选api Access your API、read<span class="built_in">_</span>user Read user information、read<span class="built_in">_</span>registry Read Registry --&gt; 点击“Create personal access token”，生成access token，记录下来。</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125144919474-80284710.png" alt="img"></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125144032262-423381139.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">4.5 新增加 Global Pipeline Libraries，会加载 groovy 脚本。</span><br><span class="line">     Library Name:  mykubernetes-standard</span><br><span class="line">     Default version: master</span><br><span class="line">   Retrieval method </span><br><span class="line">     选择  Modern SCM</span><br><span class="line">     Git 项目仓库:  https://glab.tag.cn/test/kubernetes-standard.git  </span><br><span class="line">     凭据需要添加个人登录gitlab 的账号和密码，和上面添加的 Gitlab API Token 类型是不一样的。</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125151746795-360378419.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">4.5.1 新增加个人登陆gitlab 的凭据和 后续使用harbor 的凭据,这两个凭据类型为 Username with password ，</span><br><span class="line">        个人登录gitlab 需要填写登录gitlab 的用户名、密码、ID自定义为 glab<span class="built_in">_</span>pass</span><br><span class="line">        harbor 需要填写登录harbor 的用户名、密码、ID 自定义为 harbor</span><br><span class="line">FAQ:</span><br><span class="line">1. Warning: CredentialId &quot;glab<span class="built_in">_</span>pass&quot; could not be found.</span><br><span class="line">id 名称为： glab<span class="built_in">_</span>pass</span><br><span class="line">因为  kubernetes-stand 有用到这个名称，或者修改 helm.groovy</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125152606984-986336302.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FAQ:</span><br><span class="line">ERROR: Could not find credentials entry with ID &#x27;harbor&#x27;</span><br><span class="line">添加harbor 的凭据</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125153316139-1108575452.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">5. 新增加 邮件通知，填写完成可以写测试邮件看是否能发送成功</span><br><span class="line">添加 SMTP服务器：smtp.exmail.qq.com</span><br><span class="line">     SMTP服务器：@infinities.com</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125153637583-1995337330.png" alt="img"></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">6. 点击 cloud 下面的配置云</span><br><span class="line"></span><br><span class="line">https://myjenkins.tagtic.cn/configureClouds/</span><br><span class="line"></span><br><span class="line">配置前提是k8s 集群已配置宽泛的 rbac 策略</span><br><span class="line">kubectl create clusterrolebinding permissive-binding <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>  --clusterrole=cluster-admin <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>  --user=admin <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>  --user=kubelet <span class="keyword">\</span></span><br><span class="line"><span class="keyword"></span>  --group=system:serviceaccounts</span><br><span class="line"></span><br><span class="line">1.第一步添加 kubernetes 名称：kubernetes</span><br><span class="line">2.第二步连接 Kubernetes 地址：https://kubernetes.default.svc.cluster.local</span><br><span class="line">3.第三步Kubernetes 命名空间： myjenkins （jenkins 的名称空间）</span><br><span class="line">4.第四步Jenkins 地址：http://jenkins:8080</span><br><span class="line">5.第五步Jenkins 通道：jenkins-agent.myjenkins:50000</span><br><span class="line">6.第六步填写 jenkins pod 的 label: 键：jenkins 值：slave</span><br><span class="line">7.第七步连接 Kubernetes API 的最大连接数 32</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125154552178-650412326.png" alt="img"></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125154801871-685279111.png" alt="img"></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125154906363-1557408259.png" alt="img"></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125155008400-1103485718.png" alt="img"></p>
+<p>gitlab 钩子触发 jenkins 报错 403 </p>
+<p>FAQ： </p>
+<ol>
+<li>配置 jenkins 安全策略 系统管理–&gt;安全–&gt;全局安全配置–&gt;授权策略–&gt;勾选匿名用户具有可读权限 </li>
+<li>系统管理–&gt; 系统配置  Gitlab  Enable authentication for ‘/project’ end-point  取消前面勾选</li>
+</ol>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125161103532-1868457757.png" alt="img"></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125161445406-1151808761.png" alt="img"></p>
+<h1 id="第一种情况-gitlab-代码结构下有-Jenkinsfile"><a href="#第一种情况-gitlab-代码结构下有-Jenkinsfile" class="headerlink" title="第一种情况 gitlab 代码结构下有 Jenkinsfile"></a>第一种情况 gitlab 代码结构下有 Jenkinsfile</h1><p>与gitlab 代码同级的包含有 Dockerfile 和 Jenkinsfile,这个项目包含有4个分支</p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125180130538-760589525.png" alt="img"></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Jenkinsfile 文件内容</span></span><br><span class="line">变量含义：</span><br><span class="line">bn  --&gt; 获取当前分支名称</span><br><span class="line">bn_replace --&gt; 将分支名称中的 . 更换为 -</span><br><span class="line">suffix --&gt; 为 jenkins 配置的全局环境变量</span><br><span class="line"></span><br><span class="line">def bn = <span class="string">&quot;<span class="subst">$&#123;env.BRANCH_NAME&#125;</span>&quot;</span>;</span><br><span class="line">def bn_replace = bn.replace(<span class="string">&quot;.&quot;</span>, <span class="string">&quot;-&quot;</span>);</span><br><span class="line">def suffix = <span class="string">&quot;<span class="subst">$&#123;env.URL_SUFFIX&#125;</span>&quot;</span>;</span><br><span class="line">stage(<span class="string">&#x27;Deliver for development&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (bn.startsWith(<span class="string">&#x27;build-&#x27;</span>))&#123;</span><br><span class="line">        helm&#123;</span><br><span class="line">            scmUrl=<span class="string">&quot;https://glab.tag/test/laravel-k8s-test.git&quot;</span></span><br><span class="line">            project=<span class="string">&quot;test-helm2-<span class="subst">$&#123;bn_replace&#125;</span>&quot;</span></span><br><span class="line">            email=<span class="string">&quot;test@donews.com&quot;</span></span><br><span class="line">            namespace=<span class="string">&quot;default&quot;</span></span><br><span class="line">            branch=<span class="string">&quot;<span class="subst">$&#123;bn&#125;</span>&quot;</span></span><br><span class="line">            registry=<span class="string">&quot;harbor&quot;</span></span><br><span class="line">            helm=<span class="string">&quot;donews/myapp&quot;</span></span><br><span class="line">            helmArgs=<span class="string">&quot;&quot;</span><span class="string">&quot; --set service.port=80,ingress.hosts=&#123;myhelm-<span class="subst">$&#123;bn_replace&#125;</span>.<span class="subst">$&#123;suffix&#125;</span>&#125; \</span></span><br><span class="line"><span class="string">            &quot;</span><span class="string">&quot;&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">stage(<span class="string">&#x27;Deliver for testing&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (bn == <span class="string">&#x27;dev&#x27;</span>)&#123;</span><br><span class="line">        helm&#123;</span><br><span class="line">            scmUrl=<span class="string">&quot;https://glab.tag/test/laravel-k8s-test.git&quot;</span></span><br><span class="line">            project=<span class="string">&quot;test-helmdev&quot;</span></span><br><span class="line">            email=<span class="string">&quot;test@donews.com&quot;</span></span><br><span class="line">            namespace=<span class="string">&quot;default&quot;</span></span><br><span class="line">            branch=<span class="string">&quot;dev&quot;</span></span><br><span class="line">            registry=<span class="string">&quot;harbor&quot;</span></span><br><span class="line">            helm=<span class="string">&quot;donews/myapp&quot;</span></span><br><span class="line">            helmArgs=<span class="string">&quot;&quot;</span><span class="string">&quot; --set service.port=80,ingress.hosts=&#123;myhelmdev-xy.a99.com&#125;&quot;</span><span class="string">&quot;&quot;</span> </span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">stage(<span class="string">&#x27;Deploy for production&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (bn == <span class="string">&#x27;master&#x27;</span>) &#123;</span><br><span class="line">        helm&#123;</span><br><span class="line">            scmUrl=<span class="string">&quot;https://glab.tag/test/laravel-k8s-test.git&quot;</span></span><br><span class="line">            project=<span class="string">&quot;test-helmmaster&quot;</span></span><br><span class="line">            email=<span class="string">&quot;test@donews.com&quot;</span></span><br><span class="line">            namespace=<span class="string">&quot;default&quot;</span></span><br><span class="line">            branch=<span class="string">&quot;master&quot;</span></span><br><span class="line">            registry=<span class="string">&quot;harbor&quot;</span></span><br><span class="line">            helm=<span class="string">&quot;donews/myapp&quot;</span></span><br><span class="line">            helmArgs=<span class="string">&quot;&quot;</span><span class="string">&quot; --set service.port=80,ingress.hosts=&#123;myhelmmaster-xy.a99.com&#125;&quot;</span><span class="string">&quot;&quot;</span>  </span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="groovy-使用"><a href="#groovy-使用" class="headerlink" title="groovy 使用"></a>groovy 使用</h2><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br></pre></td><td class="code"><pre><span class="line">jekins 系统配置中  Global Pipeline Libraries git 项目https:<span class="comment">//glab.tag.cn/test/kubernetes-standard.git ,在项目下新建立 vars 目录，vars 目录下 helm.groovy 内容</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> hudson.model.Result</span><br><span class="line"><span class="keyword">import</span> hudson.model.Run</span><br><span class="line"><span class="keyword">import</span> jenkins.model.CauseOfInterruption.UserInterruption</span><br><span class="line"></span><br><span class="line">def abortPreviousBuilds() &#123;</span><br><span class="line">    Run previousBuild = currentBuild.rawBuild.getPreviousBuildInProgress()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (previousBuild != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (previousBuild.isInProgress()) &#123;</span><br><span class="line">            def executor = previousBuild.getExecutor()</span><br><span class="line">            <span class="keyword">if</span> (executor != <span class="literal">null</span>) &#123;</span><br><span class="line">                echo <span class="string">&quot;&gt;&gt; Aborting older build #<span class="subst">$&#123;previousBuild.number&#125;</span>&quot;</span></span><br><span class="line">                executor.interrupt(Result.ABORTED, new UserInterruption(</span><br><span class="line">                    <span class="string">&quot;Aborted by newer build #<span class="subst">$&#123;currentBuild.number&#125;</span>&quot;</span></span><br><span class="line">                ))</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        previousBuild = previousBuild.getPreviousBuildInProgress()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">def call(body) &#123;</span><br><span class="line">    <span class="comment">// evaluate the body block, and collect configuration into the object</span></span><br><span class="line">    abortPreviousBuilds()</span><br><span class="line">    def pipelineParams= [:]</span><br><span class="line">    def reg_prefix = <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    def label = <span class="string">&quot;worker-<span class="subst">$&#123;pipelineParams.project&#125;</span>&quot;</span></span><br><span class="line">    body.resolveStrategy = Closure.DELEGATE_FIRST</span><br><span class="line">    body.delegate = pipelineParams</span><br><span class="line">    body()</span><br><span class="line">    <span class="keyword">if</span> (!pipelineParams.branch)&#123;</span><br><span class="line">        pipelineParams.branch = <span class="string">&quot;master&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!pipelineParams.deployment)&#123;</span><br><span class="line">        pipelineParams.deployment = pipelineParams.project</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pipelineParams.registry = <span class="string">&quot;harbor&quot;</span></span><br><span class="line">    reg_prefix = <span class="string">&quot;k8s-harbor01.gdfsxxds.rjyun/xy/&quot;</span></span><br><span class="line">    pullSecret = <span class="string">&quot;harbor&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!! pipelineParams.oversea)&#123;</span><br><span class="line">        http_proxy = <span class="string">&quot;--build-arg HTTP_PROXY=localhost:3001&quot;</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        http_proxy = <span class="string">&quot;&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    podTemplate(label: label, containers: [</span><br><span class="line">      containerTemplate(name: <span class="string">&#x27;docker&#x27;</span>, image: <span class="string">&#x27;docker:18&#x27;</span>, command: <span class="string">&#x27;cat&#x27;</span>, ttyEnabled: <span class="literal">true</span>),</span><br><span class="line">      containerTemplate(name: <span class="string">&#x27;kubectl&#x27;</span>, image: <span class="string">&#x27;lachlanevenson/k8s-kubectl:v1.16.0&#x27;</span>, command: <span class="string">&#x27;cat&#x27;</span>, ttyEnabled: <span class="literal">true</span>),</span><br><span class="line">      containerTemplate(name: <span class="string">&#x27;helm&#x27;</span>, image: <span class="string">&#x27;k8s-harbor01.gdfsxxds.rjyun/xy/helm:2.15.2&#x27;</span>, command: <span class="string">&#x27;cat&#x27;</span>, ttyEnabled: <span class="literal">true</span>),</span><br><span class="line">    ],</span><br><span class="line">    volumes: [</span><br><span class="line">      hostPathVolume(mountPath: <span class="string">&#x27;/var/run/docker.sock&#x27;</span>, hostPath: <span class="string">&#x27;/var/run/docker.sock&#x27;</span>)</span><br><span class="line">    ]) &#123;</span><br><span class="line">      node(label) &#123;</span><br><span class="line">        def myRepo = checkout([$<span class="class"><span class="keyword">class</span>: <span class="type">&#x27;GitSCM&#x27;</span>, <span class="type">branches: [[name: &quot;*/$&#123;pipelineParams.branch&#125;&quot;]]</span>, <span class="type">doGenerateSubmoduleConfigurations: false</span>, <span class="type">extensions:  [[$class: &#x27;CloneOption&#x27;</span>, <span class="type">noTags: false</span>, <span class="type">reference: &#x27;&#x27;</span>, <span class="type">shallow: true</span>, <span class="type">timeout: 1000]]+[[$class: &#x27;CheckoutOption&#x27;</span>, <span class="type">timeout: 1000]]</span>, <span class="type">submoduleCfg: []</span>, <span class="type">userRemoteConfigs: [[credentialsId: &#x27;glab_pass&#x27;</span>, <span class="type">url: pipelineParams.scmUrl]]]) </span></span></span><br><span class="line">        def gitCommit = myRepo.GIT_COMMIT</span><br><span class="line">        def gitBranch = myRepo.GIT_BRANCH</span><br><span class="line">        def shortGitCommit = <span class="string">&quot;<span class="subst">$&#123;gitCommit[<span class="number">0.</span><span class="number">.10</span>]&#125;</span>&quot;</span></span><br><span class="line">        def project = pipelineParams.scm</span><br><span class="line">        </span><br><span class="line">        stage(<span class="string">&#x27;Create docker images&#x27;</span>) &#123;</span><br><span class="line">            gitlabCommitStatus &#123;</span><br><span class="line">                container(<span class="string">&#x27;docker&#x27;</span>) &#123;</span><br><span class="line">                    <span class="keyword">try</span>&#123;</span><br><span class="line">                        withCredentials([[$<span class="class"><span class="keyword">class</span>: <span class="type">&#x27;UsernamePasswordMultiBinding&#x27;</span>,</span></span><br><span class="line"><span class="class">                          <span class="type">credentialsId: pipelineParams.registry</span>,</span></span><br><span class="line"><span class="class">                          <span class="type">usernameVariable: &#x27;DOCKER_HUB_USER&#x27;</span>,</span></span><br><span class="line"><span class="class">                          <span class="type">passwordVariable: &#x27;DOCKER_HUB_PASSWORD&#x27;]]) &#123;</span></span></span><br><span class="line">                            retry(<span class="number">3</span>) &#123;</span><br><span class="line">                              sh <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">                                docker login -u <span class="subst">$&#123;DOCKER_HUB_USER&#125;</span> -p <span class="subst">$&#123;DOCKER_HUB_PASSWORD&#125;</span> <span class="subst">$&#123;reg_prefix&#125;</span></span></span><br><span class="line"><span class="string">                                docker build  -t <span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>:<span class="subst">$&#123;shortGitCommit&#125;</span> .</span></span><br><span class="line"><span class="string">                                docker push <span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>:<span class="subst">$&#123;shortGitCommit&#125;</span></span></span><br><span class="line"><span class="string">                                docker tag <span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>:<span class="subst">$&#123;shortGitCommit&#125;</span> <span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>:latest</span></span><br><span class="line"><span class="string">                                docker push <span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>:latest</span></span><br><span class="line"><span class="string">                                &quot;&quot;&quot;</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">catch</span>(Exception e)&#123;</span><br><span class="line">                        println(e.toString());</span><br><span class="line">                        currentBuild.result = <span class="string">&#x27;FAILURE&#x27;</span></span><br><span class="line">                        step([$<span class="class"><span class="keyword">class</span>: <span class="type">&#x27;Mailer&#x27;</span>, <span class="type">notifyEveryUnstableBuild: true</span>, <span class="type">recipients: pipelineParams.email</span>, <span class="type">sendToIndividuals: true])</span></span></span><br><span class="line">                        <span class="keyword">throw</span> e</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;       </span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pipelineParams.helm) &#123;</span><br><span class="line">            stage(<span class="string">&#x27;Run helm&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!!pipelineParams.helmArgs)&#123;</span><br><span class="line">                    args = pipelineParams.helmArgs</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    args = <span class="string">&quot;&quot;</span></span><br><span class="line">                &#125;</span><br><span class="line">                container(<span class="string">&#x27;helm&#x27;</span>) &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        sh <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">                        helm init --client-only --stable-repo-url=https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts</span></span><br><span class="line"><span class="string">                        helm repo add donews http://chart.a99.com/</span></span><br><span class="line"><span class="string">                        helm repo update</span></span><br><span class="line"><span class="string">                        helm upgrade -i <span class="subst">$&#123;pipelineParams.project&#125;</span> <span class="subst">$&#123;pipelineParams.helm&#125;</span> \</span></span><br><span class="line"><span class="string">                        --set image.repository=<span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>,image.tag=<span class="subst">$&#123;shortGitCommit&#125;</span> \</span></span><br><span class="line"><span class="string">                        <span class="subst">$&#123;args&#125;</span> \</span></span><br><span class="line"><span class="string">                        --namespace <span class="subst">$&#123;pipelineParams.namespace&#125;</span></span></span><br><span class="line"><span class="string">                        &quot;&quot;&quot;</span></span><br><span class="line">                        &#125; </span><br><span class="line">                    <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">                        println(e.toString());</span><br><span class="line">                        currentBuild.result = <span class="string">&#x27;FAILURE&#x27;</span></span><br><span class="line">                        step([$<span class="class"><span class="keyword">class</span>: <span class="type">&#x27;Mailer&#x27;</span>, <span class="type">notifyEveryUnstableBuild: true</span>, <span class="type">recipients: pipelineParams.email</span>, <span class="type">sendToIndividuals: true])</span></span></span><br><span class="line">                        <span class="keyword">throw</span> e</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            stage(<span class="string">&#x27;Run kubectl&#x27;</span>) &#123;</span><br><span class="line">              container(<span class="string">&#x27;kubectl&#x27;</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    sh <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">                    kubectl set image deployment/<span class="subst">$&#123;pipelineParams.deployment&#125;</span>-deployment <span class="subst">$&#123;pipelineParams.project&#125;</span>=<span class="subst">$&#123;reg_prefix&#125;</span><span class="subst">$&#123;pipelineParams.project&#125;</span>:<span class="subst">$&#123;shortGitCommit&#125;</span> -n <span class="subst">$&#123;pipelineParams.namespace&#125;</span></span></span><br><span class="line"><span class="string">                    kubectl rollout status deployment <span class="subst">$&#123;pipelineParams.deployment&#125;</span>-deployment -n <span class="subst">$&#123;pipelineParams.namespace&#125;</span></span></span><br><span class="line"><span class="string">                    &quot;&quot;&quot;</span></span><br><span class="line">                    &#125; </span><br><span class="line">                <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">                    println(e.toString());</span><br><span class="line">                    currentBuild.result = <span class="string">&#x27;FAILURE&#x27;</span></span><br><span class="line">                    step([$<span class="class"><span class="keyword">class</span>: <span class="type">&#x27;Mailer&#x27;</span>, <span class="type">notifyEveryUnstableBuild: true</span>, <span class="type">recipients: pipelineParams.email</span>, <span class="type">sendToIndividuals: true])</span></span></span><br><span class="line">                    <span class="keyword">throw</span> e</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        currentBuild.result = <span class="string">&#x27;SUCCESS&#x27;</span></span><br><span class="line">        step([$<span class="class"><span class="keyword">class</span>: <span class="type">&#x27;Mailer&#x27;</span>, <span class="type">notifyEveryUnstableBuild: true</span>, <span class="type">recipients: pipelineParams.email</span>, <span class="type">sendToIndividuals: true])</span></span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="helm-自建chart-仓库"><a href="#helm-自建chart-仓库" class="headerlink" title="helm 自建chart 仓库"></a>helm 自建chart 仓库</h2><p>这里不再多做介绍</p>
+<h2 id="jenkins-部署多分支流水线项目"><a href="#jenkins-部署多分支流水线项目" class="headerlink" title="jenkins 部署多分支流水线项目"></a>jenkins 部署多分支流水线项目</h2><p>新建任务–&gt; 起一个任务名称 duofenzhi  –&gt;选择多分支流水线 选择配置 –&gt;分支源–&gt;Git</p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125175701015-1704681465.png" alt="img"></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125175732076-1667174861.png" alt="img"></p>
+<p><strong>等 1分钟，jenkins 将会自动拉取gitlab 代码进行编译构建</strong></p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210125180030419-406971674.png" alt="img"></p>
+<h2 id="gitlab-添加自动触发，必须是-project"><a href="#gitlab-添加自动触发，必须是-project" class="headerlink" title="gitlab 添加自动触发，必须是 project"></a>gitlab 添加自动触发，必须是 project</h2><p>在gitlab –&gt;项目下–&gt;settings–&gt;Integrations–&gt;增加 Webhooks</p>
+<p><a target="_blank" rel="noopener" href="https://myjenkins.tagtic.cn/project/duofenzhi">https://myjenkins.tagtic.cn/project/duofenzhi</a></p>
+<p>查看 jenkins 已构建完成</p>
+<p>查看k8s，容器已正常启动</p>
+<p>项目部署完成。</p>
+<h1 id="第二种情况-gitlab-代码结构下没有-Jenkinsfile"><a href="#第二种情况-gitlab-代码结构下没有-Jenkinsfile" class="headerlink" title="第二种情况 gitlab 代码结构下没有 Jenkinsfile"></a>第二种情况 gitlab 代码结构下没有 Jenkinsfile</h1><p><strong>结构：</strong> </p>
+<p>gitlab 代码下只有Dockerfile ，没有Jenkinsfile，不能使用Jenkins 多分支构建，只能使用流水线 </p>
+<p><strong>新建立流水线：</strong> </p>
+<p>新建任务–&gt;新建名称test –&gt;流水线 GitLab Connection 选择 duoniu glab</p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210127110723835-1473141819.png" alt="img"></p>
+<p>选择构建触发器，这是和gitlab 打通的渠道</p>
+<p><img src="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/1316729-20210127110825181-1366655406.png" alt="img"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 流水线</span></span><br><span class="line">新增加 Pipeline script</span><br><span class="line"></span><br><span class="line">helm&#123;</span><br><span class="line">    scmUrl=<span class="string">&quot;https://glab.tag/test/mall_h5.git&quot;</span></span><br><span class="line">    project=<span class="string">&quot;test&quot;</span></span><br><span class="line">    email=<span class="string">&quot;test@do.com&quot;</span></span><br><span class="line">    namespace=<span class="string">&quot;default&quot;</span></span><br><span class="line">    branch=<span class="string">&quot;dev&quot;</span></span><br><span class="line">    helm=<span class="string">&quot;donews/myapp&quot;</span></span><br><span class="line">    helmArgs=<span class="string">&quot;&quot;&quot; --set service.port=80,ingress.hosts=&#123;mytest-xy.aaa.com&#125;&quot;&quot;&quot;</span>  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">注：</span><br><span class="line">这个helm 定义将会自动加载上文的 helm.groovy 脚本，使用helm 部署容器，这和 jenkinsfile 是不同的，因为Jenkinsfile 不用配置 jenkins 的流水线脚本</span><br></pre></td></tr></table></figure>
+
+<p>查看 jenkins 已构建完成</p>
+<p>查看k8s，容器已正常启动</p>
+<p>项目部署完成。</p>
+<h1 id="第三种情况-gitlab-代码结构下也没有-Jenkinsfile，但是已经有-deployment-svc-ingress-这些配置"><a href="#第三种情况-gitlab-代码结构下也没有-Jenkinsfile，但是已经有-deployment-svc-ingress-这些配置" class="headerlink" title="第三种情况 gitlab 代码结构下也没有 Jenkinsfile，但是已经有 deployment svc ingress 这些配置"></a>第三种情况 gitlab 代码结构下也没有 Jenkinsfile，但是已经有 deployment svc ingress 这些配置</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#新建流水线</span></span><br><span class="line">新增加 Pipeline script</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">label</span> = &quot;<span class="title">worker</span>-$&#123;<span class="title">UUID</span>.<span class="title">randomUUID</span>().<span class="title">toString</span>()&#125;&quot;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">podTemplate</span>(<span class="params">label: label, containers: [</span></span></span><br><span class="line"><span class="params"><span class="function">  containerTemplate(<span class="params">name: <span class="string">&#x27;docker&#x27;</span>, image: <span class="string">&#x27;docker&#x27;</span>, command: <span class="string">&#x27;cat&#x27;</span>, ttyEnabled: true</span>),</span></span></span><br><span class="line"><span class="params"><span class="function">  containerTemplate(<span class="params">name: <span class="string">&#x27;kubectl&#x27;</span>, image: <span class="string">&#x27;lachlanevenson/k8s-kubectl:v1.16.0&#x27;</span>, command: <span class="string">&#x27;cat&#x27;</span>, ttyEnabled: true</span>),</span></span></span><br><span class="line"><span class="params"><span class="function">],</span></span></span><br><span class="line"><span class="params"><span class="function">volumes: [</span></span></span><br><span class="line"><span class="params"><span class="function">  hostPathVolume(<span class="params">mountPath: <span class="string">&#x27;/var/run/docker.sock&#x27;</span>, hostPath: <span class="string">&#x27;/var/run/docker.sock&#x27;</span></span>)</span></span></span><br><span class="line"><span class="params"><span class="function">]</span>) &#123;</span></span><br><span class="line"><span class="function">  <span class="title">node</span>(<span class="params">label</span>) &#123;</span></span><br><span class="line"><span class="function">    <span class="title">def</span> <span class="title">myRepo</span> = <span class="title">checkout</span>(<span class="params">[$<span class="keyword">class</span>: <span class="string">&#x27;GitSCM&#x27;</span>, branches: [[name: <span class="string">&#x27;*/master&#x27;</span>]], doGenerateSubmoduleConfigurations: false, extensions:  [[$<span class="keyword">class</span>: <span class="string">&#x27;CloneOption&#x27;</span>, noTags: false, reference: <span class="string">&#x27;&#x27;</span>, shallow: true, timeout: <span class="number">12000</span>]]+[[$<span class="keyword">class</span>: <span class="string">&#x27;CheckoutOption&#x27;</span>, timeout: <span class="number">7000</span>]], submoduleCfg: [], userRemoteConfigs: [[credentialsId: <span class="string">&#x27;glab_pass&#x27;</span>, url: <span class="string">&#x27;https://glaxxx.cn/test/tgbusmall_api.git&#x27;</span>]]]</span>) </span></span><br><span class="line"><span class="function">    <span class="title">def</span> <span class="title">gitCommit</span> = <span class="title">myRepo</span>.<span class="title">GIT_COMMIT</span></span></span><br><span class="line"><span class="function">    <span class="title">def</span> <span class="title">gitBranch</span> = <span class="title">myRepo</span>.<span class="title">GIT_BRANCH</span></span></span><br><span class="line"><span class="function">    <span class="title">def</span> <span class="title">shortGitCommit</span> = &quot;$&#123;<span class="title">gitCommit</span>[0..10]&#125;&quot;</span></span><br><span class="line"><span class="function">    </span></span><br><span class="line"><span class="function">    <span class="title">stage</span>(<span class="params"><span class="string">&#x27;Create docker images&#x27;</span></span>) &#123;</span></span><br><span class="line"><span class="function">        <span class="title">gitlabCommitStatus</span> &#123;</span></span><br><span class="line"><span class="function">            <span class="title">container</span>(<span class="params"><span class="string">&#x27;docker&#x27;</span></span>) &#123;</span></span><br><span class="line"><span class="function">                <span class="title">withCredentials</span>(<span class="params">[[$<span class="keyword">class</span>: <span class="string">&#x27;UsernamePasswordMultiBinding&#x27;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                  credentialsId: <span class="string">&#x27;dockerreg&#x27;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                  usernameVariable: <span class="string">&#x27;DOCKER_HUB_USER&#x27;</span>,</span></span></span><br><span class="line"><span class="params"><span class="function">                  passwordVariable: <span class="string">&#x27;DOCKER_HUB_PASSWORD&#x27;</span>]]</span>) &#123;</span></span><br><span class="line"><span class="function">                  <span class="title">sh</span> &quot;&quot;&quot;</span></span><br><span class="line"><span class="function">				    <span class="title">cp</span> <span class="title">dockerfile</span>/<span class="title">dockerfile</span>-<span class="title">release</span>/<span class="title">Dockerfile</span> .</span></span><br><span class="line"><span class="function">                    <span class="title">docker</span> <span class="title">login</span> -<span class="title">u</span> $&#123;<span class="title">DOCKER_HUB_USER</span>&#125; -<span class="title">p</span> $&#123;<span class="title">DOCKER_HUB_PASSWORD</span>&#125; <span class="title">k8s</span>-<span class="title">harbor01</span>.<span class="title">gdfsxxds</span>.<span class="title">rjyun</span></span></span><br><span class="line"><span class="function">					<span class="title">docker</span> <span class="title">build</span>  -<span class="title">t</span> <span class="title">k8s</span>-<span class="title">harbor01</span>.<span class="title">gdfsxxds</span>.<span class="title">rjyun</span>/<span class="title">xy</span>/<span class="title">tgbusmall</span>-<span class="title">api</span>:</span>$&#123;shortGitCommit&#125; . </span><br><span class="line">                    docker push k8s-harbor01.gdfsxxds.rjyun/xy/tgbusmall-api:$&#123;shortGitCommit&#125;</span><br><span class="line">                    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">                &#125;</span></span><br><span class="line"><span class="string">            &#125;       </span></span><br><span class="line"><span class="string">        &#125;</span></span><br><span class="line"><span class="string">      </span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">    stage(&#x27;Run kubectl&#x27;) &#123;</span></span><br><span class="line"><span class="string">      container(&#x27;kubectl&#x27;) &#123;</span></span><br><span class="line"><span class="string">        sh &quot;&quot;&quot;</span></span><br><span class="line">        kubectl <span class="built_in">set</span> image deployment/tgbusmall-api-deployment tgbusmall-api=k8s-harbor01.gdfsxxds.rjyun/xy/tgbusmall-api:$&#123;shortGitCommit&#125; -n default</span><br><span class="line">        kubectl rollout status deployment tgbusmall-api-deployment -n default</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">      &#125;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>查看 jenkins 已构建完成</p>
+<p>查看k8s，容器已正常更新</p>
+<p>项目部署完成。</p>
+<h1 id="项目总结"><a href="#项目总结" class="headerlink" title="项目总结"></a>项目总结</h1><p>第一种方式jenkins 多分支流水线配置简单，只用在gitlab 代码下定义好 Jenkinsfile， 适合多分支代码测试，便捷开发和测试人员，通过 groovy 可以自动化部署。 </p>
+<p>第二种方式 jenkins 流水线配置不用定义Jenkinsfile ，只用配置好 pipeline 内容即可，适合分支少项目，通过 groovy 也可以自动化部署。</p>
+<p> 第三种方式前提是已经有部署好的 deployment、svc 和ingress ，只需要每次进行镜像替换即可，不推荐使用，因为每部署一个新的项目必须先手动准备好这些必配文件，不使用 groovy 自动部署。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/k8s/" rel="tag"># k8s</a>
+              <a href="/tags/devops/" rel="tag"># devops</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/" rel="prev" title="Flowable基本操作">
+      <i class="fa fa-chevron-left"></i> Flowable基本操作
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/" rel="next" title="Shardingsphere-proxy使用">
+      Shardingsphere-proxy使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#k8s%E7%BA%BF%E4%B8%8A%E5%AE%89%E8%A3%85jenkins%E5%B9%B6%E7%BB%93%E5%90%88jenkinsfile%E5%AE%9E%E7%8E%B0helm%E8%87%AA%E5%8A%A8%E5%8C%96%E9%83%A8%E7%BD%B2"><span class="nav-number">1.</span> <span class="nav-text">k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9C%80%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">需求</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83"><span class="nav-number">3.</span> <span class="nav-text">环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2jenkins"><span class="nav-number">4.</span> <span class="nav-text">部署jenkins</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEjenkins"><span class="nav-number">5.</span> <span class="nav-text">配置jenkins</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%A7%8D%E6%83%85%E5%86%B5-gitlab-%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E4%B8%8B%E6%9C%89-Jenkinsfile"><span class="nav-number">6.</span> <span class="nav-text">第一种情况 gitlab 代码结构下有 Jenkinsfile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#groovy-%E4%BD%BF%E7%94%A8"><span class="nav-number">6.1.</span> <span class="nav-text">groovy 使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#helm-%E8%87%AA%E5%BB%BAchart-%E4%BB%93%E5%BA%93"><span class="nav-number">6.2.</span> <span class="nav-text">helm 自建chart 仓库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#jenkins-%E9%83%A8%E7%BD%B2%E5%A4%9A%E5%88%86%E6%94%AF%E6%B5%81%E6%B0%B4%E7%BA%BF%E9%A1%B9%E7%9B%AE"><span class="nav-number">6.3.</span> <span class="nav-text">jenkins 部署多分支流水线项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gitlab-%E6%B7%BB%E5%8A%A0%E8%87%AA%E5%8A%A8%E8%A7%A6%E5%8F%91%EF%BC%8C%E5%BF%85%E9%A1%BB%E6%98%AF-project"><span class="nav-number">6.4.</span> <span class="nav-text">gitlab 添加自动触发，必须是 project</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%83%85%E5%86%B5-gitlab-%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E4%B8%8B%E6%B2%A1%E6%9C%89-Jenkinsfile"><span class="nav-number">7.</span> <span class="nav-text">第二种情况 gitlab 代码结构下没有 Jenkinsfile</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E7%A7%8D%E6%83%85%E5%86%B5-gitlab-%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84%E4%B8%8B%E4%B9%9F%E6%B2%A1%E6%9C%89-Jenkinsfile%EF%BC%8C%E4%BD%86%E6%98%AF%E5%B7%B2%E7%BB%8F%E6%9C%89-deployment-svc-ingress-%E8%BF%99%E4%BA%9B%E9%85%8D%E7%BD%AE"><span class="nav-number">8.</span> <span class="nav-text">第三种情况 gitlab 代码结构下也没有 Jenkinsfile，但是已经有 deployment svc ingress 这些配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">项目总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
