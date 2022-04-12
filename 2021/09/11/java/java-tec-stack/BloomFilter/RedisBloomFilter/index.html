@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="什么是布隆过滤器布隆过滤器（Bloom Filter）是 1970 年由布隆提出的，是一种非常节省空间的概率数据结构，运行速度快，占用内存小，但是有一定的误判率且无法删除元素。它实际上是一个很长的二进制向量和一系列随机映射函数组成，主要用于判断一个元素是否在一个集合中。 通常我们都会遇到判断一个元素是否在某个集合中的业务场景，这个时候我们可能都是采用 HashMap的Put方法或者其他集合将数据保">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Resis布隆过滤器">
+<meta property="og:url" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="什么是布隆过滤器布隆过滤器（Bloom Filter）是 1970 年由布隆提出的，是一种非常节省空间的概率数据结构，运行速度快，占用内存小，但是有一定的误判率且无法删除元素。它实际上是一个很长的二进制向量和一系列随机映射函数组成，主要用于判断一个元素是否在一个集合中。 通常我们都会遇到判断一个元素是否在某个集合中的业务场景，这个时候我们可能都是采用 HashMap的Put方法或者其他集合将数据保">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114430497.png">
+<meta property="og:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114516132.png">
+<meta property="og:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114538918.png">
+<meta property="og:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114606348.png">
+<meta property="og:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114637000.png">
+<meta property="og:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412115108878.png">
+<meta property="article:published_time" content="2021-09-11T03:33:27.000Z">
+<meta property="article:modified_time" content="2022-04-12T04:14:27.377Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="springboot">
+<meta property="article:tag" content="bloomfilter">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114430497.png">
+
+<link rel="canonical" href="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Resis布隆过滤器 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Resis布隆过滤器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-11 11:33:27" itemprop="dateCreated datePublished" datetime="2021-09-11T11:33:27+08:00">2021-09-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-12 12:14:27" itemprop="dateModified" datetime="2022-04-12T12:14:27+08:00">2022-04-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java-tec-stack/" itemprop="url" rel="index"><span itemprop="name">java-tec-stack</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="什么是布隆过滤器"><a href="#什么是布隆过滤器" class="headerlink" title="什么是布隆过滤器"></a>什么是布隆过滤器</h1><p>布隆过滤器（Bloom Filter）是 1970 年由布隆提出的，是一种非常节省空间的概率数据结构，运行速度快，占用内存小，但是有一定的误判率且无法删除元素。它实际上是一个很长的二进制向量和一系列随机映射函数组成，主要用于判断一个元素是否在一个集合中。</p>
+<p>通常我们都会遇到判断一个元素是否在某个集合中的业务场景，这个时候我们可能都是采用 HashMap的Put方法或者其他集合将数据保存起来，然后进行比较确定，但是如果元素很多的情况下，采用这种方式就会非常浪费空间，最终达到瓶颈，检索速度也会越来越慢，这时布隆过滤器（Bloom Filter）就应运而生了。</p>
+<span id="more"></span>
+
+<h2 id="布隆过滤器的优点："><a href="#布隆过滤器的优点：" class="headerlink" title="布隆过滤器的优点："></a>布隆过滤器的优点：</h2><ul>
+<li>支持海量数据场景下高效判断元素是否存在</li>
+<li>布隆过滤器存储空间小，并且节省空间，不存储数据本身，仅存储hash结果取模运算后的位标记</li>
+<li>不存储数据本身，比较适合某些保密场景</li>
+</ul>
+<h2 id="布隆过滤器的缺点："><a href="#布隆过滤器的缺点：" class="headerlink" title="布隆过滤器的缺点："></a>布隆过滤器的缺点：</h2><p>不存储数据本身，所以只能添加但不可删除，因为删掉元素会导致误判率增加<br>由于存在hash碰撞，匹配结果如果是“存在于过滤器中”，实际不一定存在<br>当容量快满时，hash碰撞的概率变大，插入、查询的错误率也就随之增加了<br>布隆过滤器中一个元素如果判断结果为存在的时候元素不一定存在，但是判断结果为不存在的时候则一定不存在。因此，布隆过滤器不适合那些对结果必须精准的应用场景。</p>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><ul>
+<li>不支持计数，同一个元素可以多次插入，但效果和插入一次相同</li>
+<li>由于错误率影响hash函数的数量，当hash函数越多，每次插入、查询需做的hash操作就越多</li>
+</ul>
+<h1 id="布隆过滤器适合的场景"><a href="#布隆过滤器适合的场景" class="headerlink" title="布隆过滤器适合的场景"></a>布隆过滤器适合的场景</h1><ul>
+<li>区块链中使用布隆过滤器来加快钱包同步；以太坊使用布隆过滤器用于快速查询以太坊区块链的日志</li>
+<li>数据库防止穿库，Google Bigtable，HBase 和 Cassandra 以及 Postgresql 使用BloomFilter来减少不存在的行或列的磁盘查找。避免代价高昂的磁盘查找会大大提高数据库查询操作的性能</li>
+<li>判断用户是否阅读过某一个视频或者文章，类似抖音，刷过的视频往下滑动不再刷到，可能会导致一定的误判，但不会让用户看到重复的内容</li>
+<li>网页爬虫对URL去重，采用布隆过滤器来对已经爬取过的URL进行存储，这样在进行下一次爬取的时候就可以判断出这个URL是否爬取过了</li>
+<li>使用布隆过滤器来做黑名单过滤，针对不同的用户是否存入白名单或者黑名单，虽然有一定的误判，但是在一定程度上还是很好的解决问题</li>
+<li>缓存击穿场景，一般判断用户是否在缓存中，如果存在则直接返回结果，不存在则查询数据库，如果来一波冷数据，会导致缓存大量击穿，造成雪崩效应，这时候可以用布隆过滤器当缓存的索引，只有在布隆过滤器中，才去查询缓存，如果没查询到则穿透到数据库查询。如果不在布隆过滤器中，则直接返回，会造成一定程度的误判</li>
+<li>WEB拦截器，如果相同请求则拦截，防止重复被攻击。用户第一次请求，将请求参数放入布隆过滤器中，当第二次请求时，先判断请求参数是否被布隆过滤器命中。可以提高缓存命中率。Squid 网页代理缓存服务器在 cache digests 中就使用了布隆过滤器。Google Chrome浏览器使用了布隆过滤器加速安全浏览服务</li>
+<li>Google 著名的分布式数据库 Bigtable 使用了布隆过滤器来查找不存在的行或列，以减少磁盘查找的IO次数</li>
+<li>Squid 网页代理缓存服务器在 cache digests 中使用了也布隆过滤器</li>
+<li>Venti 文档存储系统也采用布隆过滤器来检测先前存储的数据</li>
+<li>SPIN 模型检测器也使用布隆过滤器在大规模验证问题时跟踪可达状态空间</li>
+<li>Google Chrome浏览器使用了布隆过滤器加速安全浏览服务</li>
+</ul>
+<p>如果允许误判率的话，可以使用布隆过滤器，只有你想不到的，没有你做不到的</p>
+<h1 id="布隆过滤器原理"><a href="#布隆过滤器原理" class="headerlink" title="布隆过滤器原理"></a>布隆过滤器原理</h1><h2 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h2><p>布隆过滤器是由一个固定大小的<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E4%BA%8C%E8%BF%9B%E5%88%B6&spm=1001.2101.3001.7020">二进制</a>向量或者位图（bitmap）和一系列映射函数组成的。</p>
+<p>对于长度为 m 的位数组，在初始状态时，它所有位置都被置为0，如下图所示：</p>
+<img src="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114430497.png" alt="image-20220412114430497" style="zoom: 50%;">
+
+<p>位数组中的每个元素都只占用 1 bit ，并且数组中元素只能是 0 或者 1。这样申请一个 100w 个元素的位数组只占用 1000000Bit / 8 = 125000 Byte = 125000/1024 KB ≈ 122KB 的空间。</p>
+<p>增加元素</p>
+<p>当一个元素加入布隆过滤器中的时候，会进行如下操作：</p>
+<p>使用布隆过滤器中的哈希函数对元素值进行计算，得到哈希值（有几个哈希函数得到几个哈希值)<br>根据得到的哈希值，在位数组中把对应下标的值置为 1<br>如下图所示：</p>
+<img src="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114516132.png" alt="image-20220412114516132" style="zoom:50%;">
+
+<p>接着再添加一个值 “xinlang”，哈希函数的值是3、5、8，如下图所示：</p>
+<img src="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114538918.png" alt="image-20220412114538918" style="zoom:50%;">
+
+<p>这里需要注意的是，5 这个 bit 位由于两个值的哈希函数都返回了这个 bit 位，因此被覆盖了。</p>
+<p>查询元素</p>
+<p>对给定元素再次进行相同的哈希计算<br>得到哈希值之后判断位数组中的每个元素是否都为 1，如果值都为 1，那么说明这个值存在布隆过滤器当中，如果存在一个值不为 1，说明该元素不在布隆过滤器中<br>例如我们查询 “cunzai” 这个值是否存在，哈希函数返回了 1、5、8三个值<br>如下图所示：</p>
+<img src="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114606348.png" alt="image-20220412114606348" style="zoom:50%;">
+
+<p>结果得到三个 1 ，说明 “cunzai” 是有可能存在的。</p>
+<p>为什么说是可能存在，而不是一定存在呢？主要分为以下几种情况：</p>
+<p>因为映射函数本身就是散列函数，散列函数是会有碰撞的情况发生。</p>
+<p>情况1：一个字符串可能是 “chongtu” 经过相同的三个映射函数运算得到的三个点跟 “xinlang” 是一样的，这种情况下我们就说出现了误判<br>情况2： “chongtu” 经过运算得到三个点位上的 1 是两个不同的变量经过运算后得到的，这也不能证明字符串 “chongtu” 是一定存在的</p>
+<img src="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412114637000.png" alt="image-20220412114637000" style="zoom:50%;">
+
+<p>鉴于上面的情况，不同的字符串可能哈希出来的位置相同，这种情况我们可以适当增加位数组大小或者调整哈希函数。</p>
+<p>布隆过滤器判定某个元素存在，小概率会误判；布隆过滤器判定某个元素不在，则这个元素一定不在。</p>
+<p>删除元素</p>
+<p>布隆过滤器对元素的删除，肯定不可以，会出现问题，比如上面添加元素的 bit 位 5 被两个变量的哈希值共同覆盖的情况下，一旦我们删除其中一个值。例如“xinlang”而将其置位 0，那么下次判断另一个值例如“baidu”是否存在的话，会直接返回 false，而实际上我们并没有删除它，这就导致了误判的问题。</p>
+<h1 id="使用布隆过滤器"><a href="#使用布隆过滤器" class="headerlink" title="使用布隆过滤器"></a>使用布隆过滤器</h1><h2 id="Google开源的Guava自带布隆过滤器"><a href="#Google开源的Guava自带布隆过滤器" class="headerlink" title="Google开源的Guava自带布隆过滤器"></a>Google开源的Guava自带布隆过滤器</h2><p>首先引入Guava的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.google.guava<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>guava<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>31.0.1-jre<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">BloomFilter&lt;Integer&gt; bloomFilter = BloomFilter.create(Funnels.integerFunnel(), <span class="number">5000000</span>);</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000000</span>; i++) &#123;</span><br><span class="line">			bloomFilter.put(i);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">long</span> start = System.nanoTime();</span><br><span class="line">		<span class="keyword">if</span> (bloomFilter.mightContain(<span class="number">500000</span>)) &#123;</span><br><span class="line">			System.out.println(<span class="string">&quot;成功过滤到500000&quot;</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">long</span> end = System.nanoTime();</span><br><span class="line">		System.out.println(<span class="string">&quot;布隆过滤器消耗时间&quot;</span>+(end - start)/<span class="number">1000000L</span>+<span class="string">&quot;毫秒&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">成功过滤到500000</span><br><span class="line">布隆过滤器消耗时间0毫秒</span><br></pre></td></tr></table></figure>
+
+<p>布隆过滤器消耗时间:0毫秒，有点不敢相信呢，匹配速度是不是很快？</p>
+<p>那么，在数据量很大的情况下，1%的误判率结果如何？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">BloomFilter&lt;String&gt; bloomFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8),<span class="number">5000000</span>,<span class="number">0.01</span>);</span><br><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">5000000</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000000</span>; i++) &#123;</span><br><span class="line">	String uuid = UUID.randomUUID().toString();</span><br><span class="line">	bloomFilter.put(uuid);</span><br><span class="line">	list.add(uuid);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> mightContainNumber1= <span class="number">0</span>;</span><br><span class="line">NumberFormat percentFormat =NumberFormat.getPercentInstance();</span><br><span class="line">percentFormat.setMaximumFractionDigits(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>;i &lt; <span class="number">500</span>;i++)&#123;</span><br><span class="line">	String key = list.get(i);</span><br><span class="line">	<span class="keyword">if</span> (bloomFilter.mightContain(key))&#123;</span><br><span class="line">		mightContainNumber1++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">System.out.println(<span class="string">&quot;【key真实存在的情况】布隆过滤器认为存在的key值数：&quot;</span> + mightContainNumber1);</span><br><span class="line">System.out.println(<span class="string">&quot;================================================================================&quot;</span>);</span><br><span class="line"><span class="keyword">int</span> mightContainNumber2 = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>;i &lt; <span class="number">5000000</span>;i++)&#123;</span><br><span class="line">	String key = UUID.randomUUID().toString();</span><br><span class="line">	<span class="keyword">if</span> (bloomFilter.mightContain(key))&#123;</span><br><span class="line">		mightContainNumber2++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;【key不存在的情况】布隆过滤器认为存在的key值数：&quot;</span> + mightContainNumber2);</span><br><span class="line">System.out.println(<span class="string">&quot;【key不存在的情况】布隆过滤器的误判率为：&quot;</span> + percentFormat.format((<span class="keyword">float</span>)mightContainNumber2 / <span class="number">5000000</span>));</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">【key真实存在的情况】布隆过滤器认为存在的key值数：500</span><br><span class="line">================================================================================</span><br><span class="line">【key不存在的情况】布隆过滤器认为存在的key值数：50389</span><br><span class="line">【key不存在的情况】布隆过滤器的误判率为：1.01<span class="comment">%</span></span><br></pre></td></tr></table></figure>
+
+<p>3%的误判率结果如何？</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">BloomFilter&lt;String&gt; bloomFilter = BloomFilter.create(Funnels.stringFunnel(Charsets.UTF_8),<span class="number">5000000</span>,);</span><br><span class="line">List&lt;String&gt; list = <span class="keyword">new</span> ArrayList&lt;&gt;(<span class="number">5000000</span>);</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">5000000</span>; i++) &#123;</span><br><span class="line">	String uuid = UUID.randomUUID().toString();</span><br><span class="line">	bloomFilter.put(uuid);</span><br><span class="line">	list.add(uuid);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> mightContainNumber1= <span class="number">0</span>;</span><br><span class="line">NumberFormat percentFormat =NumberFormat.getPercentInstance();</span><br><span class="line">percentFormat.setMaximumFractionDigits(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>;i &lt; <span class="number">500</span>;i++)&#123;</span><br><span class="line">	String key = list.get(i);</span><br><span class="line">	<span class="keyword">if</span> (bloomFilter.mightContain(key))&#123;</span><br><span class="line">		mightContainNumber1++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">System.out.println(<span class="string">&quot;【key真实存在的情况】布隆过滤器认为存在的key值数：&quot;</span> + mightContainNumber1);</span><br><span class="line">System.out.println(<span class="string">&quot;================================================================================&quot;</span>);</span><br><span class="line"><span class="keyword">int</span> mightContainNumber2 = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i=<span class="number">0</span>;i &lt; <span class="number">5000000</span>;i++)&#123;</span><br><span class="line">	String key = UUID.randomUUID().toString();</span><br><span class="line">	<span class="keyword">if</span> (bloomFilter.mightContain(key))&#123;</span><br><span class="line">		mightContainNumber2++;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;【key不存在的情况】布隆过滤器认为存在的key值数：&quot;</span> + mightContainNumber2);</span><br><span class="line">System.out.println(<span class="string">&quot;【key不存在的情况】布隆过滤器的误判率为：&quot;</span> + percentFormat.format((<span class="keyword">float</span>)mightContainNumber2 / <span class="number">5000000</span>));</span><br></pre></td></tr></table></figure>
+
+<p>创建一个最多添加 500 个整数的布隆过滤器，并且可以容忍误判率为百分之一（0.01）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bool</span><span class="params">()</span></span>&#123;</span><br><span class="line">	BloomFilter&lt;Integer&gt; filter = BloomFilter.create(Funnels.integerFunnel(), <span class="number">500</span>, <span class="number">0.01</span>);</span><br><span class="line">	<span class="comment">// 判断指定元素是否存在</span></span><br><span class="line">	System.out.println(filter.mightContain(<span class="number">1</span>));</span><br><span class="line">	System.out.println(filter.mightContain(<span class="number">2</span>));</span><br><span class="line">      <span class="comment">// 将元素添加进布隆过滤器</span></span><br><span class="line">	filter.put(<span class="number">1</span>);</span><br><span class="line">	filter.put(<span class="number">2</span>);</span><br><span class="line">	<span class="comment">// 判断指定元素是否存在</span></span><br><span class="line">	System.out.println(filter.mightContain(<span class="number">1</span>));</span><br><span class="line">	System.out.println(filter.mightContain(<span class="number">2</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">【key真实存在的情况】布隆过滤器认为存在的key值数：500</span><br><span class="line">================================================================================</span><br><span class="line">【key不存在的情况】布隆过滤器认为存在的key值数：150591</span><br><span class="line">【key不存在的情况】布隆过滤器的误判率为：3.01<span class="comment">%</span></span><br></pre></td></tr></table></figure>
+
+<p>从上面的结果可以看出：</p>
+<ul>
+<li>如果元素实际存在，那么布隆过滤器一定会判断存在</li>
+<li>误判率即fpp在3%左右，随着for循环的次数越大，而且越接近3%，那么如果元素不存在，那么布隆过滤器可能会判断存在</li>
+</ul>
+<p>看源码可知这个3%的fpp是Guava中默认的fpp</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">BloomFilter&lt;T&gt; <span class="title">create</span><span class="params">(Funnel&lt;? <span class="keyword">super</span> T&gt; funnel, <span class="keyword">long</span> expectedInsertions)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> create(funnel, expectedInsertions, <span class="number">0.03</span>); <span class="comment">// FYI, for 3%, we always get 5 hash functions</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下地址是一个免费的在线布隆过滤器在线计算的网址：<br><a target="_blank" rel="noopener" href="https://hur.st/bloomfilter/?n=1000000&p=0.03&m=&k=">点击这里</a></p>
+<p>经过哈希计算次数设置为3次，这个3%的误判率和3次哈希运算需要多大空间位数组呢？</p>
+<p><img src="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/image-20220412115108878.png" alt="image-20220412115108878"></p>
+<p>计算得到的结果是1.74MiB，200W的key才占用了1.74M，而如果是10亿呢，计算的结果是960M，这个内存空间是完全可以接受的。</p>
+<p>Guava 提供的布隆过滤器的实现还是很不错的，但是它有一个重大的缺陷就是只能单机使用（另外，容量扩展也不容易），而现在互联网一般都是分布式的场景。为了解决这个问题就需要用到Redis中的布隆过滤器了。</p>
+<h2 id="Redis实现布隆过滤器"><a href="#Redis实现布隆过滤器" class="headerlink" title="Redis实现布隆过滤器"></a>Redis实现布隆过滤器</h2><h3 id="Redis中配置布隆过滤器"><a href="#Redis中配置布隆过滤器" class="headerlink" title="Redis中配置布隆过滤器"></a>Redis中配置布隆过滤器</h3><p>1、点击<a target="_blank" rel="noopener" href="https://redis.io/modules">https://redis.io/modules </a>找到RedisBloom<br>2、点击进去下载RedisBloom-master.zip文件，上传到linux<br>3、解压缩刚才的RedisBloom文件</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">unzip RedisBloom-master.zip</span><br><span class="line"><span class="built_in">cd</span> RedisBloom-master</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+
+<p>make完生成redisbloom.so，拷贝到redis的安装目录。</p>
+<p>在redis.conf配置文件中加入如RedisBloom的redisbloom.so文件的地址,如果是集群则每个配置文件中都需要加入redisbloom.so文件的地址</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">loadmodule /home/www/server/redis/redisbloom.so</span><br></pre></td></tr></table></figure>
+
+<p>保存以后重启redis服务</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server redis.conf --loadmodule /home/www/server/redis/redisbloom.so</span><br></pre></td></tr></table></figure>
+
+<p>上面我们有提到需要重启Redis，在本地和测试环境还可以，但是正式环境能不重启就不需要重启，那这么做可以不重启Redis，使用module load命令执行。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; MODULE LOAD /home/www/server/redis/redisbloom.so</span><br><span class="line">&gt; module list</span><br><span class="line">1) 1) <span class="string">&quot;name&quot;</span></span><br><span class="line">   2) <span class="string">&quot;bf&quot;</span></span><br><span class="line">   3) <span class="string">&quot;ver&quot;</span></span><br><span class="line">   4) (<span class="built_in">integer</span>) 999999</span><br></pre></td></tr></table></figure>
+
+<p>看到以上数据则说明redisbloom加载成功了，模块名name为”bf”，模块版本号ver为999999。</p>
+<p>Redis中布隆过滤器指令使用</p>
+<p>使用布隆过滤器完整指令请到官网查看： 点击这里</p>
+<h4 id="自定义参数"><a href="#自定义参数" class="headerlink" title="自定义参数"></a>自定义参数</h4><p>bf.reserve {key} {error_rate} {capacity}<br>使用给定的期望错误率和初始容量创建空的布隆过滤器<br>参数说明：<br>key：布隆过滤器的key<br>error_rate：期望的错误率（False Positive Rate），该值必须介于0和1之间。该值越小，BloomFilter的内存占用量越大，CPU使用率越高<br>capacity：布隆过滤器的初始容量，即期望添加到布隆过滤器中的元素的个数。当实际添加的元素个数超过该值时，布隆过滤器将进行自动的扩容，该过程会导致性能有所下降，下降的程度是随着元素个数的指数级增长而线性下降<br>返回值：<br>成功：OK<br>其它情况返回相应的异常信息</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#创建一个容量为5且不允许扩容的过滤器；</span></span><br><span class="line">127.0.0.1:6379&gt; bf.reserve name 0.1 5 NONSCALING</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 1 2 3 4 5</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">4) (<span class="built_in">integer</span>) 1</span><br><span class="line">5) (<span class="built_in">integer</span>) 1</span><br><span class="line"> </span><br><span class="line"><span class="comment">#添加第6个元素时即提示布隆过滤器已满；</span></span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 6</span><br><span class="line">1) (error) ERR non scaling filter is full</span><br><span class="line">127.0.0.1:6379&gt; bf.info name</span><br><span class="line"> 1) Capacity</span><br><span class="line"> 2) (<span class="built_in">integer</span>) 5</span><br><span class="line"> 3) Size</span><br><span class="line"> 4) (<span class="built_in">integer</span>) 155</span><br><span class="line"> 5) Number of filters</span><br><span class="line"> 6) (<span class="built_in">integer</span>) 1</span><br><span class="line"> 7) Number of items inserted</span><br><span class="line"> 8) (<span class="built_in">integer</span>) 5</span><br><span class="line"> 9) Expansion rate</span><br><span class="line">10) (<span class="built_in">integer</span>) 2</span><br></pre></td></tr></table></figure>
+
+<h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加单个元素</span></span><br><span class="line">bf.add &#123;key&#125; &#123;item&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">item：待插入过滤器的元素</span><br><span class="line">返回值：</span><br><span class="line">元素不存在插入成功：返回1</span><br><span class="line">元素可能已经存在：返回0</span><br><span class="line">其它情况返回相应的异常信息</span><br><span class="line"></span><br><span class="line"><span class="comment"># 添加多个元素</span></span><br><span class="line">bf.madd &#123;key&#125; &#123;item&#125; [item...]</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">item：待插入过滤器的元素，可插入多个</span><br><span class="line">返回值：</span><br><span class="line">成功：返回一个数组，数组的每一个元素可能为1或0，当item一定不存在时数组元素值为1，当item可能已经存在时数组元素值为0</span><br><span class="line">其它情况返回相应的异常信息</span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断单个元素是否存在</span></span><br><span class="line">bf.exists&#123;key&#125; &#123;item&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">item：待检查的元素</span><br><span class="line">返回值：</span><br><span class="line">元素一定不存在：0</span><br><span class="line">元素可能存在：1</span><br><span class="line">其它情况返回相应的异常信息</span><br><span class="line"></span><br><span class="line"><span class="comment"># 判断多个元素是否存在</span></span><br><span class="line">bf.mexists&#123;key&#125; &#123;item&#125; [item...]</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">item：待检查的元素</span><br><span class="line">返回值：</span><br><span class="line">元素一定不存在：0</span><br><span class="line">元素可能存在：1</span><br><span class="line">其它情况返回相应的异常信息</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt;</span><br><span class="line">127.0.0.1:6379&gt; bf.add name zhangsan1</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.add name zhangsan2</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line">127.0.0.1:6379&gt; bf.madd name zhangsan2 zhangsan3 zhangsan4 zhangsan5</span><br><span class="line">1) (<span class="built_in">integer</span>) 0</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">4) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.exists name zhangsan2</span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.exists name  zhangsan3 </span><br><span class="line">(<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.mexists name zhangsan3 zhangsan4 zhangsan5</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 向key指定的Bloom中添加多个元素，添加时可以指定大小和错误率，且可以控制在Bloom不存在的时候是否自动创建</span></span><br><span class="line">bf.insert&#123;key&#125; [CAPACITY &#123;<span class="built_in">cap</span>&#125;] [ERROR &#123;ERROR&#125;] [NOCREATE] ITEMS &#123;item…&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">CAPACITY：如果过滤器已创建，则此参数将被忽略</span><br><span class="line">ERROR：如果过滤器已创建，则此参数将被忽略</span><br><span class="line">expansion：布隆过滤器会自动创建一个子过滤器，子过滤器的大小是上一个过滤器大小乘以expansion。expansion的默认值是2，也就是说布隆过滤器扩容默认是2倍扩容。</span><br><span class="line">NOCREATE：如果设置了该参数，当布隆过滤器不存在时则不会被创建。用于严格区分过滤器的创建和元素插入场景。该参数不能与CAPACITY和ERROR同时设置。</span><br><span class="line">NONSCALING：设置此项后，当添加到布隆过滤器中的数据达到初始容量后，不会扩容过滤器，并且会抛出异常（(error) ERR non scaling filter is full）。</span><br><span class="line">ITEMS：待插入过滤器的元素列表，该参数必传。</span><br><span class="line">返回值：</span><br><span class="line">成功：返回一个数组，数组的每一个元素可能为1或0，当item一定不存在时数组元素值为1，当item可能已经存在时数组元素值为0</span><br><span class="line">其它情况返回相应的异常信息</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bf.insert name items  zhangsan1 zhangsan2 zhangsan3</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.insert name items  zhangsan1 zhangsan2 zhangsan3</span><br><span class="line">1) (<span class="built_in">integer</span>) 0</span><br><span class="line">2) (<span class="built_in">integer</span>) 0</span><br><span class="line">3) (<span class="built_in">integer</span>) 0</span><br><span class="line">127.0.0.1:6379&gt; bf.insert name capacity  10000 error 0.00001  nocreate  items  zhangsan1 zhangsan2 zhangsan3</span><br><span class="line">1) (<span class="built_in">integer</span>) 0</span><br><span class="line">2) (<span class="built_in">integer</span>) 0</span><br><span class="line">3) (<span class="built_in">integer</span>) 0</span><br><span class="line">127.0.0.1:6379&gt;</span><br><span class="line">127.0.0.1:6379&gt; bf.insert name capacity  10000 error 0.00001  nocreate  items  zhangsan4 zhangsan5 zhangsan6</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对布隆过滤器进行增量持久化操作</span></span><br><span class="line">bf.scandump &#123;key&#125; &#123;item&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">item：首次调用传值0，或者上次调用此命令返回的结果值</span><br><span class="line">返回值：</span><br><span class="line">返回连续的(iter, data)对，直到(0,NULL)，表示DUMP完成</span><br><span class="line">其它情况返回相应的异常信息</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6378&gt; bf.madd name zhangsan1 zhangsan2 zhangsan3 zhangsan4 zhangsan5</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6378&gt; bf.scandump name  0</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) <span class="string">&quot;\a\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x05\x00\x00\x00\x02\x00\x00\x00\x8a\x00\x00\x00\x00\x00\x00\x00P\x04\x00\x00\x00\x00\x00\x00\a\x00\x00\x00\x00\x00\x00\x00&#123;\x14\xaeG\xe1zt?\xe9\x86/\xb25\x0e&amp;@\b\x00\x00\x00d\x00\x00\x00\x00\x00\x00\x00\x00&quot;</span></span><br><span class="line">127.0.0.1:6378&gt; bf.scandump name  1</span><br><span class="line">1) (<span class="built_in">integer</span>) 139</span><br><span class="line">2) <span class="string">&quot;\x80\x00\b\n\x00$\x00 \b\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\b\x00\x00\x00\x00\x82$\x04\x00@\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x04\x00\x00\x00\x00\x00\x00\x04\x01@\xa0\x00@\x00\x00\x00\x00\x00\x10@\x00\x02\&quot;\x00 \x00\x00\x04\x00\x00\x00\x00\x00 \x00\x80\x00\x00\&quot;\x04\x04\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x80\x00\x00\x00\x00\x00 \x80$\x00 \x00\x00 \x0c$\x00\x00\x00\b`\x00\x00\x00\x00\x00\x00\x00\x00\b\x80\x02 \x04\x00\x00\x00\x00\x00&quot;</span></span><br><span class="line">127.0.0.1:6378&gt; bf.scandump name 200</span><br><span class="line">1) (<span class="built_in">integer</span>) 0</span><br><span class="line">2) <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对布隆过滤器进行增量持久化操作</span></span><br><span class="line">bf.scandump &#123;key&#125; &#123;item&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">item：首次调用传值0，或者上次调用此命令返回的结果值</span><br><span class="line">返回值：</span><br><span class="line">返回连续的(iter, data)对，直到(0,NULL)，表示DUMP完成</span><br><span class="line">其它情况返回相应的异常信息</span><br><span class="line"></span><br><span class="line"><span class="comment"># 返回布隆过滤器的相关信息</span></span><br><span class="line">bf.info &#123;key&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">返回值：</span><br><span class="line">Capacity：预设容量</span><br><span class="line">Size：实际占用情况，但如何计算待进一步确认</span><br><span class="line">Number of filters：过滤器层数</span><br><span class="line">Number of items inserted：已经实际插入的元素数量</span><br><span class="line">Expansion rate：子过滤器扩容系数（默认2）</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; bf.info name</span><br><span class="line"> 1) Capacity</span><br><span class="line"> 2) (<span class="built_in">integer</span>) 5</span><br><span class="line"> 3) Size</span><br><span class="line"> 4) (<span class="built_in">integer</span>) 155</span><br><span class="line"> 5) Number of filters</span><br><span class="line"> 6) (<span class="built_in">integer</span>) 1</span><br><span class="line"> 7) Number of items inserted</span><br><span class="line"> 8) (<span class="built_in">integer</span>) 5</span><br><span class="line"> 9) Expansion rate</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 查看布隆过滤器的内部详细信息</span></span><br><span class="line">bf.debug&#123;key&#125;</span><br><span class="line">参数说明：</span><br><span class="line">key：布隆过滤器的名字</span><br><span class="line">返回值：</span><br><span class="line">size：布隆过滤器中已插入的元素数量</span><br><span class="line">每层BloomFilter的详细信息</span><br><span class="line">bytes：占用字节数量</span><br><span class="line">bits：占用bit位数量，bits = bytes * 8</span><br><span class="line">shashes：该层<span class="built_in">hash</span>函数数量</span><br><span class="line">hashwidth：<span class="built_in">hash</span>函数宽度</span><br><span class="line">capacity：该层容量（第一层为BloomFilter初始化时设置的容量，第2层容量 = 第一层容量 * expansion，以此类推）</span><br><span class="line">size：该层中已插入的元素数量（各层size之和等于BloomFilter中已插入的元素数量size）</span><br><span class="line">ratio：该层错误率（第一层的错误率 = BloomFilter初始化时设置的错误率 * 0.5，第二层为第一层的0.5倍，以此类推，ratio与expansion无关）</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#创建一个容量为5的布隆过滤器，其key为“name”；</span></span><br><span class="line">127.0.0.1:6379&gt; bf.reserve name0.1 5</span><br><span class="line">OK</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 查看布隆过滤器的内部信息，此时布隆过滤器的层数为1</span></span><br><span class="line">127.0.0.1:6379&gt; bf.debug name</span><br><span class="line">1) <span class="string">&quot;size:0&quot;</span></span><br><span class="line">2) <span class="string">&quot;bytes:4 bits:32 hashes:5 hashwidth:64 capacity:5 size:0 ratio:0.05&quot;</span></span><br><span class="line"> </span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 1 2 3 4 5</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">4) (<span class="built_in">integer</span>) 1</span><br><span class="line">5) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.debug name</span><br><span class="line">1) <span class="string">&quot;size:5&quot;</span></span><br><span class="line">2) <span class="string">&quot;bytes:4 bits:32 hashes:5 hashwidth:64 capacity:5 size:5 ratio:0.05&quot;</span></span><br><span class="line"> </span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 11 12 13 14 15</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">4) (<span class="built_in">integer</span>) 0</span><br><span class="line">5) (<span class="built_in">integer</span>) 1</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 添加10个元素后，此时布隆过滤器的层数变为2；</span></span><br><span class="line">127.0.0.1:6379&gt; bf.debug name</span><br><span class="line">1) <span class="string">&quot;size:9&quot;</span></span><br><span class="line">2) <span class="string">&quot;bytes:4 bits:32 hashes:5 hashwidth:64 capacity:5 size:5 ratio:0.05&quot;</span></span><br><span class="line">3) <span class="string">&quot;bytes:10 bits:80 hashes:6 hashwidth:64 capacity:10 size:4 ratio:0.025&quot;</span></span><br><span class="line"> </span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 21 22 23</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.debug name</span><br><span class="line">1) <span class="string">&quot;size:12&quot;</span></span><br><span class="line">2) <span class="string">&quot;bytes:4 bits:32 hashes:5 hashwidth:64 capacity:5 size:5 ratio:0.05&quot;</span></span><br><span class="line">3) <span class="string">&quot;bytes:10 bits:80 hashes:6 hashwidth:64 capacity:10 size:7 ratio:0.025&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 24 25</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">127.0.0.1:6379&gt; bf.debug name</span><br><span class="line">1) <span class="string">&quot;size:14&quot;</span></span><br><span class="line">2) <span class="string">&quot;bytes:4 bits:32 hashes:5 hashwidth:64 capacity:5 size:5 ratio:0.05&quot;</span></span><br><span class="line">3) <span class="string">&quot;bytes:10 bits:80 hashes:6 hashwidth:64 capacity:10 size:9 ratio:0.025&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; bf.madd name 31 32 33 34 35</span><br><span class="line">1) (<span class="built_in">integer</span>) 1</span><br><span class="line">2) (<span class="built_in">integer</span>) 1</span><br><span class="line">3) (<span class="built_in">integer</span>) 1</span><br><span class="line">4) (<span class="built_in">integer</span>) 1</span><br><span class="line">5) (<span class="built_in">integer</span>) 1</span><br><span class="line"> </span><br><span class="line"><span class="comment">#添加20个元素后，此时布隆过滤器的层数变为3；</span></span><br><span class="line">127.0.0.1:6379&gt; bf.debug name</span><br><span class="line">1) <span class="string">&quot;size:19&quot;</span></span><br><span class="line">2) <span class="string">&quot;bytes:4 bits:32 hashes:5 hashwidth:64 capacity:5 size:5 ratio:0.05&quot;</span></span><br><span class="line">3) <span class="string">&quot;bytes:10 bits:80 hashes:6 hashwidth:64 capacity:10 size:10 ratio:0.025&quot;</span></span><br><span class="line">4) <span class="string">&quot;bytes:23 bits:184 hashes:7 hashwidth:64 capacity:20 size:4 ratio:0.0125&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Java集成Redis使用布隆过滤器"><a href="#Java集成Redis使用布隆过滤器" class="headerlink" title="Java集成Redis使用布隆过滤器"></a>Java集成Redis使用布隆过滤器</h4><p>pom中引入redisson依赖:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.redisson<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>redisson-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.13.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写代码测试1</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">patchingConsum</span><span class="params">(ConsumPatchingVO vo)</span> <span class="keyword">throws</span> ParseException </span>&#123;</span><br><span class="line">	Config config = <span class="keyword">new</span> Config();</span><br><span class="line">	SingleServerConfig singleServerConfig = config.useSingleServer();</span><br><span class="line">	singleServerConfig.setAddress(<span class="string">&quot;redis://127.0.0.1:6379&quot;</span>);</span><br><span class="line">	singleServerConfig.setPassword(<span class="string">&quot;123456&quot;</span>);</span><br><span class="line">	RedissonClient redissonClient = Redisson.create(config);</span><br><span class="line">	RBloomFilter&lt;String&gt; bloom = redissonClient.getBloomFilter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">	<span class="comment">// 初始化布隆过滤器；  大小:100000，误判率:0.01</span></span><br><span class="line">	bloom.tryInit(<span class="number">100000L</span>, <span class="number">0.01</span>);</span><br><span class="line">	<span class="comment">// 新增10万条数据</span></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">100000</span>;i++) &#123;</span><br><span class="line">		bloom.add(<span class="string">&quot;name&quot;</span> + i);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 判断不存在于布隆过滤器中的元素</span></span><br><span class="line">	List&lt;String&gt; notExistList = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">100000</span>;i++) &#123;</span><br><span class="line">		String str = <span class="string">&quot;name&quot;</span> + i;</span><br><span class="line">		<span class="keyword">boolean</span> notExist = bloom.contains(str);</span><br><span class="line">		<span class="keyword">if</span> (notExist) &#123;</span><br><span class="line">			notExistList.add(str);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> ($.isNotEmpty(notExistList) &amp;&amp; notExistList.size() &gt; <span class="number">0</span> ) &#123;</span><br><span class="line">		System.out.println(<span class="string">&quot;误判次数:&quot;</span>+notExistList.size());</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编写代码测试1</p>
+<p>在springboot配置文件中配置reids连接信息</p>
+<p>编写一个service</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.haoxuan.springboot.demo.bloomfilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RBloomFilter;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RedissonClient;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Service;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BloomFilterService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedissonClient redissonClient;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 创建布隆过滤器</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> filterName 过滤器名称</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> expectedInsertions 预测插入数量</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> falseProbability 误判率</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> &lt;T&gt;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> &lt;T&gt;<span class="function">RBloomFilter&lt;T&gt; <span class="title">create</span><span class="params">(String filterName, <span class="keyword">long</span> expectedInsertions, <span class="keyword">double</span> falseProbability)</span> </span>&#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">            注意事项：如果是 Redis Cluster 集群，则需要</span></span><br><span class="line"><span class="comment">            RClusteredBloomFilter&lt;SomeObject&gt; bloomFilter = redisson.getClusteredBloomFilter(&quot;sample&quot;);</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        RBloomFilter&lt;T&gt; bloomFilter = redissonClient.getBloomFilter(filterName);</span><br><span class="line">        bloomFilter.tryInit(expectedInsertions, falseProbability);</span><br><span class="line">        <span class="keyword">return</span> bloomFilter;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.haoxuan.springboot.demo.bloomfilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.junit.jupiter.api.Test;</span><br><span class="line"><span class="keyword">import</span> org.redisson.api.RBloomFilter;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.test.context.SpringBootTest;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span>:</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@description</span>:</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SpringBootTest</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BloomFilterTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> BloomFilterService bloomFilterService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testBloomFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 预期插入数量</span></span><br><span class="line">        <span class="keyword">long</span> expectedInsertions = <span class="number">10000L</span>;</span><br><span class="line">        <span class="comment">// 错误比率</span></span><br><span class="line">        <span class="keyword">double</span> falseProbability = <span class="number">0.01</span>;</span><br><span class="line"></span><br><span class="line">        RBloomFilter&lt;Long&gt; ipBlackList = bloomFilterService.create(<span class="string">&quot;ipBlackList&quot;</span>, expectedInsertions, falseProbability);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; expectedInsertions; i++) &#123;</span><br><span class="line">             ipBlackList.add(i);</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">long</span> elementCount = ipBlackList.count();</span><br><span class="line">        System.out.println(<span class="string">&quot;elementCount is: &quot;</span> + elementCount);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 统计误判次数</span></span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">long</span> i = <span class="number">0</span>; i &lt; expectedInsertions * <span class="number">2</span>; i++) &#123;</span><br><span class="line">             <span class="keyword">if</span> (ipBlackList.contains(i)) &#123;</span><br><span class="line">                 count++;</span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;误判次数：&quot;</span> + count);</span><br><span class="line">        ipBlackList.delete();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/springboot/" rel="tag"># springboot</a>
+              <a href="/tags/bloomfilter/" rel="tag"># bloomfilter</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/05/db-resource/mysql/mysql-base/master-slave/" rel="prev" title="mysql主从配置">
+      <i class="fa fa-chevron-left"></i> mysql主从配置
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/" rel="next" title="Flowable基本操作">
+      Flowable基本操作 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">什么是布隆过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">布隆过滤器的优点：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E7%9A%84%E7%BC%BA%E7%82%B9%EF%BC%9A"><span class="nav-number">1.2.</span> <span class="nav-text">布隆过滤器的缺点：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.3.</span> <span class="nav-text">其他问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E9%80%82%E5%90%88%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text">布隆过滤器适合的场景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">布隆过滤器原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">数据结构</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">使用布隆过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Google%E5%BC%80%E6%BA%90%E7%9A%84Guava%E8%87%AA%E5%B8%A6%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">Google开源的Guava自带布隆过滤器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis%E5%AE%9E%E7%8E%B0%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">4.2.</span> <span class="nav-text">Redis实现布隆过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis%E4%B8%AD%E9%85%8D%E7%BD%AE%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">4.2.1.</span> <span class="nav-text">Redis中配置布隆过滤器</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E5%8F%82%E6%95%B0"><span class="nav-number">4.2.1.1.</span> <span class="nav-text">自定义参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="nav-number">4.2.1.2.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Java%E9%9B%86%E6%88%90Redis%E4%BD%BF%E7%94%A8%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">4.2.1.3.</span> <span class="nav-text">Java集成Redis使用布隆过滤器</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">34</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
