@@ -20,30 +20,31 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
   </script>
 
-  <meta name="description" content="[toc] 介绍集群的好处  高可用性：故障检测及迁移，多节点备份。 可伸缩性：新增数据库节点便利，方便扩容。 负载均衡：切换某服务访问某节点，分摊单个节点的数据库压力。  集群要考虑的风险  网络分裂：群集还可能由于网络故障而拆分为多个部分，每部分内的节点相互连接，但各部分之间的节点失去连接。 脑裂：导致数据库节点彼此独立运行的集群故障称为“脑裂”。这种情况可能导致数据不一致，并且无法修复，例如">
+  <meta name="description" content="介绍 mysql原厂出品 MySQL Replication MySQL Fabirc MySQL Cluster MGR   mysql第三方优化 MMM MHA PXC Galera Cluster   依托硬件配合 heartbeat+SAN heartbeat+DRDB   其它 Zookeeper + proxy Paxos      介绍集群的好处  高可用性：故障检测及迁移，多">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mysql集群方案">
-<meta property="og:url" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:url" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/index.html">
 <meta property="og:site_name" content="Winking&#39;s blog">
-<meta property="og:description" content="[toc] 介绍集群的好处  高可用性：故障检测及迁移，多节点备份。 可伸缩性：新增数据库节点便利，方便扩容。 负载均衡：切换某服务访问某节点，分摊单个节点的数据库压力。  集群要考虑的风险  网络分裂：群集还可能由于网络故障而拆分为多个部分，每部分内的节点相互连接，但各部分之间的节点失去连接。 脑裂：导致数据库节点彼此独立运行的集群故障称为“脑裂”。这种情况可能导致数据不一致，并且无法修复，例如">
+<meta property="og:description" content="介绍 mysql原厂出品 MySQL Replication MySQL Fabirc MySQL Cluster MGR   mysql第三方优化 MMM MHA PXC Galera Cluster   依托硬件配合 heartbeat+SAN heartbeat+DRDB   其它 Zookeeper + proxy Paxos      介绍集群的好处  高可用性：故障检测及迁移，多">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.jpeg">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235007110.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235043670.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/20200310165540560.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235153449.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235223404.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235309548.png">
-<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235332067.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.jpeg">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235007110.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235043670.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NzAxOTAxNg==,size_16,color_FFFFFF,t_70.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/20200310165540560.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235153449.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235223404.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235309548.png">
+<meta property="og:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235332067.png">
 <meta property="article:published_time" content="2021-08-02T15:33:27.000Z">
-<meta property="article:modified_time" content="2022-05-04T14:55:31.339Z">
+<meta property="article:modified_time" content="2022-05-04T15:45:14.918Z">
 <meta property="article:author" content="Winking">
 <meta property="article:tag" content="mysql">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.jpeg">
+<meta name="twitter:image" content="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.jpeg">
 
-<link rel="canonical" href="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/">
+<link rel="canonical" href="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/">
 
 
 <script id="page-configurations">
@@ -204,7 +205,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -234,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-04 22:55:31" itemprop="dateModified" datetime="2022-05-04T22:55:31+08:00">2022-05-04</time>
+                <time title="修改时间：2022-05-04 23:45:14" itemprop="dateModified" datetime="2022-05-04T23:45:14+08:00">2022-05-04</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -264,8 +265,38 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p>[toc]</p>
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>集群的好处</p>
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E4%BB%8B%E7%BB%8D">介绍</a></li>
+<li><a href="#mysql%E5%8E%9F%E5%8E%82%E5%87%BA%E5%93%81">mysql原厂出品</a><ul>
+<li><a href="#mysql-replication">MySQL Replication</a></li>
+<li><a href="#mysql-fabirc">MySQL Fabirc</a></li>
+<li><a href="#mysql-cluster">MySQL Cluster</a></li>
+<li><a href="#mgr">MGR</a></li>
+</ul>
+</li>
+<li><a href="#mysql%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BC%98%E5%8C%96">mysql第三方优化</a><ul>
+<li><a href="#mmm">MMM</a></li>
+<li><a href="#mha">MHA</a></li>
+<li><a href="#pxc">PXC</a></li>
+<li><a href="#galera-cluster">Galera Cluster</a></li>
+</ul>
+</li>
+<li><a href="#%E4%BE%9D%E6%89%98%E7%A1%AC%E4%BB%B6%E9%85%8D%E5%90%88">依托硬件配合</a><ul>
+<li><a href="#heartbeatsan">heartbeat+SAN</a></li>
+<li><a href="#heartbeatdrdb">heartbeat+DRDB</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%B6%E5%AE%83">其它</a><ul>
+<li><a href="#zookeeper-proxy">Zookeeper + proxy</a></li>
+<li><a href="#paxos">Paxos</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="介绍">介绍</span></h1><p>集群的好处</p>
 <ul>
 <li>高可用性：故障检测及迁移，多节点备份。</li>
 <li>可伸缩性：新增数据库节点便利，方便扩容。</li>
@@ -278,10 +309,11 @@
 </ul>
 <span id="more"></span>
 
-<h1 id="mysql原厂出品"><a href="#mysql原厂出品" class="headerlink" title="mysql原厂出品"></a>mysql原厂出品</h1><h2 id="MySQL-Replication"><a href="#MySQL-Replication" class="headerlink" title="MySQL Replication"></a>MySQL Replication</h2><p>mysql复制（MySQL Replication），是mysql自带的功能。</p>
+<h1><span id="mysql原厂出品">mysql原厂出品</span></h1><h2><span id="mysql-replication">MySQL Replication</span></h2><p>主从架构</p>
+<p>mysql复制（MySQL Replication），是mysql自带的功能。</p>
 <p>原理简介：</p>
 <p>主从复制是通过重放binlog实现主库数据的异步复制。即当主库执行了一条sql命令，那么在从库同样的执行一遍，从而达到主从复制的效果。在这个过程中，master对数据的写操作记入二进制日志文件中(binlog)，生成一个 log dump 线程，用来给从库的 i/o线程传binlog。而从库的i/o线程去请求主库的binlog，并将得到的binlog日志写到中继日志（relaylog）中，从库的sql线程，会读取relaylog文件中的日志，并解析成具体操作，通过主从的操作一致，而达到最终数据一致。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.jpeg" alt="MySQL Replication_lgx211"></p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.jpeg" alt="MySQL Replication_lgx211"></p>
 <p>MySQL Replication一主多从的结构，主要目的是实现数据的多点备份（没有故障自动转移和负载均衡）。相比于单个的mysql，一主多从下的优势如下：</p>
 <ul>
 <li>如果让后台读操作连接从数据库，让写操作连接主数据库，能起到读写分离的作用，这个时候多个从数据库可以做负载均衡。</li>
@@ -299,7 +331,7 @@
 <li>对主库与从库之间的网络延迟要求较高，若网络延迟太高，将加重上述的滞后，造成最终数据的不一致。</li>
 <li>单一的主节点挂了，将不能对外提供写服务。</li>
 </ul>
-<h2 id="MySQL-Fabirc"><a href="#MySQL-Fabirc" class="headerlink" title="MySQL Fabirc"></a>MySQL Fabirc</h2><p>mysql织物（MySQL Fabirc），是mysql官方提供的。</p>
+<h2><span id="mysql-fabirc">MySQL Fabirc</span></h2><p>mysql织物（MySQL Fabirc），是mysql官方提供的。</p>
 <p>这是在MySQL Replication的基础上，增加了故障检测与转移，自动数据分片功能。不过依旧是一主多从的结构，MySQL Fabirc只有一个主节点，区别是当该主节点挂了以后，会从从节点中选择一个来当主节点。</p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
@@ -315,7 +347,7 @@
 <li>事务及查询只支持在同一个分片内，事务中更新的数据不能跨分片，查询语句返回的数据也不能跨分片。</li>
 <li>节点故障恢复30秒或更长（采用InnoDB存储引擎的都这样）。</li>
 </ul>
-<h2 id="MySQL-Cluster"><a href="#MySQL-Cluster" class="headerlink" title="MySQL Cluster"></a>MySQL Cluster</h2><p>mysql集群（MySQL Cluster）也是mysql官方提供的。</p>
+<h2><span id="mysql-cluster">MySQL Cluster</span></h2><p>mysql集群（MySQL Cluster）也是mysql官方提供的。</p>
 <p>MySQL Cluster是多主多从结构的</p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
@@ -333,7 +365,7 @@
 <li>Data Node数据会被尽量放在内存中，对内存要求大，而且重启的时候，数据节点将数据load到内存需要很长时间。</li>
 </ul>
 <p>官方的区别对比如下所示；</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.png" alt="官方三兄弟对比图_lgx211"></p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70.png" alt="官方三兄弟对比图_lgx211"></p>
 <p><strong>Differences between InnoDB and NDB storage engines</strong></p>
 <table>
 <thead>
@@ -464,9 +496,16 @@
 <td align="left">Yes</td>
 </tr>
 </tbody></table>
-<h1 id="mysql第三方优化"><a href="#mysql第三方优化" class="headerlink" title="mysql第三方优化"></a>mysql第三方优化</h1><h2 id="MMM"><a href="#MMM" class="headerlink" title="MMM"></a>MMM</h2><p>MMM是在MySQL Replication的基础上，对其进行优化。</p>
+<h2><span id="mgr">MGR</span></h2><p>Mysql Group Replication</p>
+<p>Mgr目前有两种模式，单主模式和多主模式，区别为是否提供多个节点同时写入的能力。由于mgr采用乐观锁，在高并发的情况下很容易在提交那一刻造成冲突，所以在生产环境中一般采用单主模式居多。Paxos协议能容忍少数节点宕机，因为paxos协议要求一半以上的节点收到日志主库才可以提交。在单主模式下，当主库宕机，集群会根据group_replication_member_weight设置的权重值进行备机升主，因为是强一致协议，所以不存在日志是否是最新的问题，如果权重相同，那么会根据server的uuid进行排序。mgr本身还有一些限制，比如写集合冲突问题，必须要求有主键，只支持innodb，不支持外键、save point等，还有集群的强一致导致对网络的要求较高，如果遇到网络波动，对集群的影响较大。mgr本身能够实现故障自动选举，但是生产环境需要做到对应用的透明，所以一般是基于vip的，应用连接的是vip，如果发生切换，需要将vip也漂移到新主库，这里其实还涉及到很多判断和切换逻辑，所以mgr并不是切换方案，他只是提供了一种新的强一致高可用技术，要想把它用于生产环境中其实还有很多工具和脚本要进行开发。</p>
+<p>MGR的特性</p>
+<p>　　高一致性。基于原生复制及paxos协议的组复制技术，并以插件的方式提供，提供一致数据安全保证；</p>
+<p>　　高容错性。只要不是大多数节点坏掉就可以继续工作，有自动检测机制，当不同节点产生资源争用冲突时，不会出现错误，按照先到者优先原则进行处理，并且内置了自动化脑裂防护机制；</p>
+<p>　　高扩展性。节点的新增和移除都是自动的，新节点加入后，会自动从其他节点上同步状态，直到新节点和其他节点保持一致，如果某节点被移除了，其他节点自动更新组信息，自动维护新的组信息；</p>
+<p>　　高灵活性。有单主模式和多主模式，单主模式下，会自动选主，所有更新操作都在主上进行；多主模式下，所有server都可以同时处理更新操作。</p>
+<h1><span id="mysql第三方优化">mysql第三方优化</span></h1><h2><span id="mmm">MMM</span></h2><p>MMM是在MySQL Replication的基础上，对其进行优化。</p>
 <p>MMM（Master Replication Manager for MySQL）是双主多从结构，这是Google的开源项目，使用Perl语言来对MySQL Replication做扩展，提供一套支持双主故障切换和双主日常管理的脚本程序，主要用来监控mysql主主复制并做失败转移。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235007110.png" alt="MMM_lgx211"></p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235007110.png" alt="MMM_lgx211"></p>
 <p>注意：这里的双主节点，虽然叫做双主复制，但是业务上同一时刻只允许对一个主进行写入，另一台备选主上提供部分读服务，以加速在主主切换时刻备选主的预热。</p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
@@ -478,10 +517,10 @@
 <li>无法完全保证数据的一致性。如主1挂了，MMM monitor已经切换到主2上来了，而若此时双主复制中，主2数据落后于主1（即还未完全复制完毕），那么此时的主2已经成为主节点，对外提供写服务，从而导致数据不一。</li>
 <li>由于是使用虚拟IP浮动技术，类似Keepalived，故RIP（真实IP）要和VIP（虚拟IP）在同一网段。如果是在不同网段也可以，需要用到虚拟路由技术。但是绝对要在同一个IDC机房，不可跨IDC机房组建集群。</li>
 </ul>
-<h2 id="MHA"><a href="#MHA" class="headerlink" title="MHA"></a>MHA</h2><p>MHA是在MySQL Replication的基础上，对其进行优化。</p>
+<h2><span id="mha">MHA</span></h2><p>MHA是在MySQL Replication的基础上，对其进行优化。</p>
 <p>MHA（Master High Availability）是多主多从结构，这是日本DeNA公司的youshimaton开发，主要提供更多的主节点，但是缺少VIP（虚拟IP），需要配合keepalived等一起使用。</p>
 <p>要搭建MHA，要求一个复制集群中必须最少有三台数据库服务器，一主二从，即一台充当master，一台充当备用master，另外一台充当从库。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235043670.png" alt="MHA_lgx211"></p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235043670.png" alt="MHA_lgx211"></p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
 <li>可以进行故障的自动检测和转移</li>
@@ -492,13 +531,31 @@
 <li>MHA架构实现读写分离，最佳实践是在应用开发设计时提前规划读写分离事宜，在使用时设置两个连接池，即读连接池与写连接池，也可以选择折中方案即引入SQL Proxy。但无论如何都需要改动代码；</li>
 <li>关于读负载均衡可以使用F5、LVS、HAPROXY或者SQL Proxy等工具，只要能实现负载均衡、故障检查及备升级为主后的读写剥离功能即可，建议使用LVS</li>
 </ul>
-<h2 id="Galera-Cluster"><a href="#Galera-Cluster" class="headerlink" title="Galera Cluster"></a>Galera Cluster</h2><p>Galera Cluster是由Codership开发的MySQL多主结构集群，这些主节点互为其它节点的从节点。不同于MySQL原生的主从异步复制，Galera采用的是多主同步复制，并针对同步复制过程中，会大概率出现的事务冲突和死锁进行优化，就是复制不基于官方binlog而是Galera复制插件，重写了wsrep api。</p>
+<h2><span id="pxc">PXC</span></h2><p>PXC（Percona XtraDB Cluster）是一个开源的MySQL高可用解决方案。它将Percona server和XtraBackup与galera库集成，以实现同步多主复制。基于galera的高可用方案主要有MariaDB galeracluster和Percona XtraDB cluster，目前PXC架构在生产线上用的很多而且更加成熟。PXC相比那些传统的基于主从模式的集群架构MHA和双主，galera cluster最突出的特点是解决了诟病已久的复制延迟问题，基本上可以达到实时同步。而且节点与节点之间，他们互相的关系是对等的。本身galera cluster也是一种多主架构。PXC是在存储引擎层实现的同步复制，而非异步复制，所以其数据的一致性是相当高的。</p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80NzAxOTAxNg==,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述"></p>
+<p>优点:</p>
+<ul>
+<li>实现了MySQL集群的高可用性和数据的强一致性。 </li>
+<li>完成了真正的多节点读写的集群方案。 </li>
+<li>改善了主从复制延迟问题，基本上达到了实时同步。 </li>
+<li>新加入的节点可以自动部署，无需提前手动备份，维护方便。</li>
+<li> 由于是多节点写入，所以DB故障切换很容易。</li>
+</ul>
+<p>缺点:</p>
+<ul>
+<li>加入新节点时开销大，添加新节点时，必须从现有节点之一复制完整数据集。如果是100GB，则复制100GB。</li>
+<li>任何更新的事务都需要全局验证通过，才会在其他节点上执行。集群性能受限于性能最差的节点，也就是常说的木桶定律。</li>
+<li>因为需要保证数据的一致性，PXC采用的实时基于存储引擎层来实现同步复制，所以在多节点并发写入时，锁冲突问题比较严重。</li>
+<li>存在写扩大的问题，所以节点上都会发生写操作，对于写负载过大的场景，不推荐使用PXC。</li>
+<li>只支持innodb存储引擎。</li>
+</ul>
+<h2><span id="galera-cluster">Galera Cluster</span></h2><p>Galera Cluster是由Codership开发的MySQL多主结构集群，这些主节点互为其它节点的从节点。不同于MySQL原生的主从异步复制，Galera采用的是多主同步复制，并针对同步复制过程中，会大概率出现的事务冲突和死锁进行优化，就是复制不基于官方binlog而是Galera复制插件，重写了wsrep api。</p>
 <blockquote>
 <p>异步复制中，主库将数据更新传播给从库后立即提交事务，而不论从库是否成功读取或重放数据变化。这种情况下，在主库事务提交后的短时间内，主从库数据并不一致。</p>
 <p>同步复制时，主库的单个更新事务需要在所有从库上同步 更新。换句话说，当主库提交事务时，集群中所有节点的数据保持一致。</p>
 </blockquote>
 <p>对于读操作，从每个节点读取到的数据都是相同的。对于写操作，当数据写入某一节点后，集群会将其同步到其它节点。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/20200310165540560.png" alt="MHA_lgx211"></p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/20200310165540560.png" alt="MHA_lgx211"></p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
 <li>多主多活下，可对任一节点进行读写操作，就算某个节点挂了，也不影响其它的节点的读写，都不需要做故障切换操作，也不会中断整个集群对外提供的服务。</li>
@@ -508,10 +565,10 @@
 <ul>
 <li>能做到数据的强一致性，毫无疑问，也是以牺牲性能为代价。</li>
 </ul>
-<h1 id="依托硬件配合"><a href="#依托硬件配合" class="headerlink" title="依托硬件配合"></a>依托硬件配合</h1><p>不同主机的数据同步不再依赖于MySQL的原生复制功能，而是通过同步磁盘数据，来保证数据的一致性。</p>
+<h1><span id="依托硬件配合">依托硬件配合</span></h1><p>不同主机的数据同步不再依赖于MySQL的原生复制功能，而是通过同步磁盘数据，来保证数据的一致性。</p>
 <p>然后处理故障的方式是借助Heartbeat，它监控和管理各个节点间连接的网络，并监控集群服务，当节点出现故障或者服务不可用时，自动在其他节点启动集群服务。</p>
-<h2 id="heartbeat-SAN"><a href="#heartbeat-SAN" class="headerlink" title="heartbeat+SAN"></a>heartbeat+SAN</h2><p>SAN：共享存储，主库从库用的一个存储。SAN的概念是允许存储设施和解决器（服务器）之间建立直接的高速连接，通过这种连接实现数据的集中式存储。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235153449.png" alt="heartbeat+SAN_lgx211"></p>
+<h2><span id="heartbeatsan">heartbeat+SAN</span></h2><p>SAN：共享存储，主库从库用的一个存储。SAN的概念是允许存储设施和解决器（服务器）之间建立直接的高速连接，通过这种连接实现数据的集中式存储。</p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235153449.png" alt="heartbeat+SAN_lgx211"></p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
 <li>保证数据的强一致性；</li>
@@ -521,8 +578,8 @@
 <ul>
 <li>SAN价格昂贵；</li>
 </ul>
-<h2 id="heartbeat-DRDB"><a href="#heartbeat-DRDB" class="headerlink" title="heartbeat+DRDB"></a>heartbeat+DRDB</h2><p>DRDB：这是linux内核板块实现的快级别的同步复制技术。通过各主机之间的网络，复制对方磁盘的内容。当客户将数据写入本地磁盘时，还会将数据发送到网络中另一台主机的磁盘上，这样的本地主机(主节点)与远程主机(备节点)的数据即可以保证明时同步。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235223404.png" alt="heartbeat+DRDB_lgx211"></p>
+<h2><span id="heartbeatdrdb">heartbeat+DRDB</span></h2><p>DRDB：这是linux内核板块实现的快级别的同步复制技术。通过各主机之间的网络，复制对方磁盘的内容。当客户将数据写入本地磁盘时，还会将数据发送到网络中另一台主机的磁盘上，这样的本地主机(主节点)与远程主机(备节点)的数据即可以保证明时同步。</p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235223404.png" alt="heartbeat+DRDB_lgx211"></p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
 <li>相比于SAN储存网络，价格低廉；</li>
@@ -534,8 +591,8 @@
 <li>对io性能影响较大；</li>
 <li>从库不提供读操作；</li>
 </ul>
-<h1 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h1><h2 id="Zookeeper-proxy"><a href="#Zookeeper-proxy" class="headerlink" title="Zookeeper + proxy"></a>Zookeeper + proxy</h2><p>Zookeeper使用分布式算法保证集群数据的一致性，使用zookeeper可以有效的保证proxy的高可用性，可以较好的避免网络分区现象的产生。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235309548.png" alt="Zookeeper + proxy_lgx211"></p>
+<h1><span id="其它">其它</span></h1><h2><span id="zookeeper-proxy">Zookeeper + proxy</span></h2><p>Zookeeper使用分布式算法保证集群数据的一致性，使用zookeeper可以有效的保证proxy的高可用性，可以较好的避免网络分区现象的产生。</p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235309548.png" alt="Zookeeper + proxy_lgx211"></p>
 <p>就各个集群方案来说，其优势为：</p>
 <ul>
 <li>扩展性较好，可以扩展为大规模集群。</li>
@@ -544,8 +601,8 @@
 <ul>
 <li>搭建Zookeeper 集群，在配置一套代理，整个系统的逻辑变得更加复杂。</li>
 </ul>
-<h2 id="Paxos"><a href="#Paxos" class="headerlink" title="Paxos"></a>Paxos</h2><p>分布式一致性算法，Paxos 算法处理的问题是一个分布式系统如何就某个值（决议）达成一致。这个算法被认为是同类算法中最有效的。Paxos与MySQL相结合可以实现在分布式的MySQL数据的强一致性。</p>
-<p><img src="/2021/08/02/db-resource/mysql/mysql-base/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235332067.png" alt="Paxos_lgx211"></p>
+<h2><span id="paxos">Paxos</span></h2><p>分布式一致性算法，Paxos 算法处理的问题是一个分布式系统如何就某个值（决议）达成一致。这个算法被认为是同类算法中最有效的。Paxos与MySQL相结合可以实现在分布式的MySQL数据的强一致性。</p>
+<p><img src="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80Mzc1MDIxMg==,size_16,color_FFFFFF,t_70-20210802235332067.png" alt="Paxos_lgx211"></p>
 
     </div>
 
@@ -568,8 +625,8 @@
       <i class="fa fa-chevron-left"></i> Nginx系列(二):nginx配置
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" rel="next" title="Redis系列(四):Redis性能及优化">
-      Redis系列(四):Redis性能及优化 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/" rel="next" title="mysql mgr集群方案">
+      mysql mgr集群方案 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -629,7 +686,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mysql%E5%8E%9F%E5%8E%82%E5%87%BA%E5%93%81"><span class="nav-number">2.</span> <span class="nav-text">mysql原厂出品</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-Replication"><span class="nav-number">2.1.</span> <span class="nav-text">MySQL Replication</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-Fabirc"><span class="nav-number">2.2.</span> <span class="nav-text">MySQL Fabirc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MySQL-Cluster"><span class="nav-number">2.3.</span> <span class="nav-text">MySQL Cluster</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#mysql%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BC%98%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">mysql第三方优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MMM"><span class="nav-number">3.1.</span> <span class="nav-text">MMM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MHA"><span class="nav-number">3.2.</span> <span class="nav-text">MHA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Galera-Cluster"><span class="nav-number">3.3.</span> <span class="nav-text">Galera Cluster</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BE%9D%E6%89%98%E7%A1%AC%E4%BB%B6%E9%85%8D%E5%90%88"><span class="nav-number">4.</span> <span class="nav-text">依托硬件配合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#heartbeat-SAN"><span class="nav-number">4.1.</span> <span class="nav-text">heartbeat+SAN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#heartbeat-DRDB"><span class="nav-number">4.2.</span> <span class="nav-text">heartbeat+DRDB</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B6%E5%AE%83"><span class="nav-number">5.</span> <span class="nav-text">其它</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Zookeeper-proxy"><span class="nav-number">5.1.</span> <span class="nav-text">Zookeeper + proxy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Paxos"><span class="nav-number">5.2.</span> <span class="nav-text">Paxos</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">mysql原厂出品</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.1.</span> <span class="nav-text">MySQL Replication</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.2.</span> <span class="nav-text">MySQL Fabirc</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.3.</span> <span class="nav-text">MySQL Cluster</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.4.</span> <span class="nav-text">MGR</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">mysql第三方优化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.1.</span> <span class="nav-text">MMM</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text">MHA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.3.</span> <span class="nav-text">PXC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.4.</span> <span class="nav-text">Galera Cluster</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">依托硬件配合</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.1.</span> <span class="nav-text">heartbeat+SAN</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.2.</span> <span class="nav-text">heartbeat+DRDB</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">其它</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.1.</span> <span class="nav-text">Zookeeper + proxy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.2.</span> <span class="nav-text">Paxos</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -645,7 +702,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

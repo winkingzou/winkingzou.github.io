@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="集群规划 节点规划 Mysql Server版本   Mysql部署（离线安装） Server安装 部署脚本 默认配置文件 配置主从复制 搭建GMR     常见问题汇总    集群规划节点规划本示例地址以下,部署时候按照实际情况进行修改">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql mgr集群方案">
+<meta property="og:url" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="集群规划 节点规划 Mysql Server版本   Mysql部署（离线安装） Server安装 部署脚本 默认配置文件 配置主从复制 搭建GMR     常见问题汇总    集群规划节点规划本示例地址以下,部署时候按照实际情况进行修改">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-03T03:33:27.000Z">
+<meta property="article:modified_time" content="2022-05-04T17:21:13.269Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>mysql mgr集群方案 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql mgr集群方案
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-03 11:33:27" itemprop="dateCreated datePublished" datetime="2021-08-03T11:33:27+08:00">2021-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-05-05 01:21:13" itemprop="dateModified" datetime="2022-05-05T01:21:13+08:00">2022-05-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92">集群规划</a><ul>
+<li><a href="#%E8%8A%82%E7%82%B9%E8%A7%84%E5%88%92">节点规划</a></li>
+<li><a href="#mysql-server%E7%89%88%E6%9C%AC">Mysql Server版本</a></li>
+</ul>
+</li>
+<li><a href="#mysql%E9%83%A8%E7%BD%B2%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85">Mysql部署（离线安装）</a><ul>
+<li><a href="#server%E5%AE%89%E8%A3%85">Server安装</a></li>
+<li><a href="#%E9%83%A8%E7%BD%B2%E8%84%9A%E6%9C%AC">部署脚本</a></li>
+<li><a href="#%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">默认配置文件</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">配置主从复制</a></li>
+<li><a href="#%E6%90%AD%E5%BB%BAgmr">搭建GMR</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB">常见问题汇总</a></li>
+</ul>
+<!-- tocstop -->
+
+<h2><span id="集群规划">集群规划</span></h2><h3><span id="节点规划">节点规划</span></h3><p>本示例地址以下,部署时候按照实际情况进行修改</p>
+<span id="more"></span>
+
+<table>
+<thead>
+<tr>
+<th>hostname</th>
+<th>IP</th>
+<th>节点规划</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>zqt003</td>
+<td>100.4.17.4</td>
+<td>Master（主节点）</td>
+</tr>
+<tr>
+<td>zqt005</td>
+<td>100.4.17.5</td>
+<td>Slaver1（从节点1）</td>
+</tr>
+<tr>
+<td>zqt009</td>
+<td>100.4.17.9</td>
+<td>Slaver2（从节点2）</td>
+</tr>
+</tbody></table>
+<h3><span id="mysql-server版本">Mysql Server版本</span></h3><p>本示例操作系统为：Centos7 x64</p>
+<p>Mysql Server版本：8.0.21 （mysql-8.0.21-el7-x86_64.tar.gz）</p>
+<h2><span id="mysql部署离线安装">Mysql部署（离线安装）</span></h2><h3><span id="server安装">Server安装</span></h3><p><strong>注意：所有节点都需要部署</strong></p>
+<ol>
+<li><p>将mysql8_install.sh（安装脚本）、my_test.cnf（默认安装配置）、mysql-8.0.21-el7-x86_64.tar.gz（安装文件名）放在同一目录下，本示例放在/opt/mysql_install下</p>
+</li>
+<li><p>修改脚本里的实际的ip地址、端口、hosts对应的主机名</p>
+</li>
+<li><p>使用如下命令进行安装</p>
+</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash mysql8_install.sh</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>按照提示输入</li>
+</ol>
+<p>数据库服务名：例如 dataReport</p>
+<p>数据库服务端口：默认3306，根据需要进行输入</p>
+<p>MySQL serverId: 必须为纯数字，本示例采用ip地址后3位当成serverId，例如 100.4.17.4，那么本节点上serverId就取4174</p>
+<p>innodb_buffer_pool_size大小：示例输入 2，2G大小，默认大小为128M</p>
+<blockquote>
+<p>注：安装完成后my.cnf配置文件默认在/etc/目录下，文件名是以你的数据库名命名，例my_test.cnf，mysql.sock在/tmp目录下</p>
+</blockquote>
+<ol start="5">
+<li><p>更新root用户权限</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#连接数据库,root密码默认<span class="number">123456</span></span><br><span class="line"><span class="operator">/</span>usr<span class="operator">/</span><span class="keyword">local</span><span class="operator">/</span>mysql<span class="operator">/</span>bin<span class="operator">/</span>mysql <span class="operator">-</span>uroot <span class="operator">-</span>p <span class="operator">-</span>S <span class="operator">/</span>tmp<span class="operator">/</span>mysql_master.sock</span><br><span class="line">#切换database到mysql</span><br><span class="line">mysql<span class="operator">&gt;</span>use mysql;</span><br><span class="line">mysql<span class="operator">&gt;</span>update <span class="keyword">user</span> <span class="keyword">set</span> host<span class="operator">=</span><span class="string">&#x27;%&#x27;</span> <span class="keyword">where</span> <span class="keyword">user</span><span class="operator">=</span><span class="string">&#x27;root&#x27;</span>;</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">GRANT</span> <span class="keyword">ALL</span> PRIVILEGES <span class="keyword">ON</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">TO</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;  #此步骤如果提示错误，再执行一遍</span><br><span class="line">mysql<span class="operator">&gt;</span>FLUSH PRIVILEGES;</span><br></pre></td></tr></table></figure></li>
+<li><p>使用客户端工具进行连接测试</p>
+</li>
+</ol>
+<h3><span id="部署脚本">部署脚本</span></h3><p>文件名: mysql8_install.sh</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#文件名: mysql8_install.sh</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;正在安装MySQL软件.......&quot;</span></span><br><span class="line"></span><br><span class="line">useradd mysql</span><br><span class="line">useradd nagios</span><br><span class="line">useradd zabbix</span><br><span class="line"></span><br><span class="line">sleep 2</span><br><span class="line"></span><br><span class="line"><span class="comment">######--配置参数--######</span></span><br><span class="line">mysql8_version=mysql-8.0.21-el7-x86_64.tar.gz</span><br><span class="line">mysql8_version_dir=mysql-8.0.21-el7-x86_64</span><br><span class="line"></span><br><span class="line"><span class="comment">######--数据库同步复制用户--######</span></span><br><span class="line">repl_user=repl</span><br><span class="line">repl_passwd=sysrepl</span><br><span class="line"><span class="comment">#######################</span></span><br><span class="line"></span><br><span class="line"><span class="comment">######--数据库root密码--######</span></span><br><span class="line">root_passwd=123456</span><br><span class="line"><span class="comment">#######################</span></span><br><span class="line"></span><br><span class="line"><span class="comment">######--数据库DBA管理用户--######</span></span><br><span class="line">dba_user=admin</span><br><span class="line">dba_passwd=123456</span><br><span class="line"><span class="comment">#######################</span></span><br><span class="line"></span><br><span class="line"><span class="comment">######--数据库8.0克隆用户--######</span></span><br><span class="line">clone_user=clone_user</span><br><span class="line">clone_passwd=123456</span><br><span class="line"><span class="comment">#######################</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">######--修改hosts文件--######</span></span><br><span class="line">cat &lt;&lt; <span class="string">EOF &gt;&gt; /etc/hosts</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">100.4.17.4		zqt003</span></span><br><span class="line"><span class="string">100.4.17.5		zqt005</span></span><br><span class="line"><span class="string">100.4.17.9		zqt009</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line"><span class="comment">#######################</span></span><br><span class="line"></span><br><span class="line"><span class="comment">######--Mysql MGR配置--######</span></span><br><span class="line">mysql_port=3306</span><br><span class="line">primary_ip=100.4.17.4</span><br><span class="line">secondary1_ip=100.4.17.5</span><br><span class="line">secondary2_ip=100.4.17.9</span><br><span class="line"></span><br><span class="line">primary_port=33061</span><br><span class="line">secondary1_port=33061</span><br><span class="line">secondary2_port=33061</span><br><span class="line"></span><br><span class="line">local_ip=100.4.17.4</span><br><span class="line">local_port=33061</span><br><span class="line"><span class="comment">#############################</span></span><br><span class="line"><span class="comment">######MySQL主从复制同步#######</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> = <span class="string">&quot;repl&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;输入你的主库IP:  &quot;</span> master_ip</span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;输入你的主库端口号:  &quot;</span> master_port</span><br><span class="line">	<span class="keyword">if</span> [[ -z <span class="variable">$master_ip</span> || -z <span class="variable">$master_port</span> ]]</span><br><span class="line">	<span class="keyword">then</span></span><br><span class="line">		<span class="built_in">continue</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;主库IP是： <span class="variable">$master_ip</span>&quot;</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;主库端口号是： <span class="variable">$master_port</span>&quot;</span></span><br><span class="line">		<span class="built_in">break</span> </span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysql -h127.0.0.1 -u<span class="string">&quot;<span class="variable">$dba_user</span>&quot;</span> -p<span class="string">&quot;<span class="variable">$dba_passwd</span>&quot;</span> -P<span class="string">&quot;<span class="variable">$master_port</span>&quot;</span> --connect-expired-password -e <span class="string">&quot;CHANGE MASTER TO MASTER_HOST=&#x27;<span class="variable">$master_ip</span>&#x27;,MASTER_USER=&#x27;<span class="variable">$repl_user</span>&#x27;,MASTER_PASSWORD=&#x27;<span class="variable">$repl_passwd</span>&#x27;,MASTER_PORT=<span class="variable">$master_port</span>,MASTER_AUTO_POSITION = 1,MASTER_CONNECT_RETRY=10; START SLAVE;&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;MySQL主从复制同步已经初始化完毕。&quot;</span></span><br><span class="line">	<span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">################################################</span></span><br><span class="line"></span><br><span class="line"><span class="comment">######MySQL MGR安装#######</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> = <span class="string">&quot;mgr&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;是Primary吗？是请输入yes，否输入no:  &quot;</span> is_primary</span><br><span class="line">	<span class="keyword">if</span> [[ -z <span class="variable">$is_primary</span> ]]</span><br><span class="line">	<span class="keyword">then</span></span><br><span class="line">		<span class="built_in">continue</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="keyword">if</span> [ <span class="variable">$is_primary</span> == <span class="string">&quot;yes&quot;</span> ] || [ <span class="variable">$is_primary</span> == <span class="string">&quot;no&quot;</span> ]</span><br><span class="line">		<span class="keyword">then</span></span><br><span class="line">			<span class="built_in">break</span> </span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			 <span class="built_in">echo</span> <span class="string">&quot;你输入一个错误的字符<span class="variable">$is_primary</span>，请重新输入...&quot;</span></span><br><span class="line">			 <span class="built_in">continue</span></span><br><span class="line">		<span class="keyword">fi</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$is_primary</span> == <span class="string">&quot;yes&quot;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	/usr/<span class="built_in">local</span>/mysql/bin/mysql -h127.0.0.1 -u<span class="string">&quot;<span class="variable">$dba_user</span>&quot;</span> -p<span class="string">&quot;<span class="variable">$dba_passwd</span>&quot;</span> -P<span class="string">&quot;<span class="variable">$mysql_port</span>&quot;</span> --connect-expired-password -e <span class="string">&quot;INSTALL PLUGIN group_replication SONAME  &#x27;group_replication.so&#x27;; set persist group_replication_group_name = &#x27;3b12b5bd-f0c6-11e9-9778-000c2900afc6&#x27;;set persist group_replication_local_address =  &#x27;<span class="variable">$&#123;local_ip&#125;</span>:<span class="variable">$&#123;local_port&#125;</span>&#x27;; set persist group_replication_group_seeds = &#x27;<span class="variable">$&#123;primary_ip&#125;</span>:<span class="variable">$&#123;primary_port&#125;</span>,<span class="variable">$&#123;secondary1_ip&#125;</span>:<span class="variable">$&#123;secondary1_port&#125;</span>,<span class="variable">$&#123;secondary2_ip&#125;</span>:<span class="variable">$&#123;secondary2_port&#125;</span>&#x27;;SET GLOBAL group_replication_bootstrap_group=ON; CHANGE MASTER TO MASTER_USER=&#x27;<span class="variable">$repl_user</span>&#x27;,MASTER_PASSWORD=&#x27;<span class="variable">$repl_passwd</span>&#x27; FOR CHANNEL &#x27;group_replication_recovery&#x27;;START GROUP_REPLICATION;select sleep(5);select * from performance_schema.replication_group_members;SET GLOBAL group_replication_bootstrap_group=OFF;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	/usr/<span class="built_in">local</span>/mysql/bin/mysql -h127.0.0.1 -u<span class="string">&quot;<span class="variable">$dba_user</span>&quot;</span> -p<span class="string">&quot;<span class="variable">$dba_passwd</span>&quot;</span> -P<span class="string">&quot;<span class="variable">$mysql_port</span>&quot;</span> --connect-expired-password -e <span class="string">&quot;INSTALL PLUGIN group_replication SONAME  &#x27;group_replication.so&#x27;; set persist group_replication_group_name = &#x27;3b12b5bd-f0c6-11e9-9778-000c2900afc6&#x27;;set persist group_replication_local_address =  &#x27;<span class="variable">$&#123;local_ip&#125;</span>:<span class="variable">$&#123;local_port&#125;</span>&#x27;; set persist group_replication_group_seeds = &#x27;<span class="variable">$&#123;primary_ip&#125;</span>:<span class="variable">$&#123;primary_port&#125;</span>,<span class="variable">$&#123;secondary1_ip&#125;</span>:<span class="variable">$&#123;secondary1_port&#125;</span>,<span class="variable">$&#123;secondary2_ip&#125;</span>:<span class="variable">$&#123;secondary2_port&#125;</span>&#x27;; SET GLOBAL group_replication_bootstrap_group=OFF; CHANGE MASTER TO MASTER_USER=&#x27;<span class="variable">$repl_user</span>&#x27;,MASTER_PASSWORD=&#x27;<span class="variable">$repl_passwd</span>&#x27; FOR CHANNEL &#x27;group_replication_recovery&#x27;;START GROUP_REPLICATION;select sleep(5);select * from performance_schema.replication_group_members;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">	</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;MySQL Mgr组复制已经初始化完毕。&quot;</span></span><br><span class="line"><span class="built_in">exit</span> 0</span><br><span class="line"></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">################################################</span></span><br><span class="line"></span><br><span class="line">ps aux | grep <span class="string">&#x27;mysql&#x27;</span> | grep -v <span class="string">&#x27;grep&#x27;</span> | grep -v <span class="string">&#x27;bash&#x27;</span></span><br><span class="line"><span class="keyword">if</span> [ $? -eq 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;MySQL进程已经启动，无需二次安装。&quot;</span></span><br><span class="line">	<span class="built_in">exit</span> 0</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ ! -d /usr/<span class="built_in">local</span>/<span class="variable">$&#123;mysql8_version_dir&#125;</span> ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">        <span class="comment">#yum install xz -y</span></span><br><span class="line">	tar -zxvf <span class="variable">$&#123;mysql8_version&#125;</span> -C /usr/<span class="built_in">local</span>/</span><br><span class="line">	ln -s /usr/<span class="built_in">local</span>/<span class="variable">$&#123;mysql8_version_dir&#125;</span> /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">	chown -R mysql.mysql /usr/<span class="built_in">local</span>/mysql/</span><br><span class="line">	chown -R mysql.mysql /usr/<span class="built_in">local</span>/mysql</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	ln -s /usr/<span class="built_in">local</span>/<span class="variable">$&#123;mysql8_version_dir&#125;</span> /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">	chown -R mysql.mysql /usr/<span class="built_in">local</span>/mysql/</span><br><span class="line">	chown -R mysql.mysql /usr/<span class="built_in">local</span>/mysql</span><br><span class="line"><span class="keyword">fi</span> </span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;输入你的数据库服务名:  &quot;</span> dbname</span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;输入你的数据库端口号:  &quot;</span> dbport</span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;输入MySQL serverId:  &quot;</span> serverId</span><br><span class="line">	<span class="built_in">read</span> -t 30 -p <span class="string">&quot;输入innodb_buffer_pool_size大小，单位G:  &quot;</span> innodb_bp_size</span><br><span class="line">	<span class="keyword">if</span> [[ -z <span class="variable">$dbname</span> || -z <span class="variable">$dbport</span> || -z <span class="variable">$serverId</span> || -z <span class="variable">$innodb_bp_size</span> ]]</span><br><span class="line">	<span class="keyword">then</span></span><br><span class="line">		<span class="built_in">continue</span></span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;数据库服务名字是： <span class="variable">$dbname</span>&quot;</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;数据库端口是： <span class="variable">$dbport</span>&quot;</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;MySQL serverId： <span class="variable">$serverId</span>&quot;</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;BP大小是： <span class="variable">$innodb_bp_size</span> GB&quot;</span></span><br><span class="line">		<span class="built_in">break</span> </span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">sed <span class="string">&quot;s/test/<span class="variable">$dbname</span>/g;s/3306/<span class="variable">$dbport</span>/;s/413306/<span class="variable">$serverId</span>/;/innodb_buffer_pool_size/s/1/<span class="variable">$innodb_bp_size</span>/&quot;</span> my_test.cnf &gt; /etc/my_<span class="variable">$dbname</span>.cnf</span><br><span class="line"></span><br><span class="line">DATA_DIR=/data/mysql/<span class="variable">$dbname</span></span><br><span class="line">[ ! -d <span class="variable">$DATA_DIR</span> ] &amp;&amp; mkdir -p <span class="variable">$DATA_DIR</span>/&#123;data,binlog,relaylog,tmp,slowlog,<span class="built_in">log</span>&#125;; touch <span class="variable">$DATA_DIR</span>/<span class="built_in">log</span>/error.log; chown -R mysql.mysql /data/mysql/</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ `ls -A <span class="variable">$DATA_DIR</span>/data/ | wc -w` -eq 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;初始化MySQL数据目录......&quot;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line">	bin/mysqld --defaults-file=/etc/my_<span class="variable">$dbname</span>.cnf --initialize --lower-case-table-names=1 --user=mysql --basedir=/usr/<span class="built_in">local</span>/mysql --datadir=/data/mysql/<span class="variable">$dbname</span>/data</span><br><span class="line">	sleep 2</span><br><span class="line">	bin/mysqld_safe --defaults-file=/etc/my_<span class="variable">$dbname</span>.cnf --user=mysql &amp;</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	 netstat -ntlp | grep <span class="variable">$dbport</span></span><br><span class="line">	 <span class="keyword">if</span> [ $? -eq 1 ]</span><br><span class="line">	 <span class="keyword">then</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">&quot;MySQL启动中，稍等......&quot;</span></span><br><span class="line">		sleep 5</span><br><span class="line">		<span class="built_in">continue</span></span><br><span class="line">	 <span class="keyword">else</span></span><br><span class="line">		<span class="built_in">break</span></span><br><span class="line">	 <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line">ps aux | grep <span class="string">&#x27;mysql&#x27;</span> | grep -v <span class="string">&#x27;grep&#x27;</span> | grep -v <span class="string">&#x27;bash&#x27;</span></span><br><span class="line"><span class="keyword">if</span> [ $? -eq 0 ]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;MySQL安装完毕。&quot;</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&quot;MySQL安装失败。&quot;</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###更改root账号随机密码</span></span><br><span class="line">random_passwd=`grep <span class="string">&#x27;temporary password&#x27;</span> <span class="variable">$DATA_DIR</span>/<span class="built_in">log</span>/error.log | awk -F <span class="string">&#x27;root@localhost: &#x27;</span> <span class="string">&#x27;&#123;print $2&#125;&#x27;</span>`</span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysql -S /tmp/mysql_<span class="variable">$dbname</span>.sock -p<span class="string">&quot;<span class="variable">$random_passwd</span>&quot;</span> --connect-expired-password -e <span class="string">&quot;set sql_log_bin=0;alter user root@&#x27;localhost&#x27; identified by &#x27;<span class="variable">$root_passwd</span>&#x27;;&quot;</span> </span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;root账号随机密码更改完毕。&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###创建同步账号和管理员账号</span></span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysql -S /tmp/mysql_<span class="variable">$dbname</span>.sock --connect-expired-password -p<span class="string">&quot;<span class="variable">$root_passwd</span>&quot;</span> -e <span class="string">&quot;set sql_log_bin=0;create user &#x27;<span class="variable">$repl_user</span>&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;<span class="variable">$repl_passwd</span>&#x27;; GRANT REPLICATION SLAVE,REPLICATION CLIENT ON *.* TO &#x27;<span class="variable">$repl_user</span>&#x27;@&#x27;%&#x27;; create user &#x27;<span class="variable">$dba_user</span>&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;<span class="variable">$dba_passwd</span>&#x27;; GRANT ALL on *.* to &#x27;<span class="variable">$dba_user</span>&#x27;@&#x27;%&#x27; WITH GRANT OPTION;&quot;</span></span><br><span class="line"></span><br><span class="line">sed -i -r <span class="string">&quot;s/(PATH=)/\1\/usr\/local\/mysql\/bin:/&quot;</span> /root/.bash_profile</span><br><span class="line"><span class="built_in">source</span> /root/.bash_profile</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;MySQL账号初始化完毕。&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###安装clone插件</span></span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysql -S /tmp/mysql_<span class="variable">$dbname</span>.sock --connect-expired-password -p<span class="string">&quot;<span class="variable">$root_passwd</span>&quot;</span> -e <span class="string">&quot;set sql_log_bin=0;INSTALL PLUGIN CLONE SONAME &#x27;mysql_clone.so&#x27;; CREATE USER &#x27;<span class="variable">$clone_user</span>&#x27;@&#x27;%&#x27; IDENTIFIED BY &#x27;<span class="variable">$clone_passwd</span>&#x27;;GRANT BACKUP_ADMIN,CLONE_ADMIN ON *.* TO &#x27;<span class="variable">$clone_user</span>&#x27;@&#x27;%&#x27;;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;clone克隆插件安装完毕。&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="默认配置文件">默认配置文件</span></h3><p>可根据具体需要进行更改</p>
+<p>文件名: my_test.cnf</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">[client]</span></span><br><span class="line"><span class="attr">port</span>		=  <span class="string">3306</span></span><br><span class="line"><span class="attr">socket</span>   =  <span class="string">/tmp/mysql_test.sock</span></span><br><span class="line"><span class="comment">#default-character-set = utf8 </span></span><br><span class="line"><span class="attr">prompt</span>=<span class="string">(\\u@\\h) [\\d]&gt;\\_</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment"># The MySQL server</span></span><br><span class="line"><span class="comment">#########Basic##################</span></span><br><span class="line"><span class="attr">[mysqld]</span></span><br><span class="line"><span class="comment">##bind_address = 127.0.0.1</span></span><br><span class="line"><span class="meta">server-id</span>	=  <span class="string">413306</span></span><br><span class="line"><span class="attr">port</span>	        =  <span class="string">3306</span></span><br><span class="line"><span class="attr">user</span>            =  <span class="string">mysql</span></span><br><span class="line"><span class="attr">basedir</span>		=  <span class="string">/usr/local/mysql</span></span><br><span class="line"><span class="attr">datadir</span>		=  <span class="string">/data/mysql/test/data</span></span><br><span class="line"><span class="attr">tmpdir</span>		=  <span class="string">/data/mysql/test/tmp</span></span><br><span class="line"><span class="attr">socket</span>		=  <span class="string">/tmp/mysql_test.sock</span></span><br><span class="line"><span class="attr">skip-external-locking</span></span><br><span class="line"><span class="attr">skip-name-resolve</span></span><br><span class="line"><span class="comment">##init_connect = &#x27;SET global sql_mode = &quot;&quot;&#x27;</span></span><br><span class="line"><span class="attr">sql_mode</span> = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="attr">default_authentication_plugin</span> = <span class="string">mysql_native_password</span></span><br><span class="line"><span class="attr">activate_all_roles_on_login</span> = <span class="string">1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">### Percona ###</span></span><br><span class="line"><span class="comment">#extra_port = 13306</span></span><br><span class="line"><span class="comment">#extra_max_connections = 100</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">###skip-networking</span></span><br><span class="line"><span class="meta">default-storage-engine</span> = <span class="string">INNODB</span></span><br><span class="line"><span class="meta">character-set-server</span> = <span class="string">utf8</span></span><br><span class="line"><span class="attr">wait_timeout</span>  =  <span class="string">3600</span></span><br><span class="line"><span class="attr">connect_timeout</span>  =  <span class="string">20</span></span><br><span class="line"><span class="attr">interactive_timeout</span>  =  <span class="string">3600</span></span><br><span class="line"><span class="attr">back_log</span>  =  <span class="string">500</span></span><br><span class="line"><span class="comment">#event_scheduler  =  ON</span></span><br><span class="line"><span class="attr">open_files_limit</span> = <span class="string">65535</span></span><br><span class="line"><span class="comment">#thread_handling  =  pool-of-threads</span></span><br><span class="line"></span><br><span class="line"><span class="attr">lower_case_table_names</span>  =  <span class="string">1</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">###### binlog ######</span></span><br><span class="line"><span class="meta">log-bin</span>  =  <span class="string">/data/mysql/test/binlog/mysql-bin</span></span><br><span class="line"><span class="attr">binlog_format</span> = <span class="string">ROW</span></span><br><span class="line"><span class="attr">binlog_checksum</span> = <span class="string">NONE</span></span><br><span class="line"><span class="attr">binlog_transaction_dependency_tracking</span> = <span class="string">WRITESET</span></span><br><span class="line"><span class="attr">sync_binlog</span>      =   <span class="string">1</span></span><br><span class="line"><span class="attr">gtid_mode</span> = <span class="string">on</span></span><br><span class="line"><span class="attr">enforce_gtid_consistency</span> = <span class="string">on</span></span><br><span class="line"><span class="attr">log_slave_updates</span>   =  <span class="string">1</span></span><br><span class="line"><span class="attr">master_info_repository</span> = <span class="string">TABLE</span></span><br><span class="line"><span class="attr">relay_log_info_repository</span> = <span class="string">TABLE</span></span><br><span class="line"><span class="attr">max_binlog_size</span>  =  <span class="string">128M</span></span><br><span class="line"><span class="attr">binlog_cache_size</span>  =  <span class="string">1M</span></span><br><span class="line"><span class="meta">expire-logs-days</span>  =  <span class="string">7</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#########replication#############</span></span><br><span class="line"><span class="meta">relay-log</span>               =  <span class="string">/data/mysql/test/relaylog/relay-log</span></span><br><span class="line"><span class="meta">slave-net-timeout</span>                   =  <span class="string">10</span></span><br><span class="line"><span class="comment">#rpl_semi_sync_master_enabled        =  1</span></span><br><span class="line"><span class="comment">#rpl_semi_sync_master_wait_no_slave   =  1</span></span><br><span class="line"><span class="comment">#rpl_semi_sync_master_timeout        =  1000</span></span><br><span class="line"><span class="comment">#rpl_semi_sync_slave_enabled         =  1</span></span><br><span class="line"><span class="comment">#skip-slave-start</span></span><br><span class="line"><span class="attr">log_slave_updates</span>                  =  <span class="string">1</span></span><br><span class="line"><span class="attr">relay_log_recovery</span>                 =  <span class="string">1</span></span><br><span class="line"><span class="comment">#slave_skip_errors = 1062</span></span><br><span class="line"><span class="attr">read_only</span>                          =  <span class="string">0</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">###### Mgr config ######</span></span><br><span class="line"><span class="meta">loose-transaction_write_set_extraction</span> = <span class="string">XXHASH64</span></span><br><span class="line"><span class="meta">loose-group_replication_start_on_boot</span> = <span class="string">ON ###是否随mysql启动Group Replication</span></span><br><span class="line"><span class="meta">loose-group_replication_bootstrap_group</span> = <span class="string">OFF  ###是否是Group Replication的引导节点，初次搭建集群的时候需要有一个节点设置为ON来启动Group Replication</span></span><br><span class="line"><span class="comment">					       ###参数设置为ON，是为了标示以后加入集群的服务器都已这台服务器为基准。以后加入的就不需要进行设置</span></span><br><span class="line">					    </span><br><span class="line"><span class="meta">loose-group_replication_group_name</span> = <span class="string">850ce522-a85e-11e9-8ea3-48df3749e199				  </span></span><br><span class="line"><span class="comment">#loose-group_replication_local_address = 192.168.148.41:33061					       </span></span><br><span class="line"><span class="comment">#loose-group_replication_group_seeds = 192.168.148.41:33061,192.168.148.42:33072,192.168.148.39:33083					       </span></span><br><span class="line"><span class="meta">loose-group_replication_single_primary_mode</span> = <span class="string">ON	</span></span><br><span class="line"><span class="meta">loose-group_replication_exit_state_action</span> = <span class="string">OFFLINE_MODE</span></span><br><span class="line"><span class="meta">loose-group_replication_transaction_size_limit</span> = <span class="string">150000000 ###默认143M事务大小，最大值2147483647（大约2G），当此系统变量设置为0时，该组接受的事务大小没有限制。</span></span><br><span class="line"><span class="meta">loose-group_replication_enforce_update_everywhere_checks</span> = <span class="string">OFF ###在单主模式下设置为OFF，多主模式下设置为ON。</span></span><br><span class="line">								</span><br><span class="line"><span class="attr">offline_mode</span> = <span class="string">ON</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">###MHA ############</span></span><br><span class="line"><span class="attr">relay_log_purge</span>            =  <span class="string">1</span></span><br><span class="line"><span class="comment">###################</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">###parallel replication####</span></span><br><span class="line"><span class="attr">slave_parallel_type</span> = <span class="string">LOGICAL_CLOCK</span></span><br><span class="line"><span class="attr">slave_parallel_workers</span> = <span class="string">24</span></span><br><span class="line"><span class="attr">slave_preserve_commit_order</span> = <span class="string">ON</span></span><br><span class="line"><span class="comment">##################################</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#########slow log#############</span></span><br><span class="line"><span class="attr">slow_query_log</span>  =  <span class="string">1</span></span><br><span class="line"><span class="attr">slow_query_log_file</span>  =  <span class="string">/data/mysql/test/log/mysql-slow.log</span></span><br><span class="line"><span class="comment">#log-slow-verbosity = query_plan,explain</span></span><br><span class="line"><span class="attr">long_query_time</span>  =  <span class="string">5</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">#########error log#############</span></span><br><span class="line"><span class="meta">log-error</span>   =  <span class="string">/data/mysql/test/log/error.log</span></span><br><span class="line"><span class="attr">log_timestamps</span> = <span class="string">system</span></span><br><span class="line"><span class="comment"> </span></span><br><span class="line"><span class="comment">#######per_thread_buffers############</span></span><br><span class="line"><span class="attr">max_connections</span>=<span class="string">4100</span></span><br><span class="line"><span class="attr">max_user_connections</span>=<span class="string">4000</span></span><br><span class="line"><span class="attr">max_connect_errors</span>=<span class="string">100000000</span></span><br><span class="line"><span class="attr">max_allowed_packet</span> = <span class="string">256M</span></span><br><span class="line"><span class="attr">table_open_cache</span> = <span class="string">6144</span></span><br><span class="line"><span class="attr">table_definition_cache</span> = <span class="string">4096</span></span><br><span class="line"><span class="attr">sort_buffer_size</span> = <span class="string">128K</span></span><br><span class="line"><span class="attr">read_buffer_size</span> = <span class="string">128K</span></span><br><span class="line"><span class="attr">read_rnd_buffer_size</span> = <span class="string">128k</span></span><br><span class="line"><span class="attr">join_buffer_size</span> = <span class="string">128K</span></span><br><span class="line"><span class="attr">tmp_table_size</span> = <span class="string">64M</span></span><br><span class="line"><span class="attr">max_heap_table_size</span> = <span class="string">64M</span></span><br><span class="line"><span class="attr">bulk_insert_buffer_size</span> = <span class="string">32M</span></span><br><span class="line"><span class="attr">thread_cache_size</span> = <span class="string">64</span></span><br><span class="line"><span class="comment">#thread_concurrency = 32</span></span><br><span class="line"><span class="attr">thread_stack</span> = <span class="string">256K</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">##MyISAM## </span></span><br><span class="line"><span class="attr">key_buffer_size</span> = <span class="string">64M</span></span><br><span class="line"><span class="attr">myisam_sort_buffer_size</span> = <span class="string">8M</span></span><br><span class="line"><span class="attr">concurrent_insert</span>=<span class="string">2</span></span><br><span class="line"><span class="attr">low_priority_updates</span>=<span class="string">1</span></span><br><span class="line"><span class="attr">myisam_recover_options</span>=<span class="string">BACKUP,FORCE</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">######### InnoDB #############</span></span><br><span class="line"><span class="attr">innodb_adaptive_hash_index</span> = <span class="string">0</span></span><br><span class="line"><span class="attr">innodb_autoinc_lock_mode</span> = <span class="string">2</span></span><br><span class="line"><span class="attr">innodb_numa_interleave</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_sort_buffer_size</span> = <span class="string">32M</span></span><br><span class="line"><span class="attr">innodb_rollback_on_timeout</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_data_file_path</span> = <span class="string">ibdata1:10M:autoextend</span></span><br><span class="line"><span class="attr">innodb_buffer_pool_dump_at_shutdown</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_buffer_pool_load_at_startup</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_buffer_pool_size</span> = <span class="string">1G</span></span><br><span class="line"><span class="attr">innodb_buffer_pool_instances</span>	= <span class="string">16</span></span><br><span class="line"><span class="attr">innodb_lru_scan_depth</span> = <span class="string">2048</span></span><br><span class="line"><span class="attr">innodb_log_file_size</span> = <span class="string">512M</span></span><br><span class="line"><span class="attr">innodb_log_buffer_size</span> = <span class="string">64M</span></span><br><span class="line"><span class="attr">innodb_log_files_in_group</span> = <span class="string">3</span></span><br><span class="line"><span class="attr">innodb_flush_log_at_trx_commit</span> = <span class="string">2</span></span><br><span class="line"><span class="attr">innodb_lock_wait_timeout</span> = <span class="string">10</span></span><br><span class="line"><span class="attr">innodb_sync_spin_loops</span> = <span class="string">40</span></span><br><span class="line"><span class="attr">innodb_max_dirty_pages_pct</span> = <span class="string">95</span></span><br><span class="line"><span class="attr">innodb_thread_concurrency</span> = <span class="string">0</span></span><br><span class="line"><span class="attr">innodb_thread_sleep_delay</span> = <span class="string">500</span></span><br><span class="line"><span class="attr">innodb_concurrency_tickets</span> = <span class="string">1000</span></span><br><span class="line"><span class="attr">log_bin_trust_function_creators</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_flush_method</span> = <span class="string">O_DIRECT</span></span><br><span class="line"><span class="comment">#innodb_flush_method = O_DIRECT_NO_FSYNC</span></span><br><span class="line"><span class="attr">innodb_file_per_table</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_read_io_threads</span> = <span class="string">16</span></span><br><span class="line"><span class="attr">innodb_write_io_threads</span> = <span class="string">16</span></span><br><span class="line"><span class="attr">innodb_use_native_aio</span> = <span class="string">1</span></span><br><span class="line"><span class="attr">innodb_io_capacity</span> = <span class="string">800</span></span><br><span class="line"><span class="attr">innodb_purge_threads</span> = <span class="string">16</span></span><br><span class="line"><span class="attr">innodb_purge_batch_size</span> = <span class="string">32</span></span><br><span class="line"><span class="attr">innodb_old_blocks_time</span> = <span class="string">1000</span></span><br><span class="line"><span class="attr">innodb_change_buffering</span> = <span class="string">all</span></span><br><span class="line"><span class="attr">transaction_isolation</span> = <span class="string">READ-COMMITTED</span></span><br><span class="line"><span class="attr">innodb_stats_on_metadata</span> = <span class="string">0</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">####### NEW ########</span></span><br><span class="line"><span class="comment">##innodb_kill_idle_transaction = 5</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">###### SSD #########</span></span><br><span class="line"><span class="comment">#innodb_flush_neighbors = 0</span></span><br><span class="line"><span class="comment">#innodb_log_block_size = 4096</span></span><br><span class="line"><span class="comment">####################</span></span><br><span class="line"></span><br><span class="line"><span class="attr">[mysqldump]</span></span><br><span class="line"><span class="attr">quick</span></span><br><span class="line"><span class="attr">max_allowed_packet</span> = <span class="string">128M</span></span><br><span class="line"></span><br><span class="line"><span class="attr">[mysql]</span></span><br><span class="line"><span class="attr">no-auto-rehash</span></span><br><span class="line"><span class="comment">#prompt=(\\u@\\h) [\\d]&gt;\\_</span></span><br><span class="line"><span class="attr">prompt</span>=<span class="string">(\\u@\\h) [\\d]&gt;\\_</span></span><br><span class="line"></span><br><span class="line"><span class="attr">[myisamchk]</span></span><br><span class="line"><span class="attr">key_buffer_size</span> = <span class="string">64M</span></span><br><span class="line"><span class="attr">sort_buffer_size</span> = <span class="string">256k</span></span><br><span class="line"><span class="attr">read_buffer</span> = <span class="string">2M</span></span><br><span class="line"><span class="attr">write_buffer</span> = <span class="string">2M</span></span><br><span class="line"></span><br><span class="line"><span class="attr">[mysqlhotcopy]</span></span><br><span class="line"><span class="attr">interactive-timeout</span></span><br><span class="line"></span><br><span class="line"><span class="attr">[mysqld_safe]</span></span><br><span class="line"><span class="meta">open-files-limit</span> = <span class="string">65535</span></span><br><span class="line"><span class="comment">#flush_caches = 1</span></span><br><span class="line"><span class="comment">#numa_interleave = 1</span></span><br><span class="line"><span class="comment">#malloc-lib = /usr/lib64/libjemalloc.so</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="配置主从复制">配置主从复制</span></h3><p><strong>注意：只在从节点都需要部署</strong></p>
+<ol>
+<li><p>执行安装</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash mysql8_install.sh repl</span><br></pre></td></tr></table></figure>
+
+<h3><span id="搭建gmr">搭建GMR</span></h3><p><strong>注意：先把3个节点MySQL实例启动后再开始搭建mgr，先在Primary节点上执行，再到Secondary节点上执行</strong></p>
+<ol>
+<li><p>执行安装</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash mysql8_install.sh mgr</span><br></pre></td></tr></table></figure></li>
+<li><p>查看安装错误日志</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#错误日志目录：/data/mysql/test/log/err.log</span></span><br><span class="line">tailf -n 300 /data/mysql/<span class="built_in">test</span>/<span class="built_in">log</span>/err.log</span><br><span class="line"><span class="comment">#关注错误信息</span></span><br></pre></td></tr></table></figure></li>
+<li><p>因为上一步部署过主从，需要重启一下主从</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#连接数据库,root密码默认123456</span></span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysql -uroot -p -S /tmp/mysql_master.sock</span><br><span class="line"><span class="comment">#切换database到mysql</span></span><br><span class="line">mysql&gt;use mysql;</span><br><span class="line">mysql&gt;stop slave;</span><br><span class="line">mysql&gt;reset master;</span><br><span class="line">mysql&gt;reset slave;</span><br></pre></td></tr></table></figure></li>
+<li><p>节点加入白名单</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#连接数据库,root密码默认123456</span></span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysql -uroot -p -S /tmp/mysql_master.sock</span><br><span class="line"><span class="comment">#切换database到mysql</span></span><br><span class="line">mysql&gt;use mysql;</span><br><span class="line">mysql&gt;STOP GROUP_REPLICATION;</span><br><span class="line">mysql&gt;SET GLOBAL group_replication_ip_whitelist=<span class="string">&quot;100.4.17.5,100.4.17.4,100.4.17.9&quot;</span>;</span><br><span class="line">mysql&gt;start GROUP_REPLICATION;</span><br></pre></td></tr></table></figure></li>
+<li><p>查看集群状态</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> performance_schema.replication_group_members;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h1><span id="常见问题汇总">常见问题汇总</span></h1><p>查看错误日志查看错误日志</p>
+<p>/data/mysql/test/数据库服务名称/log/err.log</p>
+<p>数据库服务重启</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#注意：my_slaver01.cnf以当前节点服务配置文件为准</span></span><br><span class="line">/usr/<span class="built_in">local</span>/mysql/bin/mysqld_safe --defaults-file=/etc/my_slaver01.cnf --user=mysql &amp;</span><br></pre></td></tr></table></figure>
+
+<p>卸载MGR</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#在mysql库中执行</span></span><br><span class="line">mysql&gt;uninstall plugin group_replication;</span><br></pre></td></tr></table></figure></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/" rel="prev" title="mysql集群方案">
+      <i class="fa fa-chevron-left"></i> mysql集群方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" rel="next" title="Redis系列(四):Redis性能及优化">
+      Redis系列(四):Redis性能及优化 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">集群规划</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.1.</span> <span class="nav-text">节点规划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">1.2.</span> <span class="nav-text">Mysql Server版本</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">Mysql部署（离线安装）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.</span> <span class="nav-text">Server安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.2.</span> <span class="nav-text">部署脚本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.3.</span> <span class="nav-text">默认配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.4.</span> <span class="nav-text">配置主从复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.5.</span> <span class="nav-text">搭建GMR</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number"></span> <span class="nav-text">常见问题汇总</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
