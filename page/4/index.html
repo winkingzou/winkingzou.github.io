@@ -190,6 +190,204 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/19/java/jvm/jvm-oom-view/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/19/java/jvm/jvm-oom-view/" class="post-title-link" itemprop="url">Jvm OOM问题排查</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-19 09:25:48" itemprop="dateCreated datePublished" datetime="2021-07-19T09:25:48+08:00">2021-07-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-03-04 19:17:39" itemprop="dateModified" datetime="2022-03-04T19:17:39+08:00">2022-03-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="java-内存溢出-jstack-JVM内存溢出问题"><a href="#java-内存溢出-jstack-JVM内存溢出问题" class="headerlink" title="java 内存溢出 jstack,JVM内存溢出问题"></a>java 内存溢出 jstack,JVM内存溢出问题</h1><h2 id="通过Linux的top命令查看cpu占比"><a href="#通过Linux的top命令查看cpu占比" class="headerlink" title="通过Linux的top命令查看cpu占比"></a>通过Linux的top命令查看cpu占比</h2><p>首先通过top命令查看，发现某个java程序占用了较高内存</p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/729f6d2c5bdc5e08504ce87111c98987.png" alt="729f6d2c5bdc5e08504ce87111c98987.png"></p>
+<h2 id="jps命令确定是哪个java程序"><a href="#jps命令确定是哪个java程序" class="headerlink" title="jps命令确定是哪个java程序"></a>jps命令确定是哪个java程序</h2><p>然后通过jps -l 与上面的PID列(2848)比较，确定是 picasso-java-v1.jar 这个java程序占用cpu过高：</p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/5c478987da213b738527755478ee18d7.png" alt="5c478987da213b738527755478ee18d7.png"></p>
+<h2 id="通过ps-查看具体哪个JVM线程"><a href="#通过ps-查看具体哪个JVM线程" class="headerlink" title="通过ps 查看具体哪个JVM线程"></a>通过ps 查看具体哪个JVM线程</h2><p>当时想的是可能应用内某个线程导致死循环，使用如下命令查看2848进程的各个线程小号cpu时间//ps -mp [线程号] -o THREAD,tid,time</p>
+<p>ps -mp 2848 -o THREAD,tid,time</p>
+<p>下图 %CPU列 为 cpu的百分比，TID列 为线程id</p>
+<p><strong>也可以使用top -Hp pid</strong></p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/b451f61304455332b8b023b222912fa7.png" alt="b451f61304455332b8b023b222912fa7.png"></p>
+<p>找到消耗cpu最大的线程(当时线上出现时某个线程消耗cpu90%多)，这里为了演示，所以取2858这个线程。</p>
+<h2 id="通过jstack查看java中的具体线程栈信息"><a href="#通过jstack查看java中的具体线程栈信息" class="headerlink" title="通过jstack查看java中的具体线程栈信息"></a>通过jstack查看java中的具体线程栈信息</h2><p>然后把上面线程id转化为16进制，在shell中使用printf “%x\n” tid即可，结果为b2a:</p>
+<p>然后使用jstack输出这个线程的调用栈：//jstack [进程id] | grep [线程的16进制id] -A行数</p>
+<p>jstack 2848 | grep b2a -A30</p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/9477ef59f33d14a6272566e9426320e4.png" alt="9477ef59f33d14a6272566e9426320e4.png"></p>
+<p>发现为GC线程，原来是jvm内存回收导致的cpu过高！</p>
+<p>通过jstat查看内存回收情况</p>
+<p>使用jstat -gcutil 线程数 间隔秒数 次数命令查看：</p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/070a664359b943e10e375b76168559ea.png" alt="070a664359b943e10e375b76168559ea.png"></p>
+<p>如图上面的FGC列Full GC次数为几百，而FGCT的Full GC秒数达到了几千，通过设置更多的监控次数观察，每次Full GC过后，O列的老年代还是99%，可见是内存不足导致的一直不停Full GC !</p>
+<p>重启程序，使用-Xmx -Xms设置更大堆内存</p>
+<p>通过重启程序，-Xmx2048m -Xms2048m设置了更大的内存参数.</p>
+<h2 id="使用jmap生成堆转储文件"><a href="#使用jmap生成堆转储文件" class="headerlink" title="使用jmap生成堆转储文件"></a>使用jmap生成堆转储文件</h2><p>通过jmap 生成了镜像jmap -dump:format=b,file=dumpfile.dat [pid]</p>
+<h2 id="使用Eclipse-Memory-Analyzer分析原因"><a href="#使用Eclipse-Memory-Analyzer分析原因" class="headerlink" title="使用Eclipse Memory Analyzer分析原因"></a>使用Eclipse Memory Analyzer分析原因</h2><p>在Eclipse Memory Analyzer中生成Leak Suspects报告：</p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/7ef8dd3f8a66903d42061c656fd8fd8a.png" alt="7ef8dd3f8a66903d42061c656fd8fd8a.png"></p>
+<p>发现是 PoolingHttpClientConnectionManager 这个类导致的。再点击上图中的Details,查看详细信息：</p>
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/7f17e83ddae942e04ab89677a7dfb9ce.png" alt="7f17e83ddae942e04ab89677a7dfb9ce.png"></p>
+<p>这下清晰了，是阿里的oss类库导致的，结合程序中的如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OSSClient ossClient = <span class="keyword">new</span> OSSClient(<span class="string">&quot;&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">PutObjectResult putObjectResult = ossClient.putObject(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这个方法在程序中没有使用单例模式而且没有关闭，每调用一次就生成了一个PoolingHttpClientConnectionManager，而且是不可回收的。通过源码查看到IdleConnectionReaper.size()这个类会生成PoolingHttpClientConnectionManager的总数量。</p>
+<p>验证猜测</p>
+<p>使用 -Xms20m -Xmx20m 运行以下程序，发现size一直变大，最后导致OOM (java.lang.OutOfMemoryError)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">60000</span>; i++) &#123;undefined</span><br><span class="line"></span><br><span class="line">OSSClient ossClient = <span class="keyword">new</span> OSSClient(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">ossClient.putObject(<span class="string">&quot;&quot;</span>, <span class="string">&quot;test1234&quot;</span> + UUID.randomUUID(), <span class="keyword">new</span> File(<span class="string">&quot;d:/file.txt&quot;</span>));</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;size=&quot;</span>+IdleConnectionReaper.size());</span><br><span class="line"></span><br><span class="line">Thread.sleep(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/07/19/java/jvm/jvm-oom-view/4901bfddda621275523f855a6b449ba2.png" alt="4901bfddda621275523f855a6b449ba2.png"></p>
+<p>查看api，得知使用shutdown方法即可关闭OSSClient：</p>
+<p>1ossClient.shutdown();</p>
+<p>再运行以下程序，size一直为0，一切正常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">60000</span>; i++) &#123;undefined</span><br><span class="line"></span><br><span class="line">OSSClient ossClient = <span class="keyword">new</span> OSSClient(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">ossClient.putObject(<span class="string">&quot;&quot;</span>, <span class="string">&quot;test1234&quot;</span> + UUID.randomUUID(), <span class="keyword">new</span> File(<span class="string">&quot;d:/file.txt&quot;</span>));</span><br><span class="line"></span><br><span class="line">ossClient.shutdown();</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;size=&quot;</span>+IdleConnectionReaper.size());</span><br><span class="line"></span><br><span class="line">Thread.sleep(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，终于找到了导致cpu过高和OutOfMemoryError的真凶！</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/" class="post-title-link" itemprop="url">COLA应用架构的实践</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-17 17:57:45" itemprop="dateCreated datePublished" datetime="2021-07-17T17:57:45+08:00">2021-07-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-02-04 00:42:44" itemprop="dateModified" datetime="2022-02-04T00:42:44+08:00">2022-02-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">架构设计</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="COLA架构"><a href="#COLA架构" class="headerlink" title="COLA架构"></a>COLA架构</h1><h2 id="COLA-概述"><a href="#COLA-概述" class="headerlink" title="COLA 概述"></a>COLA 概述</h2><p><strong>COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。</strong></p>
+<p>COLA分为两个部分，COLA架构和COLA组件。</p>
+<p>源码地址：<a target="_blank" rel="noopener" href="https://github.com/alibaba/COLA">https://github.com/alibaba/COLA</a></p>
+<p><a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework?utm_source=alading&amp;utm_campaign=repo">https://gitee.com/mirrors/cola-framework?utm_source=alading&amp;utm_campaign=repo</a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/SystemDesign/%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/%E5%9F%BA%E4%BA%8E%E5%AE%9E%E6%97%B6%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%92%8C%E6%8A%80%E6%9C%AF%E6%BC%94%E8%BF%9B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -863,181 +1061,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/19/java/java-tools/Validated/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/05/19/java/java-tools/Validated/" class="post-title-link" itemprop="url">Validated注解的使用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-19 09:25:48" itemprop="dateCreated datePublished" datetime="2021-05-19T09:25:48+08:00">2021-05-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-20 18:01:59" itemprop="dateModified" datetime="2022-04-20T18:01:59+08:00">2022-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java-tools/" itemprop="url" rel="index"><span itemprop="name">java-tools</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>日常开发过程中，经常遇到大量的参数进行校验,在业务中还要抛出异常等校验信息,在代码中相当冗长, 充满了if-else这种校验代码,代码不够优雅，使用spring的javax.validation注解式参数校验，可以免去繁琐的校验。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/05/19/java/java-tools/Validated/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/05/17/java/spring/springboot/springboo-base/springboot-date-config/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/05/17/java/spring/springboot/springboo-base/springboot-date-config/" class="post-title-link" itemprop="url">SpringBoot 配置返回前端时间戳和接收时间戳自动转为LocalDateTime</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-05-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-05-17T09:35:48+08:00">2021-05-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-18 00:22:50" itemprop="dateModified" datetime="2022-05-18T00:22:50+08:00">2022-05-18</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springboot/" itemprop="url" rel="index"><span itemprop="name">springboot</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E8%83%8C%E6%99%AF">背景</a></li>
-<li><a href="#springboot%E9%85%8D%E7%BD%AE%E6%8E%A5%E6%94%B6%E5%89%8D%E7%AB%AF%E6%97%B6%E9%97%B4%E6%88%B3%E8%87%AA%E5%8A%A8%E8%BD%AClocaldatetime">SpringBoot配置接收前端时间戳自动转LocalDateTime</a></li>
-<li><a href="#%E9%99%84%E5%AE%8C%E6%95%B4%E7%9A%84jacksoncustomizerconfig%E9%85%8D%E7%BD%AE">附：完整的JacksonCustomizerConfig配置</a></li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在项目开发当中，前后端使用什么样的时间格式，是一个值得关注的问题。如果都各自使用自己的格式，那么很不好统一。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/05/17/java/spring/springboot/springboo-base/springboot-date-config/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1105,20 +1132,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
