@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="简介    本次文章完全使用mysql自带的show命令实现获取，从connects、buffercache、lock、SQL、statement、Database throughputs、serverconfig7大方面全面获取监控数据。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql基础监控">
+<meta property="og:url" content="http://example.com/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="简介    本次文章完全使用mysql自带的show命令实现获取，从connects、buffercache、lock、SQL、statement、Database throughputs、serverconfig7大方面全面获取监控数据。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/71439.png">
+<meta property="article:published_time" content="2022-03-02T03:33:27.000Z">
+<meta property="article:modified_time" content="2022-09-05T18:28:47.834Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/71439.png">
+
+<link rel="canonical" href="http://example.com/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>mysql基础监控 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql基础监控
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-02 11:33:27" itemprop="dateCreated datePublished" datetime="2022-03-02T11:33:27+08:00">2022-03-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-06 02:28:47" itemprop="dateModified" datetime="2022-09-06T02:28:47+08:00">2022-09-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="简介">简介</span></h1><p>    本次文章完全使用mysql自带的show命令实现获取，从connects、buffercache、lock、SQL、statement、Database throughputs、serverconfig7大方面全面获取监控数据。</p>
+<span id="more"></span>
+
+<h1><span id="监控参数配置">监控参数配置</span></h1><h1><span id="连接数connects">连接数（Connects）</span></h1><ul>
+<li>最大使用连接数：show status like ‘Max_used_connections’</li>
+<li>当前打开的连接数：show status like ‘Threads_connected’</li>
+</ul>
+<h1><span id="缓存buffercache">缓存（bufferCache）</span></h1><ul>
+<li>未从缓冲池读取的次数：show status like ‘Innodb_buffer_pool_reads’</li>
+<li>从缓冲池读取的次数：show status like ‘Innodb_buffer_pool_read_requests’</li>
+<li>缓冲池的总页数：show status like ‘Innodb_buffer_pool_pages_total’</li>
+<li>缓冲池空闲的页数：show status like ‘Innodb_buffer_pool_pages_free’</li>
+<li>缓存命中率计算：（1-Innodb_buffer_pool_reads/Innodb_buffer_pool_read_requests）*100%</li>
+<li>缓存池使用率为：((Innodb_buffer_pool_pages_total-Innodb_buffer_pool_pages_free）/Innodb_buffer_pool_pages_total）*100%</li>
+</ul>
+<h1><span id="锁lock">锁（lock）</span></h1><ul>
+<li>锁等待个数：show status like ‘Innodb_row_lock_waits’</li>
+<li>平均每次锁等待时间：show status like ‘Innodb_row_lock_time_avg’</li>
+<li>查看是否存在表锁：show open TABLES where in_use&gt;0；有数据代表存在锁表，空为无表锁</li>
+</ul>
+<p>备注：锁等待统计得数量为累加数据，每次获取得时候可以跟之前得数据进行相减，得到当前统计得数据</p>
+<h1><span id="sql">SQL</span></h1><ul>
+<li>查看mysql开关是否打开：show variables like ‘slow_query_log’，ON为开启状态，如果为OFF，set global slow_query_log=1 进行开启</li>
+<li>查看mysql阈值：show variables like ‘long_query_time’，根据页面传递阈值参数，修改阈值 set global long_query_time=0.1</li>
+<li>查看mysql慢sql目录：show variables like ‘slow_query_log_file’</li>
+<li>格式化慢sql日志：mysqldumpslow -s at -t 10 /export/data/mysql/log/slow.log<br>注：此语句通过jdbc执行不了，属于命令行执行。意思为：显示出耗时最长的10个SQL语句执行信息，10可以修改为TOP个数。显示的信息为：执行次数、平均执行时间、SQL语句</li>
+</ul>
+<p>备注：当mysqldumpslow命令执行失败时，将慢日志同步到本地进行格式化处理。</p>
+<h1><span id="statement">statement</span></h1><ul>
+<li>insert数量：show status like ‘Com_insert’</li>
+<li>delete数量：show status like ‘Com_delete’</li>
+<li>update数量：show status like ‘Com_update’</li>
+<li>select数量：show status like ‘Com_select’</li>
+</ul>
+<h1><span id="吞吐database-throughputs">吞吐（Database throughputs）</span></h1><ul>
+<li>发送吞吐量：show status like ‘Bytes_sent’</li>
+<li>接收吞吐量：show status like ‘Bytes_received’</li>
+<li>总吞吐量：Bytes_sent+Bytes_received</li>
+</ul>
+<h1><span id="数据库参数serverconfig">数据库参数（serverconfig）</span></h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables</span><br></pre></td></tr></table></figure>
+
+<h1><span id="慢sql">慢SQL</span></h1><p>慢SQL指的是MySQL慢查询，具体指运行时间超过long_query_time值的SQL。<br>我们常听MySQL中有二进制日志binlog、中继日志relaylog、重做回滚日志redolog、undolog等。针对慢查询，还有一种慢查询日志slowlog，用来记录在MySQL中响应时间超过阀值的语句。慢SQL对实际生产业务影响是致命的，所以测试人员在性能测试过程中，对数据库SQL语句执行情况实施监控，给开发提供准确的性能优化意见显得尤为重要。那怎么使用Mysql数据库提供的慢查询日志来监控SQL语句执行情况，找到消耗较高的SQL语句，以下详细说明一下慢查询日志的使用步骤：</p>
+<ul>
+<li>确保打开慢SQL开关slow_query_log<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;slow_query_log&#x27;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>如果没有开启慢sql,则通过如下方式进行开启：</p>
+<h2><span id="开启慢查询">开启慢查询</span></h2><p><strong>方式一:修改配置文件</strong></p>
+<p>Windows：Windows 的配置文件为 my.ini，一般在 MySQL 的安装目录下或者 c:\Windows 下。</p>
+<p>Linux：Linux 的配置文件为 my.cnf ，一般在 /etc 下</p>
+<p>在 my.ini 增加几行:</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">[mysqlld]</span> <span class="string"></span></span><br><span class="line"><span class="attr">long_query_time</span>=<span class="string">2 </span></span><br><span class="line"><span class="comment">#5.0、5.1等版本配置如下选项 </span></span><br><span class="line"><span class="meta">log-slow-queries</span>=<span class="string">&quot;mysql_slow_query.log&quot; </span></span><br><span class="line"><span class="comment">#5.5及以上版本配置如下选项 </span></span><br><span class="line"><span class="meta">slow-query-log</span>=<span class="string">On </span></span><br><span class="line"><span class="attr">slow_query_log_file</span>=<span class="string">&quot;mysql_slow_query.log&quot; </span></span><br><span class="line"><span class="meta">log-query-not-using-indexes</span> <span class="string"></span></span><br></pre></td></tr></table></figure>
+
+<p>第一句使用来定义查过多少秒的查询算是慢查询，我这里定义的是2秒</p>
+<p>第二句使用来定义慢查询日志的路径（因为是windows，所以不牵涉权限问题）</p>
+<p>第三句就是记录下没有使用索引的query</p>
+<p>第二步：查看关于慢查询的状态</p>
+<p><strong>方式二:通过MySQL数据库开启慢查询</strong></p>
+<p>    上文的配置需要重启mysql server进程mysqld才会生效。但是很多时候，尤其是产品运营环境，不希望每次修改都需要重新启动mysql服务器，也希望能在某些特定时间记 录。MySQL5.1给我们提供了更为灵活的运行时控制，使得你不必重新启动mysql服务器，也能选择性地记录或者不记录某些slow queries。</p>
+<p>    MySQL5.1中，提供了全局变量<code>slow_query_log</code>、<code>slow_query_log_file</code>可以灵活地控制enable/disable慢查询。同时可以通过<code>long_query_time</code>设置时间</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#<span class="operator">/</span><span class="operator">/</span>启用slow query记录</span><br><span class="line">#注意:设置了slow_query_log全局变量, log_slow_queries也会隐性地跟着改变</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">set</span> <span class="keyword">global</span> slow_query_log<span class="operator">=</span><span class="keyword">ON</span></span><br></pre></td></tr></table></figure>
+
+<p>不幸运的是,在MySQL5.0并没有提供类似的全局变量来灵活控制，但是我们可以通过将long_query_time设置得足够大来避免记录某些查询语句。比如</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># 单位为秒</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">set</span> <span class="keyword">global</span> long_query_time <span class="operator">=</span> <span class="number">3600</span>;</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">set</span> <span class="keyword">global</span> log_querise_not_using_indexes <span class="operator">=</span> <span class="keyword">ON</span>;</span><br></pre></td></tr></table></figure>
+
+<p>MySQL5.1+后可以在运行时改变日记行为，将日志记录到数据库表中。只要将mysql全局变量log_output设置为 TABLE即可。MySQL会将日志分别记录到表mysql.gengera_log和mysql.slow_log二张表中。但是，我们推荐将日志记录 在日记文件中。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> variables <span class="keyword">like</span> ‘log_output<span class="string">&#x27;\G</span></span><br><span class="line"><span class="string">Variable_name: log_output</span></span><br><span class="line"><span class="string">Value: FILE</span></span><br><span class="line"><span class="string">mysql&gt;set global log_output=&#x27;</span><span class="keyword">table</span><span class="string">&#x27;;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>验证慢查询是否开启</strong></p>
+<p>执行如下SQL语句来查看mysql慢查询的状态</p>
+<p>执行结果会把是否开启慢查询、慢查询的秒数、慢查询日志等信息打印在屏幕上。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*查看慢查询时间 */</span> </span><br><span class="line"><span class="keyword">show</span> variables <span class="keyword">like</span> &quot;long_query_time&quot;;默认<span class="number">10</span>s </span><br><span class="line"><span class="comment">/*查看慢查询配置情况 */</span> </span><br><span class="line"><span class="keyword">show</span> status <span class="keyword">like</span> &quot;%slow_queries%&quot;; </span><br><span class="line"><span class="comment">/*查看慢查询日志路径 */</span> </span><br><span class="line"> <span class="keyword">show</span> variables <span class="keyword">like</span> &quot;%slow%&quot;; </span><br></pre></td></tr></table></figure>
+
+<p><strong>执行一次慢查询操作</strong></p>
+<p>其实想要执行一次有实际意义的慢查询比较困难，因为在自己测试的时候，就算查询有20万条数据的海量表，也只需要0.几秒。可以通过如下语句代替：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> SLEEP(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<p><strong>查看慢查询的数量</strong></p>
+<p>通过如下sql语句，来查看一共执行过几次慢查询：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">global</span> status <span class="keyword">like</span> <span class="string">&#x27;%slow%&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>mysql日志的配置：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">注意：这些日文件在mysql重启的时候才会生成</span> <span class="string"></span></span><br><span class="line"><span class="comment">#记录所有sql语句 </span></span><br><span class="line"><span class="attr">log</span>=<span class="string">E:/mysqllog/mysql.log </span></span><br><span class="line"><span class="comment">#记录数据库启动关闭信息，以及运行过程中产生的错误信息 </span></span><br><span class="line"><span class="meta">log-error</span>=<span class="string">E:/mysqllog/myerror.log </span></span><br><span class="line"><span class="comment"># 记录除select语句之外的所有sql语句到日志中，可以用来恢复数据文件 </span></span><br><span class="line"><span class="meta">log-bin</span>=<span class="string">E:/mysqllog/bin </span></span><br><span class="line"><span class="comment">#记录查询慢的sql语句 </span></span><br><span class="line"><span class="meta">log-slow-queries</span>=<span class="string">E:/mysqllog/slow.log  </span></span><br><span class="line"><span class="comment">#慢查询时间 </span></span><br><span class="line"><span class="attr">long_query_time</span>=<span class="string">2 </span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="分析慢查询日志">分析慢查询日志</span></h2><p><strong>方式一:通过工具分析</strong></p>
+<p>MySQL自带了mysqldumpslow工具用来分析slow query日志，除此之外，还有一些好用的开源工具。比如MyProfi(下载地址:<a target="_blank" rel="noopener" href="http://sourceforge.net/projects/myprofi/)%E3%80%81mysql-log-filter%EF%BC%8C%E5%BD%93%E7%84%B6%E8%BF%98%E6%9C%89mysqlsla">http://sourceforge.net/projects/myprofi/)、mysql-log-filter，当然还有mysqlsla</a></p>
+<p>以下是mysqldumpslow常用参数说明，详细的可应用mysqldumpslow -help查询。</p>
+<ul>
+<li>-s，是表示按照何种方式排序，c、t、l、r分别是按照记录次数、时间、查询时间、返回的记录数来排序（从大到小），ac、at、al、ar表示相应的倒叙。</li>
+<li>-t，是top n的意思，即为返回前面多少条数据。</li>
+<li>-g，后边可以写一个正则匹配模式，大小写不敏感。</li>
+</ul>
+<p>接下来就是用mysql自带的慢查询工具mysqldumpslow分析了（mysql的bin目录下），我这里的日志文件名字是host-slow.log。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 列出记录次数最多的<span class="number">10</span>个<span class="keyword">sql</span>语句</span><br><span class="line">mysqldumpslow <span class="operator">-</span>s c <span class="operator">-</span>t <span class="number">10</span> host<span class="operator">-</span>slow.log</span><br><span class="line"></span><br><span class="line"># 列出返回记录集最多的<span class="number">10</span>个<span class="keyword">sql</span>语句</span><br><span class="line">mysqldumpslow <span class="operator">-</span>s r <span class="operator">-</span>t <span class="number">10</span> host<span class="operator">-</span>slow.log</span><br><span class="line"></span><br><span class="line"># 按照时间返回前<span class="number">10</span>条里面含有左连接的<span class="keyword">sql</span>语句</span><br><span class="line">mysqldumpslow <span class="operator">-</span>s t <span class="operator">-</span>t <span class="number">10</span> <span class="operator">-</span>g &quot;left join&quot; host<span class="operator">-</span>slow.log</span><br></pre></td></tr></table></figure>
+
+<p>使用mysqldumpslow命令可以非常明确的得到各种我们需要的查询语句，对MySQL查询语句的监控、分析、优化起到非常大的帮助。</p>
+<p><strong>mysqldumpslow的分析结果详解：</strong></p>
+<ul>
+<li>Count：表示该类型的语句执行次数，上图中表示select语句执行了2次。</li>
+<li>Time：表示该类型的语句执行的平均时间（总计时间）</li>
+<li>Lock：锁时间0s。</li>
+<li>Rows：单次返回的结果数是1000条记录，2次总共返回2000条记录。</li>
+</ul>
+<p>通过这个工具就可以查询出来哪些sql语句是慢SQL，从而反馈研发进行优化，比如加索引，该应用的实现方式等。</p>
+<p><strong>方式二:直接分析mysql慢查询日志</strong></p>
+<p>日志部分内容如下:</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">#</span> Time: 121017 17:38:54 </span><br><span class="line"><span class="params">#</span> User@Host: root[root] @ localhost [127.0.0.1] </span><br><span class="line"><span class="params">#</span> Query<span class="built_in">_</span>time: 3.794217 Lock<span class="built_in">_</span>time: 0.000000 Rows<span class="built_in">_</span>sent: 1 Rows<span class="built_in">_</span>examined: 4194304 </span><br><span class="line">SET timestamp=1350466734; </span><br><span class="line">select * from wei where text=&#x27;orange&#x27;; </span><br><span class="line"><span class="params">#</span> Time: 121017 17:46:22 </span><br><span class="line"><span class="params">#</span> User@Host: root[root] @ localhost [127.0.0.1] </span><br><span class="line"><span class="params">#</span> Query<span class="built_in">_</span>time: 3.819219 Lock<span class="built_in">_</span>time: 0.000000 Rows<span class="built_in">_</span>sent: 0 Rows<span class="built_in">_</span>examined: 4194304 </span><br><span class="line">SET timestamp=1350467182; </span><br><span class="line">select * from wei where text=&#x27;xishizhaohua&#x27;; </span><br></pre></td></tr></table></figure>
+
+<p>其实定位到了慢查询语句就已经完成了一大不了，执行explain或者desc命令查看慢查询语句，如下图：</p>
+<p><img src="/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/71439.png" alt="img"></p>
+<p>问题很明显，解决方式也很明显，建索引了。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">create</span> index text_index <span class="keyword">on</span> wei(text);  </span><br><span class="line">Query OK, <span class="number">4194304</span> <span class="keyword">rows</span> affected (<span class="number">1</span> min <span class="number">58.07</span> sec)  </span><br><span class="line">Records: <span class="number">4194304</span> Duplicates: <span class="number">0</span> Warnings: <span class="number">0</span> </span><br></pre></td></tr></table></figure>
+
+<p>然后在执行查询操作，用时明显少了很多。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">select</span> <span class="operator">*</span> <span class="keyword">from</span> wei <span class="keyword">where</span> text<span class="operator">=</span><span class="string">&#x27;orange&#x27;</span>; </span><br><span class="line"><span class="operator">+</span><span class="comment">---------+--------+ </span></span><br><span class="line"><span class="operator">|</span> id   <span class="operator">|</span> text  <span class="operator">|</span> </span><br><span class="line"><span class="operator">+</span><span class="comment">---------+--------+ </span></span><br><span class="line"><span class="operator">|</span> <span class="number">4103519</span> <span class="operator">|</span> orange <span class="operator">|</span> </span><br><span class="line"><span class="operator">+</span><span class="comment">---------+--------+ </span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.33</span> sec) </span><br></pre></td></tr></table></figure>
+
+<p>Slow Query日志，虽然帮助你记录了那些执行过了的SQL语句。但它不是万能的，意义可能没有你想象的那么大。它只告诉了你哪些语句慢，但是为什么慢?具体 原因，还是需要你自己去分析，不断的调试。也许，你只需要换一条更有效的sql语句，也许你只需简单地增加一个索引，但也有可能你需要调整你应用程序的设 计方案。比如，上面那条语句是很明显，它检查了600多万行数据。不幸的是，并不是每条语句都这么明显。也许还有别的原因，比如:</p>
+<ul>
+<li>*锁表了，导致查询处于等态状态。lock_time显示了查询等待锁被翻译的时间</li>
+<li>*数据或索引没有被缓存。常见于第一次启动服务器或者服务器没有调优</li>
+<li>*备份数据库，I/O变慢</li>
+<li>*也许同时运行了其它的查询，减少了当前查询</li>
+</ul>
+<h2><span id="常见慢sql排查">常见慢SQL排查</span></h2><ol>
+<li>不使用子查询<br>SELECT <em><strong>FROM t1 WHERE id (SELECT id FROM t2 WHERE name=’hechunyang’);<br>子查询在MySQL5.5版本里，内部执行计划器是这样执行的：先查外表再匹配内表，而不是先查内表t2，当外表的数据很大时，查询速度会非常慢。在MariaDB10/MySQL5.6版本里，采用join关联方式对其进行了优化，这条SQL会自动转换为 SELECT t1.</strong></em> FROM t1 JOIN t2 ON t1.id = t2.id;<br>但请注意的是：优化只针对SELECT有效，对UPDATE/DELETE子 查询无效， 生产环境尽量应避免使用子查询。</li>
+<li>避免函数索引<br>SELECT <em><strong>FROM t WHERE YEAR(d) &gt;= 2016;<br>由于MySQL不像Oracle那样⽀持函数索引，即使d字段有索引，也会直接全表扫描。应改为 &gt; SELECT</strong></em> FROM t WHERE d &gt;= ‘2016-01-01’;</li>
+<li>用IN来替换OR低效查询<br>慢SELECT <em><strong>FROM t WHERE LOC_ID = 10 OR LOC_ID = 20 OR LOC_ID = 30;<br>高效查询 &gt; SELECT</strong></em> FROM t WHERE LOC_IN IN (10,20,30);</li>
+<li>LIKE双百分号无法使用到索引<br>SELECT <em><strong>FROM t WHERE name LIKE ‘%de%’;<br>使用SELECT</strong></em> FROM t WHERE name LIKE ‘de%’;</li>
+<li>分组统计可以禁止排序<br>SELECT goods_id,count(<em><strong>) FROM t GROUP BY goods_id;<br>默认情况下，MySQL对所有GROUP BY col1，col2…的字段进⾏排序。如果查询包括GROUP BY，想要避免排序结果的消耗，则可以指定ORDER BY NULL禁止排序。使用SELECT goods_id,count(</strong></em>) FROM t GROUP BY goods_id ORDER BY NULL;</li>
+<li>禁止不必要的ORDER BY排序<br>SELECT count(1) FROM user u LEFT JOIN user_info i ON u.id = i.user_id WHERE 1 = 1 ORDER BY u.create_time DESC;使用SELECT count(1) FROM user u LEFT JOIN user_info i ON u.id = i.user_id;</li>
+<li></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/19/cloud-native/ServerMash/istio/istio-install/" rel="prev" title="基于Kubernetes安装Istio">
+      <i class="fa fa-chevron-left"></i> 基于Kubernetes安装Istio
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/03/05/os/Linux/common/Linux-Recycle-Bin/" rel="next" title="Linux删除文件实现回收站功能">
+      Linux删除文件实现回收站功能 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">监控参数配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">连接数（Connects）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">缓存（bufferCache）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">锁（lock）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">SQL</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">statement</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">8.</span> <span class="nav-text">吞吐（Database throughputs）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">9.</span> <span class="nav-text">数据库参数（serverconfig）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">10.</span> <span class="nav-text">慢SQL</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">10.1.</span> <span class="nav-text">开启慢查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">10.2.</span> <span class="nav-text">分析慢查询日志</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">10.3.</span> <span class="nav-text">常见慢SQL排查</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

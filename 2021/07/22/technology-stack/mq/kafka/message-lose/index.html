@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Kafka 为什么会丢消息 1、如何知道有消息丢失？ 2、哪些环节可能丢消息？ 3、如何确保消息不丢失？  引入 MQ 消息中间件最直接的目的：系统解耦以及流量控制（削峰填谷）  系统解耦： 上下游系统之间的通信相互依赖，利用 MQ 消息队列可以隔离上下游环境变化带来的不稳定因素。 流量控制： 超高并发场景中，引入 MQ 可以实现流量 “削峰填谷” 的作用以及服务异步处理，不至于打崩服务。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kafka丢失消息">
+<meta property="og:url" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="Kafka 为什么会丢消息 1、如何知道有消息丢失？ 2、哪些环节可能丢消息？ 3、如何确保消息不丢失？  引入 MQ 消息中间件最直接的目的：系统解耦以及流量控制（削峰填谷）  系统解耦： 上下游系统之间的通信相互依赖，利用 MQ 消息队列可以隔离上下游环境变化带来的不稳定因素。 流量控制： 超高并发场景中，引入 MQ 可以实现流量 “削峰填谷” 的作用以及服务异步处理，不至于打崩服务。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/3d3a7bbc049f4fd6bbc8ce4e7e1d69db.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/8a9b9984e5c34e4f8276f0ed72707a5b.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/712a15c6b2cf41c6a0aee31d78e396d2.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/85acbf6c50934a2abfb6a686f7f4f493.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/a72054cdc9824ee6836961b317dee186.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/e4c910ecd8f943dfb0bd2bbfcc584783.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/974bb622338c44d4b10f1e6237a1009c.jpeg">
+<meta property="og:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/b8ca777b0fef4b7fb087290eed3f5541.jpeg">
+<meta property="article:published_time" content="2021-07-22T05:53:16.000Z">
+<meta property="article:modified_time" content="2022-09-13T09:41:32.428Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="mq">
+<meta property="article:tag" content="kafka">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/3d3a7bbc049f4fd6bbc8ce4e7e1d69db.jpeg">
+
+<link rel="canonical" href="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Kafka丢失消息 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/22/technology-stack/mq/kafka/message-lose/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kafka丢失消息
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-22 13:53:16" itemprop="dateCreated datePublished" datetime="2021-07-22T13:53:16+08:00">2021-07-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-13 17:41:32" itemprop="dateModified" datetime="2022-09-13T17:41:32+08:00">2022-09-13</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mq/" itemprop="url" rel="index"><span itemprop="name">mq</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="kafka-为什么会丢消息">Kafka 为什么会丢消息</span></h1><ul>
+<li>1、如何知道有消息丢失？</li>
+<li>2、哪些环节可能丢消息？</li>
+<li>3、如何确保消息不丢失？</li>
+</ul>
+<p><strong>引入 MQ 消息中间件最直接的目的：系统解耦以及流量控制（削峰填谷）</strong></p>
+<ul>
+<li><strong>系统解耦：</strong> 上下游系统之间的通信相互依赖，利用 MQ 消息队列可以隔离上下游环境变化带来的不稳定因素。</li>
+<li><strong>流量控制：</strong> 超高并发场景中，引入 MQ 可以实现流量 “削峰填谷” 的作用以及服务异步处理，不至于打崩服务。</li>
+</ul>
+<span id="more"></span>
+
+<p><strong>引入 MQ 同样带来其他问题：数据一致性。</strong></p>
+<blockquote>
+<p>在分布式系统中，如果两个节点之间存在数据同步，就会带来数据一致性的问题。消息生产端发送消息到 MQ 再到消息消费端需要保证消息不丢失。</p>
+</blockquote>
+<ul>
+<li><img src="/2021/07/22/technology-stack/mq/kafka/message-lose/3d3a7bbc049f4fd6bbc8ce4e7e1d69db.jpeg" alt="img"></li>
+</ul>
+<p><strong>所以在使用 MQ 消息队列时，需要考虑这 3 个问题：</strong></p>
+<ul>
+<li>如何知道有消息丢失？</li>
+<li>哪些环节可能丢消息？</li>
+<li>如何确保消息不丢失？</li>
+</ul>
+<h1><span id="如何知道有消息丢失">如何知道有消息丢失？</span></h1><p><strong>如何感知消息是否丢失了？可总结如下：</strong></p>
+<ol>
+<li><strong>他人反馈：</strong> 运营、PM 反馈消息丢失。</li>
+<li><strong>监控报警：</strong> 监控指定指标，即时报警人工调整。Kafka 集群异常、Broker 宕机、Broker 磁盘挂载问题、消费者异常导致消息积压等都会给用户直接感觉是消息丢失了。</li>
+</ol>
+<p><strong>案例：舆情分析中数据采集同步</strong></p>
+<ul>
+<li><p><img src="/2021/07/22/technology-stack/mq/kafka/message-lose/8a9b9984e5c34e4f8276f0ed72707a5b.jpeg" alt="img"></p>
+</li>
+<li><p>PM 可自己下发采集调度指令，去采集特定数据。</p>
+</li>
+<li><p>PM 可通过 ES 近实时查询对应数据，若没相应数据可再次下发指令。</p>
+</li>
+</ul>
+<blockquote>
+<p>当感知消息丢失了，那就需要一种机制来检查消息是否丢失。</p>
+</blockquote>
+<h1><span id="检索消息">检索消息</span></h1><p><strong>运维工具有：</strong></p>
+<ol>
+<li><p>查看 Kafka 消费位置：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&gt; 基于 Spring Boot + MyBatis Plus + Vue &amp; Element 实现的后台管理系统 + 用户小程序，支持 RBAC 动态权限、多租户、数据权限、工作流、三方登录、支付、短信、商城等功能</span><br><span class="line">&gt;</span><br><span class="line">&gt; * 项目地址：&lt;https://gitee.com/zhijiantianya/ruoyi-vue-pro&gt;</span><br><span class="line">&gt; * 视频教程：&lt;https://doc.iocoder.cn/video/&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看某个topic的message数量</span></span><br><span class="line">$ ./kafka-run-class.sh kafka.tools.GetOffsetShell --broker-list localhost:9092 --topic test_topic</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&gt; 基于 Spring Cloud Alibaba + Gateway + Nacos + RocketMQ + Vue &amp; Element 实现的后台管理系统 + 用户小程序，支持 RBAC 动态权限、多租户、数据权限、工作流、三方登录、支付、短信、商城等功能</span><br><span class="line">&gt;</span><br><span class="line">&gt; * 项目地址：&lt;https://gitee.com/zhijiantianya/yudao-cloud&gt;</span><br><span class="line">&gt; * 视频教程：&lt;https://doc.iocoder.cn/video/&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看consumer Group列表</span></span><br><span class="line">$ ./kafka-consumer-groups.sh  --list  --bootstrap-server 192.168.88.108:9092</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 offset 消费情况</span></span><br><span class="line">$ ./kafka-consumer-groups.sh --bootstrap-server localhost:9092 --group console-consumer-1152 --describe</span><br><span class="line">GROUP                 TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID                                                           HOST            CLIENT-ID</span><br><span class="line">console-consumer-1152 test_topic      0          -               4               -               consumer-console-consumer-1152-1-2703ea2b-b62d-4cfd-8950-34e8c321b942 /127.0.0.1      consumer-console-consumer-1152-1</span><br></pre></td></tr></table></figure></li>
+<li><p>利用工具：Kafka Tools</p>
+<p><img src="/2021/07/22/technology-stack/mq/kafka/message-lose/712a15c6b2cf41c6a0aee31d78e396d2.jpeg" alt="img"></p>
+</li>
+</ol>
+<h1><span id="哪些环节可能丢消息">哪些环节可能丢消息？</span></h1><p>一条消息从生产到消费完成经历 3 个环节：消息生产者、消息中间件、消息消费者。</p>
+<p><img src="/2021/07/22/technology-stack/mq/kafka/message-lose/85acbf6c50934a2abfb6a686f7f4f493.jpeg" alt="img"></p>
+<p>哪个环节都有可能出现消息丢失问题。</p>
+<h2><span id="生产端">生产端</span></h2><p><strong>首先要认识到 Kafka 生产端发送消息流程：</strong></p>
+<blockquote>
+<p>调用 send() 方法时，不会立刻把消息发送出去，而是缓存起来，选择恰当时机把缓存里的消息划分成一批数据，通过 Sender 线程按批次发送给服务端 Broker。</p>
+</blockquote>
+<p><img src="/2021/07/22/technology-stack/mq/kafka/message-lose/a72054cdc9824ee6836961b317dee186.jpeg" alt="img"></p>
+<p><strong>此环节丢失消息的场景有：</strong> 即导致 Producer 消息没有发送成功</p>
+<ol>
+<li><strong>网络波动：</strong> 生产者与服务端之间的链路不可达，发送超时。现象是：各端状态正常，但消费端就是没有消费消息，就像丢失消息一样。</li>
+<li></li>
+<li>*<strong>解决措施：</strong> *重试 props.put(“retries”, “10”);</li>
+<li><strong>不恰当配置：</strong> 发送消息无 ack 确认; 发送消息失败无回调，无日志。producer.send(new ProducerRecord&lt;&gt;(topic, messageKey, messageStr),<br>new CallBack(){…});</li>
+<li></li>
+<li>*<strong>解决措施：</strong> *设置 acks=1 或者 acks=all。发送消息设置回调。</li>
+</ol>
+<p><strong>回顾下重要的参数：</strong> <strong>acks</strong></p>
+<ul>
+<li>acks=0：不需要等待服务器的确认. 这是 retries 设置无效. 响应里来自服务端的 offset 总是 -1，producer只管发不管发送成功与否。延迟低，容易丢失数据。</li>
+<li>acks=1：表示 leader 写入成功（但是并没有刷新到磁盘）后即向 producer 响应。延迟中等，一旦 leader 副本挂了，就会丢失数据。</li>
+<li>acks=all：等待数据完成副本的复制, 等同于 -1. 假如需要保证消息不丢失, 需要使用该设置. 同时需要设置 unclean.leader.election.enable 为 true, 保证当 ISR 列表为空时, 选择其他存活的副本作为新的 leader.</li>
+</ul>
+<h2><span id="服务端">服务端</span></h2><p><strong>先来了解下 Kafka Broker 写入数据的过程：</strong></p>
+<ol>
+<li><p>Broker 接收到一批数据，会先写入内存 PageCache（OS Cache）中。</p>
+</li>
+<li><p>操作系统会隔段时间把 OS Cache 中数据进行刷盘，这个过程会是 <strong>「异步批量刷盘」</strong> 。</p>
+<img src="/2021/07/22/technology-stack/mq/kafka/message-lose/e4c910ecd8f943dfb0bd2bbfcc584783.jpeg" alt="img" style="zoom:50%;">
+
+<p><strong>这里就有个隐患，如果数据写入 PageCache 后 Kafka Broker宕机会怎样？机子宕机/掉电？</strong></p>
+<ul>
+<li><strong>Kafka Broker 宕机：</strong> 消息不会丢失。因为数据已经写入 PageCache，只等待操作系统刷盘即可。</li>
+<li><strong>机子宕机/掉电：</strong> 消息会丢失。因为数据仍在内存里，内存RAM 掉电后就会丢失数据。</li>
+</ul>
+<blockquote>
+<p><strong>解决方案</strong> <strong>：使用带蓄电池后备电源的缓存 cache，防止系统断电异常。</strong></p>
+<p>对比学习 MySQL 的 “双1” 策略，基本不使用这个策略，因为 “双1” 会导致频繁的 I/O 操作，也是最慢的一种。</p>
+<p>对比学习 Redis 的 AOF 策略，默认且推荐的策略：<strong>Everysec(AOF_FSYNC_EVERYSEC) 每一秒钟保存一次（默认）：</strong> 。每个写命令执行完, 只是先把日志写到 AOF 文件的内存缓冲区, 每隔一秒把缓冲区中的内容写入磁盘。</p>
+</blockquote>
+<p><strong>拓展：Kafka 日志刷盘机制</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 推荐采用默认值，即不配置该配置，交由操作系统自行决定何时落盘，以提升性能。</span></span><br><span class="line"><span class="comment"># 针对 broker 配置：</span></span><br><span class="line">log.flush.interval.messages=10000 <span class="comment"># 日志落盘消息条数间隔，即每接收到一定条数消息，即进行log落盘。</span></span><br><span class="line">log.flush.interval.ms=1000        <span class="comment"># 日志落盘时间间隔，单位ms，即每隔一定时间，即进行log落盘。</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 针对 topic 配置：</span></span><br><span class="line">flush.messages.flush.ms=1000  <span class="comment"># topic下每1s刷盘</span></span><br><span class="line">flush.messages=1              <span class="comment"># topic下每个消息都落盘</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看 Linux 后台线程执行配置</span></span><br><span class="line">$ sysctl -a | grep dirty</span><br><span class="line">vm.dirty_background_bytes = 0</span><br><span class="line">vm.dirty_background_ratio = 10      <span class="comment"># 表示当脏页占总内存的的百分比超过这个值时，后台线程开始刷新脏页。</span></span><br><span class="line">vm.dirty_bytes = 0</span><br><span class="line">vm.dirty_expire_centisecs = 3000    <span class="comment"># 表示脏数据多久会被刷新到磁盘上（30秒）。</span></span><br><span class="line">vm.dirty_ratio = 20</span><br><span class="line">vm.dirty_writeback_centisecs = 500  <span class="comment"># 表示多久唤醒一次刷新脏页的后台线程（５秒）。</span></span><br><span class="line">vm.dirtytime_expire_seconds = 43200</span><br></pre></td></tr></table></figure>
+
+<p><strong>Broker 的可靠性需要依赖其多副本机制：</strong> 一般副本数 3 个（配置参数：replication.factor=3）</p>
+<ul>
+<li><p>Leader Partition 副本：提供对外读写机制。</p>
+</li>
+<li><p>Follower Partition 副本：同步 Leader 数据。</p>
+<img src="/2021/07/22/technology-stack/mq/kafka/message-lose/974bb622338c44d4b10f1e6237a1009c.jpeg" alt="img" style="zoom:50%;">
+
+<p><strong>副本之间的数据同步也可能出现问题：数据丢失问题和数据不一致问题。</strong></p>
+<p><strong>解决方案：ISR 和 Epoch 机制</strong></p>
+<ul>
+<li><strong>ISR(In-Sync Replicas) ：</strong> 当 Le``ader 宕机，可以从 ISR 中选择一个 Follower 作为 Leader。</li>
+<li><strong>Epoch 机制：</strong> 解决 Leader 副本高水位更新和 Follower 副本高水位更新在时间上是存在错配问题。<strong>Tips: Kafka 0.11.x 版本才引入 leader epoch 机制解决高水位机制弊端。</strong></li>
+</ul>
+<p><strong>对应需要的配置参数如下：</strong></p>
+<ol>
+<li><strong>acks=-1 或者 acks=all：</strong> 必须所有副本均同步到消息，才能表明消息发送成功。</li>
+<li><strong>replication.factor &gt;= 3：</strong> 副本数至少有 3 个。</li>
+<li><strong>min.insync.replicas &gt; 1：</strong> 代表消息至少写入 2个副本才算发送成功。前提需要 acks=-1。举个栗子：Leader 宕机了，至少要保证 ISR 中有一个 Follower，这样这个Follwer被选举为Leader 且不会丢失数据。公式：replication.factor = min.insync.replicas + 1</li>
+<li><strong>unclean.leader.election.enable=false：</strong> 防止不在 ISR 中的 Follower 被选举为 Leader。<strong>Kafka 0.11.0.0版本开始默认 unclean.leader.election.enable=false</strong></li>
+</ol>
+</li>
+</ul>
+<h2><span id="消费端">消费端</span></h2><p><strong>消费端消息丢失场景有：</strong></p>
+<ol>
+<li><strong>消息堆积：</strong> 几个分区的消息都没消费，就跟丢消息一样。</li>
+<li></li>
+<li><strong>解决措施：</strong> 一般问题都出在消费端，尽量提高客户端的消费速度，消费逻辑另起线程进行处理。</li>
+<li><strong>自动提交：</strong> 消费端拉下一批数据，正在处理中自动提交了 offset，这时候消费端宕机了; 重启后，拉到新一批数据，而上一批数据却没处理完。</li>
+<li></li>
+<li><strong>解决措施：</strong> 取消自动提交 auto.commit = false，改为手动 ack。</li>
+<li><strong>心跳超时，引发 Rebalance：</strong> 客户端心跳超时，触发 Rebalance被踢出消费组。如果只有这一个客户端，那消息就不会被消费了。<strong>同时避免两次 poll 的间隔时间超过阈值：</strong></li>
+<li></li>
+<li>max.poll.records：降低该参数值，建议远远小于 &lt;单个线程每秒消费的条数&gt; * &lt;消费线程的个数&gt; * &lt;max.poll.interval.ms&gt; 的积。</li>
+<li>max.poll.interval.ms: 该值要大于 &lt;max.poll.records&gt; / (&lt;单个线程每秒消费的条数&gt; * &lt;消费线程的个数&gt;) 的值。</li>
+<li><strong>解决措施：</strong> 客户端版本升级至 0.10.2 以上版本。</li>
+</ol>
+<p><strong>案例：凡曾遇到数据同步时，消息中的文本需经过</strong> <strong>NLP 的 NER 分析，再同步到 ES。</strong></p>
+<p><strong>这个过程的主要流程是</strong></p>
+<img src="/2021/07/22/technology-stack/mq/kafka/message-lose/b8ca777b0fef4b7fb087290eed3f5541.jpeg" alt="img" style="zoom:50%;">
+
+<ol>
+<li>数据同步程序从 Kafka 中拉取消息。</li>
+<li>数据同步程序将消息内的文本发送的 NER 进行分析，得到特征数组。</li>
+<li>数据同步程序将消息同步给 ES。</li>
+</ol>
+<p><strong>现象：线上数据同步程序运行一段时间后，消息就不消费了。</strong></p>
+<ul>
+<li><strong>排查日志：</strong> 发现有 Rebalance 日志，怀疑是客户端消费太慢被踢出了消费组。</li>
+<li><strong>本地测试：</strong> 发现运行一段时间也会出现 Rebalance，且 NLP的NER 服务访问 HTTP 500 报错。</li>
+<li><strong>得出结论：</strong> 因NER服务异常，导致数据同步程序消费超时。<strong>且当时客户端版本为 v0.10.1，Consumer 没有独立线程维持心跳，而是把心跳维持与 poll 接口耦合在一起，从而也会造成心跳超时。</strong></li>
+</ul>
+<p><strong>当时解决措施是：</strong></p>
+<ol>
+<li><strong>session.timeout.ms：</strong> 设置为 25s，当时没有升级客户端版本，怕带来其他问题。</li>
+<li><strong>熔断机制：</strong> 增加 Hystrix，超过 3 次服务调用异常就熔断，保护客户端正常消费数据。</li>
+</ol>
+</li>
+</ol>
+<h1><span id="如何确保消息不丢失">如何确保消息不丢失</span></h1><ol>
+<li>熟悉消息从发送到消费的每个阶段</li>
+<li>监控报警 Kafka 集群</li>
+<li>熟悉方案 “MQ 可靠消息投递”</li>
+</ol>
+<p><strong>总结</strong></p>
+<ol>
+<li><strong>生产端：</strong></li>
+</ol>
+<ul>
+<li>设置重试：props.put(“retries”, “10”);</li>
+<li>设置 acks=all</li>
+<li>设置回调：producer.send(msg, new CallBack(){…});</li>
+</ul>
+<p><strong>2.Broker：</strong></p>
+<ul>
+<li>内存：使用带蓄电池后备电源的缓存 cache。</li>
+<li>Kafka 版本 0.11.x 以上：支持 Epoch 机制。</li>
+<li><strong>replication.factor &gt;= 3：</strong> 副本数至少有 3 个。</li>
+<li><strong>min.insync.replicas &gt; 1：</strong> 代表消息至少写入 2个副本才算发送成功。前提需要 acks=-1。</li>
+<li><strong>unclean.leader.election.enable=false：</strong> 防止不在 ISR 中的 Follower 被选举为 Leader。</li>
+</ul>
+<p><strong>3.消费端</strong></p>
+<ul>
+<li>客户端版本升级至 0.10.2 以上版本。</li>
+<li>取消自动提交 auto.commit = false，改为手动 ack。</li>
+<li>尽量提高客户端的消费速度，消费逻辑另起线程进行处理</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mq/" rel="tag"># mq</a>
+              <a href="/tags/kafka/" rel="tag"># kafka</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/20/tools/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/" rel="prev" title="Flyway使用">
+      <i class="fa fa-chevron-left"></i> Flyway使用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/22/db-resource/redis/redis-1/" rel="next" title="Redis系列(一):redis入门">
+      Redis系列(一):redis入门 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Kafka 为什么会丢消息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">如何知道有消息丢失？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">检索消息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">哪些环节可能丢消息？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.1.</span> <span class="nav-text">生产端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.2.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.3.</span> <span class="nav-text">消费端</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">如何确保消息不丢失</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">47</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
