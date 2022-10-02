@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="git使用规范介绍在使用Git的过程中如果没有清晰流程和规划，否则,每个人都提交一堆杂乱无章的commit,项目很快就会变得难以协调和维护。Git版本管理同样需要一个清晰的流程和规范。Vincent Driessen 为了解决这个问题提出了 A Successful Git Branching Model以下是基于Vincent Driessen提出的Git Flow 流程图">
+<meta property="og:type" content="article">
+<meta property="og:title" content="git使用规范">
+<meta property="og:url" content="http://example.com/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="git使用规范介绍在使用Git的过程中如果没有清晰流程和规划，否则,每个人都提交一堆杂乱无章的commit,项目很快就会变得难以协调和维护。Git版本管理同样需要一个清晰的流程和规范。Vincent Driessen 为了解决这个问题提出了 A Successful Git Branching Model以下是基于Vincent Driessen提出的Git Flow 流程图">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/git使用规范/1200.png">
+<meta property="article:published_time" content="2021-12-02T15:33:27.000Z">
+<meta property="article:modified_time" content="2022-04-07T15:20:46.788Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="git">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/git使用规范/1200.png">
+
+<link rel="canonical" href="http://example.com/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>git使用规范 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          git使用规范
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-12-02T23:33:27+08:00">2021-12-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-07 23:20:46" itemprop="dateModified" datetime="2022-04-07T23:20:46+08:00">2022-04-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/version-control/" itemprop="url" rel="index"><span itemprop="name">version-control</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="git使用规范">git使用规范</span></h1><h1><span id="介绍">介绍</span></h1><p>在使用Git的过程中如果没有清晰流程和规划，否则,每个人都提交一堆杂乱无章的commit,项目很快就会变得难以协调和维护。<br>Git版本管理同样需要一个清晰的流程和规范。<br>Vincent Driessen 为了解决这个问题提出了 <a target="_blank" rel="noopener" href="https://links.jianshu.com/go?to=http://nvie.com/posts/a-successful-git-branching-model/">A Successful Git Branching Model</a><br>以下是基于Vincent Driessen提出的Git Flow 流程图</p>
+<span id="more"></span>
+
+<img src="/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/git使用规范/1200.png" alt="img" style="zoom:50%;">
+
+<h1><span id="版本定义">版本定义</span></h1><p>版本号使用x.x.x.x进行定义.</p>
+<ul>
+<li>第一个x代表大版本只有在项目有重大变更时更新；</li>
+<li>第二个x保留；</li>
+<li>第三个x代表常规版本有新求会更新；</li>
+<li>第四个x代表紧急Bug修正；     一个常见的版本号类似于：0.0.10.11</li>
+</ul>
+<h1><span id="系统开发环境">系统开发环境</span></h1><table>
+<thead>
+<tr>
+<th align="left">简称</th>
+<th align="left">全称</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">DEV</td>
+<td align="left">Development environment</td>
+<td align="left">用于开发者调试使用</td>
+</tr>
+<tr>
+<td align="left">FAT</td>
+<td align="left">Feature Acceptance Test environment</td>
+<td align="left">功能验收测试环境，用于测试环境下的软件测试者测试使用</td>
+</tr>
+<tr>
+<td align="left">UAT</td>
+<td align="left">User Acceptance Test environment</td>
+<td align="left">用户验收测试环境，用于生产环境下的软件测试者测试使用</td>
+</tr>
+<tr>
+<td align="left">PRO</td>
+<td align="left">Production environment</td>
+<td align="left">生产环境</td>
+</tr>
+</tbody></table>
+<h1><span id="分支定义">分支定义</span></h1><table>
+<thead>
+<tr>
+<th align="left">分支</th>
+<th align="left">名称</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">master</td>
+<td align="left">主分支</td>
+<td align="left">用于生产部署，最新稳定版本，一般由 release 或 hotfix 分支合并，任何情况下不允许直接在 master 分支上修改代码。</td>
+</tr>
+<tr>
+<td align="left">release</td>
+<td align="left">预上线分支</td>
+<td align="left">预上线分支，是develop与master之间的一个缓冲，始终保持与 master 分支一致，一般由 develop 或 hotfix 分支合并，不建议直接在 release 分支上直接修改代码。（UAT）</td>
+</tr>
+<tr>
+<td align="left">hotfix</td>
+<td align="left">紧急修复分支</td>
+<td align="left">紧急分支，名规则为 hotfix- 开头，从master生成，bug修正后自动合并到master和develop并且生成tag；</td>
+</tr>
+<tr>
+<td align="left">develop</td>
+<td align="left">测试分支</td>
+<td align="left">功能验收测试环境，用于测试环境下的软件测试者测试使用，可根据需求大小程度确定是由 feature 分支合并，还是直接在上面开发。，FAT，如果开发工时 &lt; 1d，直接在 develop 开发，如果开发工时 &gt; 1d，那就需要创建分支，在分支上开发。</td>
+</tr>
+<tr>
+<td align="left">feature</td>
+<td align="left">需求开发分支</td>
+<td align="left">用于开发新需求和需要较长时间的BUG修改，(正式环境) 测试通过后，研发人员需要删除 feature- 分支。</td>
+</tr>
+</tbody></table>
+<h1><span id="commit-日志规范">Commit 日志规范</span></h1><p>提交信息一定要认真填写！</p>
+<p>建议参考规范：(scope)：</p>
+<p>比如：fix(首页模块)：修复弹窗 JS Bug。</p>
+<p>type 表示 动作类型，可分为：</p>
+<p>fix：修复 xxx Bug feat：新增 xxx 功能 test：调试 xxx 功能 style：变更 xxx 代码格式或注释 docs：变更 xxx 文档 refactor：重构 xxx 功能或方法 scope 表示 影响范围，可分为：模块、类库、方法等。</p>
+<p>subject 表示 简短描述，最好不要超过 60 个字，如果有相关 Bug 的 Jira 号，建议在描述中加上。</p>
+<h1><span id="开发工作流程">开发工作流程</span></h1><p>git flow feature start xxxxx（开始新需求） 在feature/xxxxx分支下进行开发 git flow feature finish xxxxx（开发完成后等待研发经理确认可以完成时执行） git push origin develop（发布develop分支） 每天工程师都需要git pull origin develop来更新develop分支，然后将develop分支合并到你正在开发得feature/xxxxx分支上来保持代码最新 切记不能直接在develop上进行开发</p>
+<h2><span id="常规分支debug流程">常规分支debug流程</span></h2><ol>
+<li>由研发经理通知相关工程师release版本x.x</li>
+<li>git fetch</li>
+<li>git checkout -b release/x.x origin/release/x.x（拉回release版本）</li>
+<li>git pull release/x.x（更新该分支）</li>
+<li>修改测试中发现的BUG</li>
+<li>git push origin release/vx.x（修改完后提交分支）</li>
+<li>循环4-5</li>
+</ol>
+<h2><span id="紧急debug流程">紧急debug流程</span></h2><ol>
+<li>由研发经理通知相关工程师hotfix分支名称x.x.x</li>
+<li>git fetch</li>
+<li>git checkout -b hotfix/x.x.x origin/hotfix/x.x.x（拉回hotfix分支）</li>
+<li>git pull hfx.x（更新hotfix分支）</li>
+<li>在热修复分支下修改bug</li>
+<li>git push origin hfx.x（修改完成，提交分支）     在日常工作中不能修改master分支下得代码</li>
+</ol>
+<h2><span id="研发经理">研发经理</span></h2><p>开发和DEBUG流程同工程师流程</p>
+<h3><span id="常规分支debug流程">常规分支debug流程</span></h3><ol>
+<li>git pull origin develop（更新develop分支为最新）</li>
+<li>git checkout develop（切换到develop分支）</li>
+<li>git flow release start x.x（生成一个release分支）</li>
+<li>通知测试和相关得工程师分支名称</li>
+<li>git pull origin release/x.x（最终测试完成后拉回分支最新代码）</li>
+<li>git flow release finish x.x（最终修改和测试完成后，结束release版本以供发布）</li>
+<li>git push origin develo (发布最新的develop)</li>
+<li>git push origin master（发布最终得master分支）</li>
+</ol>
+<h3><span id="紧急debug流程">紧急debug流程</span></h3><ol>
+<li>git pull origin master（更新master分支为最新）</li>
+<li>git checkout master（切换到master分支）</li>
+<li>git flow hotfix start x.x.x（生成一个hotfix分支）</li>
+<li>通知相关得工程师和测试人员hotfix分支名称</li>
+<li>git pull origin hotfix/x.x.x（最终测试完成后拉回分支最新代码）</li>
+<li>git flow hot fix finish x.x.x（最终修改和测试完成后，结束hot fix以供发布）</li>
+<li>git push origin master（发布最终得master分支）     在全部的流程中，工程师必须维护自己的feature分支保证代码最新，减少合并时的冲突。</li>
+</ol>
+<p>研发经理必须维护release分支，将最新的hotfix都合并进去，保证代码最新，减少合并时的冲突。</p>
+<p>在提交代码时还要注意判断对代码的修改是否是自己的，多用diff工具，多查看log，防止代码回溯</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/git/" rel="tag"># git</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/" rel="prev" title="Redis系列(七):缓存穿透、缓存击穿和缓存雪崩">
+      <i class="fa fa-chevron-left"></i> Redis系列(七):缓存穿透、缓存击穿和缓存雪崩
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/17/cloud-native/kubernetes/kubernetes-base/kubernetes1.23/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="next" title="kubernetes1.23环境搭建">
+      kubernetes1.23环境搭建 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">git使用规范</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">版本定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">系统开发环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">分支定义</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">Commit 日志规范</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">开发工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">7.1.</span> <span class="nav-text">常规分支debug流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">7.2.</span> <span class="nav-text">紧急debug流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">7.3.</span> <span class="nav-text">研发经理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">7.3.1.</span> <span class="nav-text">常规分支debug流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">7.3.2.</span> <span class="nav-text">紧急debug流程</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

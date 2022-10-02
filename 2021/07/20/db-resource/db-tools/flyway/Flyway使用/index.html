@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Flyway是什么官网：https:&#x2F;&#x2F;flywaydb.org Version control for your database 简单地说，flyway是一个能对数据库变更做版本控制的工具。 为什么要用Flyway在多人开发的项目中，我们都习惯了使用SVN或者Git来对代码做版本控制，主要的目的就是为了解决多人开发代码冲突和版本回退的问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flyway使用">
+<meta property="og:url" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="Flyway是什么官网：https:&#x2F;&#x2F;flywaydb.org Version control for your database 简单地说，flyway是一个能对数据库变更做版本控制的工具。 为什么要用Flyway在多人开发的项目中，我们都习惯了使用SVN或者Git来对代码做版本控制，主要的目的就是为了解决多人开发代码冲突和版本回退的问题。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/405-6760625.png">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/485-6760816.png">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-6760838.png">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-20210720140057261-6760858.png">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-20210720140112098-6760873.png">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-20210720140125508-6760886.png">
+<meta property="og:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/641-6760946.png">
+<meta property="article:published_time" content="2021-07-20T05:53:16.000Z">
+<meta property="article:modified_time" content="2021-07-23T09:37:40.314Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="dbtools">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/405-6760625.png">
+
+<link rel="canonical" href="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Flyway使用 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Flyway使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-20 13:53:16" itemprop="dateCreated datePublished" datetime="2021-07-20T13:53:16+08:00">2021-07-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-07-23 17:37:40" itemprop="dateModified" datetime="2021-07-23T17:37:40+08:00">2021-07-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/db-tools/" itemprop="url" rel="index"><span itemprop="name">db-tools</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1><span id="flyway是什么">Flyway是什么</span></h1><p>官网：<a target="_blank" rel="noopener" href="https://flywaydb.org/">https://flywaydb.org</a></p>
+<p>Version control for your database</p>
+<p>简单地说，flyway是一个能对数据库变更做版本控制的工具。</p>
+<h1><span id="为什么要用flyway">为什么要用Flyway</span></h1><p>在多人开发的项目中，我们都习惯了使用SVN或者Git来对代码做版本控制，主要的目的就是为了解决多人开发代码冲突和版本回退的问题。</p>
+<span id="more"></span>
+
+<p>其实，数据库的变更也需要版本控制，在日常开发中，我们经常会遇到下面的问题：</p>
+<ol>
+<li>自己写的SQL忘了在所有环境执行；</li>
+<li>别人写的SQL我们不能确定是否都在所有环境执行过了；</li>
+<li>有人修改了已经执行过的SQL，期望再次执行；</li>
+<li>需要新增环境做数据迁移；</li>
+<li>每次发版需要手动控制先发DB版本，再发布应用版本；</li>
+<li>其它场景…</li>
+</ol>
+<p>有了flyway，这些问题都能得到很好的解决。</p>
+<h1><span id="使用flyway">使用Flyway</span></h1><h2><span id="准备数据库">准备数据库</span></h2><p>首先，我们需要准备好一个空的数据库。（数据库的安装和账密配置此处忽略）</p>
+<p>此处以mysql为例，在本地电脑上新建一个空的数据库，名称叫做flyway，我们通过dbeaver看到的样子如下：</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/405-6760625.png" alt="img"></p>
+<h2><span id="与springboot工程集成">与SpringBoot工程集成</span></h2><p>在start.spring.io上新建一个SpringBoot工程，要求能连上自己本地新建的mysql数据库flyway，这个步骤也比较简单，就不再细讲。</p>
+<p>但要注意的是，application.properties中数据库的配置务必配置正确，下述步骤中系统启动时，flyway需要凭借这些配置连接到数据库。这里贴一份：</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># db config</span></span><br><span class="line"><span class="meta">spring.datasource.url</span>=<span class="string">jdbc:mysql://localhost:3306/flyway?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=GMT</span></span><br><span class="line"><span class="meta">spring.datasource.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.password</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.driver-class-name</span>=<span class="string">com.mysql.cj.jdbc.Driver</span></span><br></pre></td></tr></table></figure>
+
+<h2><span id="引入flyway的核心依赖包">引入flyway的核心依赖包</span></h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.flywaydb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>flyway-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>其次，在src/main/resources目录下面新建db.migration文件夹，默认情况下，该目录下的.sql文件就算是需要被flyway做版本控制的数据库SQL语句。</p>
+<p>但是此处的SQL语句命名需要遵从一定的规范，否则运行的时候flyway会报错。命名规则主要有两种：</p>
+<ol>
+<li>仅需要被执行一次的SQL命名以大写的”V”开头，后面跟上”0~9”数字的组合,数字之间可以用“.”或者下划线”_”分割开，然后再以两个下划线分割，其后跟文件名称，最后以.sql结尾。比如，<code>V2.1.5__create_user_ddl.sql</code>、<code>V4.1_2__add_user_dml.sql</code>。</li>
+<li>可重复运行的SQL，则以大写的“R”开头，后面再以两个下划线分割，其后跟文件名称，最后以.sql结尾。。比如，<code>R__truncate_user_dml.sql</code>。</li>
+</ol>
+<p>其中，V开头的SQL执行优先级要比R开头的SQL优先级高。</p>
+<p>如下，我们准备了三个脚本，分别为：</p>
+<ol>
+<li><code>V1__create_user.sql</code>，其中代码如下，目的是建立一张user表，且只执行一次。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> IF <span class="keyword">NOT</span> <span class="keyword">EXISTS</span> `<span class="keyword">USER</span>`(</span><br><span class="line">    `USER_ID`          <span class="type">INT</span>(<span class="number">11</span>)           <span class="keyword">NOT</span> <span class="keyword">NULL</span> AUTO_INCREMENT,</span><br><span class="line">`USER_NAME`        <span class="type">VARCHAR</span>(<span class="number">100</span>)      <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;用户姓名&#x27;</span>,</span><br><span class="line">`AGE`              <span class="type">INT</span>(<span class="number">3</span>)            <span class="keyword">NOT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;年龄&#x27;</span>,</span><br><span class="line">`CREATED_TIME`     datetime          <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">`CREATED_BY`       <span class="type">varchar</span>(<span class="number">100</span>)      <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;UNKNOWN&#x27;</span>,</span><br><span class="line">`UPDATED_TIME`     datetime          <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span>,</span><br><span class="line">`UPDATED_BY`       <span class="type">varchar</span>(<span class="number">100</span>)      <span class="keyword">NOT</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">&#x27;UNKNOWN&#x27;</span>,</span><br><span class="line"><span class="keyword">PRIMARY</span> KEY (`USER_ID`)</span><br><span class="line">)ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8;</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><code>V2__add_user.sql</code>，其中代码如下，目的是往user表中插入一条数据，且只执行一次。</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> `<span class="keyword">user</span>`(user_name,age) <span class="keyword">values</span>(<span class="string">&#x27;lisi&#x27;</span>,<span class="number">33</span>);</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li><p><code>R__add_unknown_user.sql</code>，其中代码如下，目的是每次启动倘若有变化，则往user表中插入一条数据。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> `<span class="keyword">user</span>`(user_name,age) <span class="keyword">values</span>(<span class="string">&#x27;unknown&#x27;</span>,<span class="number">33</span>);</span><br></pre></td></tr></table></figure>
+
+<p>与之相对应的目录截图如下：</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/485-6760816.png" alt="img"></p>
+</li>
+</ol>
+<p>其中2.1.6、2.1.7和every的文件夹不会影响flyway对SQL的识别和运行，可以自行取名和分类。</p>
+<p>到这一步，flyway的默认配置已经足够我们开始运行了。此时，我们启动SpringBoot的主程序，如果以上步骤没有配置错误的话，运行截图如下：</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-6760838.png" alt="img"></p>
+<p>此时，我们刷新数据库，可以看到flyway的历史记录表已经生成并插入了三个版本的记录：</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-20210720140057261-6760858.png" alt="img"></p>
+<p>而且，user表也已经创建好了并插入了两条数据：</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-20210720140112098-6760873.png" alt="img"></p>
+<p>我们不改变任何东西，再次执行主程序，日志如下：</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/1200-20210720140125508-6760886.png" alt="img"></p>
+<p>两张数据库表中的内容也毫无任何变化。</p>
+<p>可是，如果我们修改<code>V2__add_user.sql</code>中的内容，再次执行的话，就会报错，提示信息如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ERROR] Migration checksum mismatch <span class="keyword">for</span> migration version 2</span><br></pre></td></tr></table></figure>
+
+<p>如果我们修改了<code>R__add_unknown_user.sql</code>，再次执行的话，该脚本就会再次得到执行，并且flyway的历史记录表中也会增加本次执行的记录。</p>
+<h2><span id="maven插件的使用">maven插件的使用</span></h2><p>以上步骤中，每次想要migration都需要运行整个springboot项目，并且只能执行migrate一种命令，其实flyway还是有很多其它命令的。maven插件给了我们不需要启动项目就能执行flyway各种命令的机会。</p>
+<p>在pom中引入flyway的插件，同时配置好对应的数据库连接。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.flywaydb<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>flyway-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">url</span>&gt;</span>jdbc:mysql://localhost:3306/flyway?useUnicode=true<span class="symbol">&amp;amp;</span>characterEncoding=utf8<span class="symbol">&amp;amp;</span>serverTimezone=GMT<span class="tag">&lt;/<span class="name">url</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">user</span>&gt;</span>root<span class="tag">&lt;/<span class="name">user</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">password</span>&gt;</span>root<span class="tag">&lt;/<span class="name">password</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">driver</span>&gt;</span>com.mysql.cj.jdbc.Driver<span class="tag">&lt;/<span class="name">driver</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后更新maven插件列表，就可以看到flyway的全部命令了。</p>
+<p><img src="/2021/07/20/db-resource/db-tools/flyway/Flyway%E4%BD%BF%E7%94%A8/641-6760946.png" alt="img"></p>
+<p>此时，我们双击执行上图中的flyway:migrate的效果和启动整个工程执行migrate的效果是一样的。</p>
+<p>其它命令的作用如下列出，各位可自行实验体会：</p>
+<ol>
+<li><p>baseline</p>
+<p>对已经存在数据库Schema结构的数据库一种解决方案。实现在非空数据库新建MetaData表，并把Migrations应用到该数据库；也可以在已有表结构的数据库中实现添加Metadata表。</p>
+</li>
+<li><p>clean</p>
+<p>清除掉对应数据库Schema中所有的对象，包括表结构，视图，存储过程等，clean操作在dev 和 test阶段很好用，但在生产环境务必禁用。</p>
+</li>
+<li><p>info</p>
+<p>用于打印所有的Migrations的详细和状态信息，也是通过MetaData和Migrations完成的，可以快速定位当前的数据库版本。</p>
+</li>
+<li><p>repair</p>
+<p>repair操作能够修复metaData表，该操作在metadata出现错误时很有用。</p>
+</li>
+<li><p>undo</p>
+<p>撤销操作，社区版不支持。</p>
+</li>
+<li><p>validate</p>
+<p>验证已经apply的Migrations是否有变更，默认开启的，原理是对比MetaData表与本地Migrations的checkNum值，如果值相同则验证通过，否则失败。</p>
+</li>
+</ol>
+<h2><span id="flyway补充知识">flyway补充知识</span></h2><ol>
+<li>flyway执行migrate必须在空白的数据库上进行，否则报错；</li>
+<li>对于已经有数据的数据库，必须先baseline，然后才能migrate；</li>
+<li>clean操作是删除数据库的所有内容，包括baseline之前的内容；</li>
+<li>尽量不要修改已经执行过的SQL，即便是R开头的可反复执行的SQL，它们会不利于数据迁移；</li>
+</ol>
+<h1><span id="总结">总结</span></h1><p>在进行了如上的实验后，相信我们都已经掌握了flyway的初步使用，当需要做数据迁移的时候，更换一个新的空白数据库，执行下migrate命令，所有的数据库更改都可以一步到位地迁移过去，真的是太方便了。</p>
+<h1><span id="附录">附录</span></h1><p>flyway的配置清单：</p>
+<p><strong>最新配置请参考官网配置：<a target="_blank" rel="noopener" href="https://flywaydb.org/documentation/configuration/configfile">https://flywaydb.org/documentation/configuration/configfile</a></strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">flyway.baseline-description对执行迁移时基准版本的描述.</span><br><span class="line">flyway.baseline-on-migrate当迁移时发现目标schema非空，而且带有没有元数据的表时，是否自动执行基准迁移，默认<span class="literal">false</span>.</span><br><span class="line">flyway.baseline-version开始执行基准迁移时对现有的schema的版本打标签，默认值为<span class="number">1.</span></span><br><span class="line">flyway.check-location检查迁移脚本的位置是否存在，默认<span class="literal">false</span>.</span><br><span class="line">flyway.clean-on-validation-error当发现校验错误时是否自动调用clean，默认<span class="literal">false</span>.</span><br><span class="line">flyway.enabled是否开启flywary，默认<span class="literal">true</span>.</span><br><span class="line">flyway.encoding设置迁移时的编码，默认UTF<span class="number">-8.</span></span><br><span class="line">flyway.ignore-failed-future-migration当读取元数据表时是否忽略错误的迁移，默认<span class="literal">false</span>.</span><br><span class="line">flyway.init-sqls当初始化好连接时要执行的SQL.</span><br><span class="line">flyway.locations迁移脚本的位置，默认db/migration.</span><br><span class="line">flyway.out-of-order是否允许无序的迁移，默认<span class="literal">false</span>.</span><br><span class="line">flyway.password目标数据库的密码.</span><br><span class="line">flyway.placeholder-prefix设置每个placeholder的前缀，默认$&#123;.</span><br><span class="line">flyway.placeholder-replacementplaceholders是否要被替换，默认true.</span><br><span class="line">flyway.placeholder-suffix设置每个placeholder的后缀，默认&#125;.</span><br><span class="line">flyway.placeholders.[placeholder name]设置placeholder的value</span><br><span class="line">flyway.schemas设定需要flywary迁移的schema，大小写敏感，默认为连接默认的schema.</span><br><span class="line">flyway.sql-migration-prefix迁移文件的前缀，默认为V.</span><br><span class="line">flyway.sql-migration-separator迁移脚本的文件名分隔符，默认__</span><br><span class="line">flyway.sql-migration-suffix迁移脚本的后缀，默认为.sql</span><br><span class="line">flyway.tableflyway使用的元数据表名，默认为schema_version</span><br><span class="line">flyway.target迁移时使用的目标版本，默认为latest version</span><br><span class="line">flyway.url迁移时使用的JDBC URL，如果没有指定的话，将使用配置的主数据源</span><br><span class="line">flyway.user迁移数据库的用户名</span><br><span class="line">flyway.validate-on-migrate迁移时是否校验，默认为<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/dbtools/" rel="tag"># dbtools</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/07/19/java/jvm/jvm-oom-view/" rel="prev" title="Jvm OOM问题排查">
+      <i class="fa fa-chevron-left"></i> Jvm OOM问题排查
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/07/22/technology-stack/mq/kafka/message-lose/" rel="next" title="Kafka丢失消息">
+      Kafka丢失消息 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Flyway是什么</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">为什么要用Flyway</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">使用Flyway</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.1.</span> <span class="nav-text">准备数据库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text">与SpringBoot工程集成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.3.</span> <span class="nav-text">引入flyway的核心依赖包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.4.</span> <span class="nav-text">maven插件的使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.5.</span> <span class="nav-text">flyway补充知识</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">附录</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

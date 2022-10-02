@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="深度学习框架 Caffe Tensorflow Keras pytorch      深度学习框架列举常见的深度学习框架 机器学习框架和深度学习框架之间也是有区别的。本质上，机器学习框架涵盖用于分类，回归，聚类，异常检测和数据准备的各种学习方法，也可以包括神经网络方法。深度学习或深度神经网络（DNN）框架涵盖具有许多隐藏层的各种神经网络拓扑，包括模式识别的多步骤过程。网络中的层越多，可以提取">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深度学习框架介绍">
+<meta property="og:url" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="深度学习框架 Caffe Tensorflow Keras pytorch      深度学习框架列举常见的深度学习框架 机器学习框架和深度学习框架之间也是有区别的。本质上，机器学习框架涵盖用于分类，回归，聚类，异常检测和数据准备的各种学习方法，也可以包括神经网络方法。深度学习或深度神经网络（DNN）框架涵盖具有许多隐藏层的各种神经网络拓扑，包括模式识别的多步骤过程。网络中的层越多，可以提取">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002184605813.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185428866.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185512962.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185553176.png">
+<meta property="og:image" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185622970.png">
+<meta property="article:published_time" content="2022-03-15T15:03:14.000Z">
+<meta property="article:modified_time" content="2022-10-02T10:56:31.552Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="AI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002184605813.png">
+
+<link rel="canonical" href="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>深度学习框架介绍 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          深度学习框架介绍
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-15 23:03:14" itemprop="dateCreated datePublished" datetime="2022-03-15T23:03:14+08:00">2022-03-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-10-02 18:56:31" itemprop="dateModified" datetime="2022-10-02T18:56:31+08:00">2022-10-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A1%86%E6%9E%B6">深度学习框架</a><ul>
+<li><a href="#caffe">Caffe</a></li>
+<li><a href="#tensorflow">Tensorflow</a></li>
+<li><a href="#keras">Keras</a></li>
+<li><a href="#pytorch">pytorch</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="深度学习框架">深度学习框架</span></h1><p><strong>列举常见的深度学习框架</strong></p>
+<p>机器学习框架和深度学习框架之间也是有区别的。本质上，机器学习框架涵盖用于分类，回归，聚类，异常检测和数据准备的各种学习方法，也可以包括神经网络方法。深度学习或深度神经网络（DNN）框架涵盖具有许多隐藏层的各种神经网络拓扑，包括模式识别的多步骤过程。网络中的层越多，可以提取用于聚类和分类的特征越复杂。常见的Caffe，CNTK，DeepLearning4j，Keras，MXNet和TensorFlow是深度学习框架。 而Scikit-learning和Spark MLlib是机器学习框架。 Theano则跨越了这两个类别。</p>
+<p>深度学习框架比较</p>
+<p>神经网络一般包括：训练，测试两大阶段。训练就是把训练数据和神经网络模型（AlexNet、RNN等神经网络训练框架Caffe等）用CPU或GPU提炼出模型参数的过程。测试就是把测试数据用训练好的模型（神经网络模型+模型参数）运行后查看结果。而caffe，keras，tensorflow就是把训练过程所涉及的环节数据统一抽象，形成可使用框架。</p>
+<p>接下来的篇幅将会重点介绍深度学习的三个框架caffe、tensorflow和keras，如果只是需要使用传统的机器学习基础算法使用scikit-learning和spark MLlib则更为合适。</p>
+<span id="more"></span>
+
+<h2><span id="caffe">Caffe</span></h2><p>1、概念</p>
+<p>Caffe是一个清晰而高效的深度学习框架，也是一个被广泛使用的开源深度学习框架，在Tensorflow出现之前一直是深度学习领域Github star最多的项目。主要优势为：上手容易，网络结构都是以配置文件形式定义，不需要用代码设计网络。训练速度快，组件模块化，可以方便的拓展到新的模型和学习任务上。但是Caffe最开始设计时的目标只针对于图像，没有考虑文本、语音或者时间序列的数据，因此Caffe对卷积神经网络的支持非常好，但是对于时间序列RNN，LSTM等支持的不是特别充分。Caffe工程的models文件夹中常用的网络模型比较多，比如Lenet、AlexNet、ZFNet、VGGNet、GoogleNet、ResNet等。</p>
+<p>2、Caffe的模块结构</p>
+<p>Caffe由低到高依次把网络中的数据抽象成Blob, 各层网络抽象成Layer ，整个网络抽象成Net，网络模型的求解方法抽象成Solver。</p>
+<p>1.Blob表示网络中的数据，包括训练数据，网络各层自身的参数，网络之间传递的数据都是通过Blob来实现的，同时Blob数据也支持在CPU与GPU上存储，能够在两者之间做同步。</p>
+<p>2.Layer是对神经网络中各种层的抽象，包括卷积层和下采样层，还有全连接层和各种激活函数层等。同时每种Layer都实现了前向传播和反向传播，并通过Blob来传递数据。</p>
+<p>3.Net是对整个网络的表示，由各种Layer前后连接组合而成，也是所构建的网络模型。</p>
+<p>4.Solver 定义了针对Net网络模型的求解方法，记录网络的训练过程，保存网络模型参数，中断并恢复网络的训练过程。自定义Solver能够实现不同的网络求解方式。</p>
+<p>3、安装方式</p>
+<p>Caffe 需要预先安装比较多的依赖项，CUDA，snappy，leveldb，gflags，glog，szip，lmdb，OpenCV，hdf5，BLAS，boost、ProtoBuffer等；</p>
+<p>Caffe官网：<a target="_blank" rel="noopener" href="http://caffe.berkeleyvision.org/%EF%BC%9B">http://caffe.berkeleyvision.org/；</a></p>
+<p>Caffe Github : <a target="_blank" rel="noopener" href="https://github.com/BVLC/caffe%EF%BC%9B">https://github.com/BVLC/caffe；</a></p>
+<p>Caffe 安装教程：</p>
+<p><a target="_blank" rel="noopener" href="http://caffe.berkeleyvision.org/installation.html%EF%BC%8C">http://caffe.berkeleyvision.org/installation.html，</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.csdn.net/yhaolpz/article/details/71375762%EF%BC%9B">http://blog.csdn.net/yhaolpz/article/details/71375762；</a></p>
+<p>Caffe 安装分为CPU和GPU版本，GPU版本需要显卡支持以及安装CUDA</p>
+<p>4、使用Caffe搭建神经网络</p>
+<p>【caffe搭建神经网络流程图】</p>
+<p><img src="/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002184605813.png" alt="image-20221002184605813"></p>
+<p>在上述流程中，步骤2是核心操作，也是caffe使用最让人头痛的地方，keras则对该部分做了更高层的抽象，让使用者能够快速编写出自己想要实现的模型。</p>
+<h2><span id="tensorflow">Tensorflow</span></h2><p>1、概念</p>
+<p>TensorFlow是一个使用数据流图进行数值计算的开源软件库。图中的节点表示数学运算，而图边表示节点之间传递的多维数据阵列（又称张量）。灵活的体系结构允许使用单个API将计算部署到服务器或移动设备中的某个或多个CPU或GPU。Tensorflow涉及相关概念解释如下：</p>
+<p><strong>1）符号计算</strong></p>
+<p>符号计算首先定义各种变量，然后建立一个“计算图”，图中规定了各个变量之间的计算关系。 符号计算也叫数据流图，其过程如下图2-1所示，数据是按图中黑色带箭头的线流动的。</p>
+<p><img src="/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185428866.png" alt="image-20221002185428866"></p>
+<p>【2-1 数据流图示例】</p>
+<p>数据流图用“结点”（nodes）和“线”(edges)的有向图来描述数学计算。</p>
+<p>① “节点” 一般用来表示施加的数学操作，但也可以表示数据输入（feed in）的起点/输出（push out）的终点，或者是读取/写入持久变量（persistent variable）的终点。</p>
+<p>② “线”表示“节点”之间的输入/输出关系。</p>
+<p>③ 在线上流动的多维数据阵列被称作“张量”。</p>
+<p><strong>2）张量</strong></p>
+<p>张量(tensor)，可以看作是向量、矩阵的自然推广，用来表示广泛的数据类型，张量的阶数也叫维度。</p>
+<p>0阶张量，即标量，是一个数。1阶张量，即向量，是一组有序排列的数。2阶张量，即矩阵，是一组向量有序的排列起来。3阶张量，即立方体，是一组矩阵上下排列起来。以此类推。</p>
+<p><strong>3）数据格式(data_format)</strong></p>
+<p>目前主要有两种方式来表示张量：</p>
+<p>① th模式或channels_first模式，Theano和caffe使用此模式。</p>
+<p>② tf模式或channels_last模式，TensorFlow使用此模式。</p>
+<p>举例说明两种模式的区别：对于100张RGB3通道的16×32（高为16宽为32）彩色图，th表示方式：（100,3,16,32）tf表示方式：（100,16,32,3）唯一的区别就是表示通道个数3的位置不一样。</p>
+<p>2、Tensorflow的模块结构</p>
+<p>Tensorflow/core目录包含了TF核心模块代码，具体结构如图2-2所示：</p>
+<p>【图 2-2 tensorflow代码模块结构】</p>
+<p><img src="/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185512962.png" alt="image-20221002185512962"></p>
+<p>3、安装方式</p>
+<p>1、官网下载naconda安装：<a target="_blank" rel="noopener" href="https://www.anaconda.com/download/%EF%BC%9B">https://www.anaconda.com/download/；</a></p>
+<p>2、依次在Anaconda Prompt控制台，按以下5个步骤输入指令进行安装：</p>
+<ol>
+<li><p>安装py3+ cmd : conda create -n py3.6 python=3.6 anaconda；</p>
+</li>
+<li><p>激活虚拟环境 cmd : activate py3.6</p>
+</li>
+<li><p>激活TSF预安装cmd: conda create -n tensorflow python=3.6；activate tensorflow；</p>
+</li>
+<li><p>安装TSF：pip install —ignore-installed —upgrade tensorflow；pip install —ignore-installed —upgrade tensorflow-gpu；</p>
+</li>
+<li><p>退出虚拟环境cmd ：deactivate py3.6。</p>
+</li>
+</ol>
+<p>4、使用Tensorflow搭建神经网络</p>
+<p>使用Tensorflow搭建神经网络主要包含以下6个步骤：</p>
+<ol>
+<li><p>定义添加神经层的函数；</p>
+</li>
+<li><p>准备训练的数据；</p>
+</li>
+<li><p>定义节点准备接收数据；</p>
+</li>
+<li><p>定义神经层：隐藏层和预测层；</p>
+</li>
+<li><p>定义loss表达式；</p>
+</li>
+<li><p>选择optimizer使loss达到最小；</p>
+</li>
+<li><p>对所有变量进行初始化，通过sess.run optimizer，迭代多次进行学习。</p>
+</li>
+</ol>
+<p>5、示例代码</p>
+<p>Tensorflow 构建神经网络识别手写数字，具体代码如下所示：</p>
+<p>importtensorflow as tfimportnumpy as np# 添加层defadd_layer(inputs, in_size, out_size, activation_function=None):  # add one more layer andreturnthe output ofthislayer  Weights= tf.Variable(tf.random_normal([in_size, out_size]))  biases = tf.Variable(tf.zeros([1, out_size]) +0.1)  Wx_plus_b = tf.matmul(inputs, Weights) + biases</p>
+<p>ifactivation_function is None:    outputs = Wx_plus_b</p>
+<p>else:    outputs = activation_function(Wx_plus_b)</p>
+<p>returnoutputs#1.训练的数据# Make up some real data x_data = np.linspace(-1,1,300)[:, np.newaxis]noise = np.random.normal(0,0.05, x_data.shape)y_data = np.square(x_data) -0.5+ noise#2.定义节点准备接收数据# define placeholderforinputs to network  xs = tf.placeholder(tf.float32, [None,1])ys = tf.placeholder(tf.float32, [None,1])#3.定义神经层：隐藏层和预测层# add hidden layer 输入值是 xs，在隐藏层有10个神经元  l1 = add_layer(xs,1,10, activation_function=tf.nn.relu)# add output layer 输入值是隐藏层 l1，在预测层输出1个结果prediction = add_layer(l1,10,1, activation_function=None)#4.定义 loss 表达式# the error between prediciton and real data   loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction),           reduction_indices=[1]))#5.选择 optimizer 使 loss 达到最小          # 这一行定义了用什么方式去减少 loss，学习率是0.1</p>
+<p>train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)# important step 对所有变量进行初始化init = tf.initialize_all_variables()sess = tf.Session()# 上面定义的都没有运算，直到 sess.run 才会开始运算sess.run(init)# 迭代1000次学习，sess.run optimizerfori inrange(1000):  # training train_step 和 loss 都是由 placeholder 定义的运算，所以这里要用 feed 传入参数  sess.run(train_step, feed_dict={xs: x_data, ys: y_data})ifi % 50==0:    #to see the step improvement</p>
+<p>print(s</p>
+<p>ess.run(loss, feed_dict={xs: x_data, ys: y_data}))</p>
+<h2><span id="keras">Keras</span></h2><p>1、概念</p>
+<p>Keras由纯Python编写而成并基于Tensorflow、Theano以及CNTK后端，相当于Tensorflow、Theano、CNTK的上层接口，号称10行代码搭建神经网络，具有操作简单、上手容易、文档资料丰富、环境配置容易等优点，简化了神经网络构建代码编写的难度。目前封装有全连接网络、卷积神经网络、RNN和LSTM等算法。</p>
+<p>Keras有两种类型的模型，序贯模型（Sequential）和函数式模型（Model），函数式模型应用更为广泛，序贯模型是函数式模型的一种特殊情况。</p>
+<ol>
+<li><p>序贯模型（Sequential)：单输入单输出，一条路通到底，层与层之间只有相邻关系，没有跨层连接。这种模型编译速度快，操作也比较简单。</p>
+</li>
+<li><p>函数式模型（Model）：多输入多输出，层与层之间任意连接。这种模型编译速度慢。</p>
+</li>
+</ol>
+<p>2、Keras的模块结构</p>
+<p>Keras主要由5大模块构成，模块之间的关系及每个模块的功能如图3-1所示：</p>
+<p>【图 3-1 keras模块结构图】</p>
+<p><img src="/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185553176.png" alt="image-20221002185553176"></p>
+<p>3、安装方式</p>
+<p>Keras的安装为以下三个步骤：</p>
+<ol>
+<li><p>安装anaconda（python）；</p>
+</li>
+<li><p>用于科学计算的python发行版，支持Linux、Mac、Windows系统，提供了包管理与环境管理的功能，可以很方便的解决多版本python并存、切换以及各种第三方包安装问题；</p>
+</li>
+<li><p>利用pip或者conda安装numpy、keras、 pandas、tensorflow等库；</p>
+</li>
+</ol>
+<p>下载地址： </p>
+<p><a target="_blank" rel="noopener" href="https://www.anaconda.com/what-is-anaconda/%E3%80%82">https://www.anaconda.com/what-is-anaconda/。</a></p>
+<p>4、使用Keras搭建神经网络</p>
+<p>使用keras搭建一个神经网络，包括5个步骤，分别为模型选择、构建网络层、编译、训练和预测。每个步骤操作过程中使用到的keras模块如图3-2所示：</p>
+<p>【3-2 使用keras搭建神经网络步骤】</p>
+<p><img src="/2022/03/15/Ai/deep-learning-framework/common/introduction/image-20221002185622970.png" alt="image-20221002185622970"></p>
+<p>5、示例代码</p>
+<p>Kears构建神经网络识别手写数字，具体代码如下所示：</p>
+<p>from keras.models import Sequential  </p>
+<p>from keras.layers.core import Dense, Dropout, Activation  </p>
+<p>from keras.optimizers import SGD  </p>
+<p>from keras.datasets import mnist  </p>
+<p>import numpy</p>
+<p>‘’’</p>
+<p>  第一步：选择模型</p>
+<p>‘’’</p>
+<p>model = Sequential()</p>
+<p>‘’’</p>
+<p> 第二步：构建网络层</p>
+<p>‘’’</p>
+<p>model.add(Dense(500,input_shape=(784,))) # 输入层，28*28=784  </p>
+<p>model.add(Activation(‘tanh’)) # 激活函数是tanh  </p>
+<p>model.add(Dropout(0.5)) # 采用50%的dropout</p>
+<p>model.add(Dense(500)) # 隐藏层节点500个  </p>
+<p>model.add(Activation(‘tanh’))  </p>
+<p>model.add(Dropout(0.5))</p>
+<p>model.add(Dense(10)) # 输出结果是10个类别，所以维度是10  </p>
+<p>model.add(Activation(‘softmax’)) # 最后一层用softmax作为激活函数</p>
+<p>‘’’</p>
+<p> 第三步：编译</p>
+<p>‘’’</p>
+<p>sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True) # 优化函数，设定学习率（lr）等参数  </p>
+<p>model.compile(loss=’categorical_crossentropy’, optimizer=sgd, class_mode=’categorical’) # 使用交叉熵作为loss函数</p>
+<p>‘’’</p>
+<p> 第四步：训练</p>
+<p> .fit的一些参数</p>
+<p> batch_size：对总的样本数进行分组，每组包含的样本数量</p>
+<p> epochs ：训练次数</p>
+<p> shuffle：是否把数据随机打乱之后再进行训练</p>
+<p> validation_split：拿出百分之多少用来做交叉验证</p>
+<p> verbose：屏显模式 0：不输出  1：输出进度  2：输出每次的训练结果</p>
+<p>‘’’</p>
+<p>(X_train, y_train), (X_test, y_test) = mnist.load_data() # 使用Keras自带的mnist工具读取数据（第一次需要联网）</p>
+<p># 由于mist的输入数据维度是(num, 28, 28)，这里需要把后面的维度直接拼起来变成784维  </p>
+<p>X_train = X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2])</p>
+<p>X_test = X_test.reshape(X_test.shape[0], X_test.shape[1] * X_test.shape[2])  </p>
+<p>Y_train = (numpy.arange(10) == y_train[:, None]).astype(int)</p>
+<p>Y_test = (numpy.arange(10) == y_test[:, None]).astype(int)</p>
+<p>model.fit(X_train,Y_train,batch_size=200,epochs=50,shuffle=True,verbose=0,validation_split=0.3)</p>
+<p>model.evaluate(X_test, Y_test, batch_size=200, verbose=0)</p>
+<p>‘’’</p>
+<p>  第五步：输出</p>
+<p>‘’’</p>
+<p>print(“test set”)</p>
+<p>scores = model.evaluate(X_test,Y_test,batch_size=200,verbose=0)</p>
+<p>print(“”)</p>
+<p>print(“The test loss is %f” % scores)</p>
+<p>result = model.predict(X_test,batch_size=200,verbose=0)</p>
+<p>result_max = numpy.argmax(result, axis = 1)</p>
+<p>test_max = numpy.argmax(Y_test, axis = 1)</p>
+<p>result_bool = numpy.equal(result_max, test_max)</p>
+<p>true_num = numpy.sum(result_bool)</p>
+<p>print(“”)</p>
+<p>print(“The accuracy of the model is %f” % (true_num/len(result_bool)))</p>
+<p>（四）框架优缺点对比</p>
+<p>对比维度CaffeTensorflowKeras</p>
+<p>上手难度1、不用写代码，只需在.prototxt文件中定义网络结构就可以完成模型训练。2、安装复杂，且在.prototxt 文件内部设计网络结构比较受限，没有在 Python中设计网络结构方便自由。3、配置文件不能用编程的方式调整超参数，对交叉验证、超参数Grid Search 等操作无法很方便的支持。1、安装简便，教学资源丰富，根据样例能快速搭建出基础模型。2、有一定的使用门槛。编程范式和数学统计，都让非机器学习或数据科学背景的使用者有上手难度。3、因为其灵活性，因此是一个相对底层的框架，使用时需要编写大量的代码，重新发明轮子。1、安装简单，旨在让用户进行最快速的原型实验，让想法变为结果的这个过程最短，非常适合最前沿的研究。2、API使用方便，用户只需要将高级的模块拼在一起，就可以设计神经网络，降低了编程和阅读别人代码时的理解开销。</p>
+<p>框架维护GitHub项目，由伯克利视觉学中心（Berkeley Vision and Learning Center，BVLC）进行维护。被定义为最流行、最被认可的开源深度学习框架，框架结构优秀，拥有产品级的高质量代码，由 Google团队进行开发和维护，以及能力的加持。依然由google团队开发支持，API以tf.keras的形式打包在TensorFlow中；微软维护其CNTK后端；亚马逊AWS也在开发MXNet支持。其他支持的公司包括NVIDIA、Uber、苹果（通过CoreML）。</p>
+<p>支持语言C++/CudaC++ python (Go，Java，Lua，Javascript，或者是R)Python</p>
+<p>封装算法1、对卷积神经网络CNN的支持非常好，拥有大量训练好的经典模型（AlexNet、VGG、Inception）以及state-of-the-art（ResNet等）等模型，收藏在Model Zoo。2、对时间序列 RNN、LSTM 等支持得不是特别充分1、支持CNN与RNN， 也支持深度强化学习乃至其他计算密集的科学计算(如偏微分方程求解等)。2、计算图必须构建为静态图，这让很多计算变得难以实现，尤其是序列预测中经常使用的beam search。1、支持CNN和循环网络，支持级联的模型或任意的图结构的模型，从CPU上计算切换到GPU加速无须任何代码的改动。2、没有增强学习工具箱，自己修改实现很麻烦。封装得太高级，训练细节不能修改、penalty细节很难修改。</p>
+<p>模型部署1、程序运行稳定，代码质量高，适合对稳定性要求严格的生产环境，第一个主流的工业级深度学习框架。2、Caffe的底层基于C++，可在各种硬件环境编译并具有良好的移植性，支持Linux、Mac和Windows，也可以编译部署到移动设备系统如Android和iOS 上。1、性能好，可以同时运行多个大规模深度学习模型，支持模型生命周期管理、算法实验，并可以高效地利用GPU资源，让训练好的模型更快捷方便地投入到实际生产环境。2、灵活的移植性，可以将同一份代码几乎不经过修改就轻松地部署到有任意数量CPU或GPU的PC、服务器或者移动设备上。1、部署简便，使用TensorFlow、CNTK、Theano作为后端，简化了编程的复杂度，节约了尝试新网络结构的时间。2、模型越复杂，收益越大，尤其是在高度依赖权值共享、多模型组合、多任务学习等模型上，表现得非常突出。</p>
+<p>性能目前仅支持单机多GPU的训练，不支持分布式的训练。支持分布式计算，使GPU或TPU(Tensor Processing Unit)集群并行计算，共同训练出一个模型。对不同设备间的通信优化得不是很好，分布式性能还没有达到最优无法直接使用多GPU，对大规模的数据处理速度没有其他支持多 GPU和分布式的框架快。用TensorFLow backend后端时速度比纯TensorFLow下要慢很多</p>
+<h2><span id="pytorch">pytorch</span></h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/AI/" rel="tag"># AI</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/06/os/Linux/centos/general-script/server-check-script/" rel="prev" title="CentOS7巡检脚本">
+      <i class="fa fa-chevron-left"></i> CentOS7巡检脚本
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/03/17/devops/tools/SonarQube/docker-install-sonarqube/" rel="next" title="Docker-compose安装SonarQube">
+      Docker-compose安装SonarQube <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">深度学习框架</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.1.</span> <span class="nav-text">Caffe</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.2.</span> <span class="nav-text">Tensorflow</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.3.</span> <span class="nav-text">Keras</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.4.</span> <span class="nav-text">pytorch</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">54</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
