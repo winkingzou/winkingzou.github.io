@@ -23,28 +23,28 @@
   <meta name="description" content="前言 接入层网关架构设计与实现 OpenResty 原理剖析 OpenResty 请求生命周期 worker 间共享数据利器: shared dict 路由策略插件化实现 后端集群的动态配置 网关最终架构设计图    前言OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超">
 <meta property="og:type" content="article">
 <meta property="og:title" content="OpenResty接入层网关设计及实现">
-<meta property="og:url" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/index.html">
+<meta property="og:url" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/index.html">
 <meta property="og:site_name" content="Winking&#39;s blog">
 <meta property="og:description" content="前言 接入层网关架构设计与实现 OpenResty 原理剖析 OpenResty 请求生命周期 worker 间共享数据利器: shared dict 路由策略插件化实现 后端集群的动态配置 网关最终架构设计图    前言OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/d133166d81614e1b838fdd74cedcf67e.png">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/979030a82ee047d68cfc627bef22cad1.jpeg">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/aca32d162ba34b5c91f6007818b2121d.jpeg">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/0824a88204a74393b455d5d51825fcca.png">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/3e074ad22e0b4aaf900d4ad8c710b47e.png">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/9a7c8592727044c49e9888ddfc3c04ea.png">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/ac3bbde78f02400bbc5f1bf97c845bbb.png">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/e8d1190893e64121b658a18146bcf2f1.jpeg">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/822c06f6fba449878034192cd204bc88.jpeg">
-<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/bd72665e1a924db6886a048c207d3291.png">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/d133166d81614e1b838fdd74cedcf67e.png">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/979030a82ee047d68cfc627bef22cad1.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/aca32d162ba34b5c91f6007818b2121d.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/0824a88204a74393b455d5d51825fcca.png">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/3e074ad22e0b4aaf900d4ad8c710b47e.png">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/9a7c8592727044c49e9888ddfc3c04ea.png">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/ac3bbde78f02400bbc5f1bf97c845bbb.png">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/e8d1190893e64121b658a18146bcf2f1.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/822c06f6fba449878034192cd204bc88.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/bd72665e1a924db6886a048c207d3291.png">
 <meta property="article:published_time" content="2021-09-21T07:58:23.000Z">
-<meta property="article:modified_time" content="2022-11-01T09:21:25.739Z">
+<meta property="article:modified_time" content="2022-11-01T13:03:13.569Z">
 <meta property="article:author" content="Winking">
-<meta property="article:tag" content="gateway">
+<meta property="article:tag" content="loadbalance">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/d133166d81614e1b838fdd74cedcf67e.png">
+<meta name="twitter:image" content="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/d133166d81614e1b838fdd74cedcf67e.png">
 
-<link rel="canonical" href="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/">
+<link rel="canonical" href="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/">
 
 
 <script id="page-configurations">
@@ -205,7 +205,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -235,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-01 17:21:25" itemprop="dateModified" datetime="2022-11-01T17:21:25+08:00">2022-11-01</time>
+                <time title="修改时间：2022-11-01 21:03:13" itemprop="dateModified" datetime="2022-11-01T21:03:13+08:00">2022-11-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/gateway/" itemprop="url" rel="index"><span itemprop="name">gateway</span></a>
+                  <a href="/categories/loadbalance/" itemprop="url" rel="index"><span itemprop="name">loadbalance</span></a>
                 </span>
             </span>
 
@@ -295,12 +295,12 @@
 <li>另一种是应用层网关，比如现在流行的微服务，各个服务可能是用不同的语言写的，如 PHP，Java 等，那么接入层就要将请求路由到相应的应用层集群，再由相应的应用层网关进行鉴权等处理，处理完之后再调用相应的微服务进行处理，应用层网关也起着路由，超时，重试，熔断等功能。</li>
 </ul>
 <p>目前市面上比较流行的系统架构如下</p>
-<p><img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/d133166d81614e1b838fdd74cedcf67e.png" alt="img"></p>
+<p><img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/d133166d81614e1b838fdd74cedcf67e.png" alt="img"></p>
 <p>可以看到接入层网关承载着公司的所有流量，对性能有很高的要求，它的设计决定着整个系统的上限。所以我们今天主要谈谈接入层网关的设计。</p>
 <h1><span id="接入层网关架构设计与实现">接入层网关架构设计与实现</span></h1><p>接入层网关的核心功能是：<strong>「根据路由规则将请求分发到对应的后端集群」</strong>，所以要实现如下几个功能模型 。</p>
 <p>1、 路由：根据请求的 host, url 等规则转发到指定的上游（相应的后端集群） </p>
 <p>2、 路由策略插件化：这是网关的<strong>「灵魂所在」</strong>，路由中会有身份认证，限流限速，安全防护（如 IP 黑名单，refer异常，UA异常，需第一时间拒绝）等规则，这些规则以插件的形式互相组合起来以便只对某一类的请求生效，每个插件都即插即用，互不影响，这些插件应该是<strong>「动态可配置」</strong>的，动态生效的（无须重启服务），为啥要可动态可配置呢，因为每个请求对应的路由逻辑，限流规则，最终请求的后端集群等规则是不一样的</p>
-<img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/979030a82ee047d68cfc627bef22cad1.jpeg" alt="img" style="zoom: 50%;">
+<img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/979030a82ee047d68cfc627bef22cad1.jpeg" alt="img" style="zoom: 50%;">
 
 <p>如图示，两个请求对应的路由规则是不一样的，它们对应的路由规则（限流，rewrite）等通过各个规则插件组合在一起，可以看到，光两个请求 url 的路由规则就有挺多的，如果一个系统大到一定程度，url 会有不少，就会有不少规则，这样每个请求的规则就必须<strong>「可配置化」</strong>，<strong>「动态化」</strong>，最好能在管理端集中控制，统一下发。</p>
 <p>3、后端集群的动态变更</p>
@@ -309,22 +309,22 @@
 <p>这个比较好理解，在接入层作所有流量的请求，错误统计，便于打点，告警，分析。</p>
 <p>要实现这些需求就必须对我们采用的技术：OpenResty 有比较详细的了解，所以下文会简单介绍一下 OpenResty 的知识点。</p>
 <h1><span id="openresty-原理剖析">OpenResty 原理剖析</span></h1><p>由于 OpenResty 基于 Nginx 实现的，我们先来看看 Nginx 的工作原理</p>
-<img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/aca32d162ba34b5c91f6007818b2121d.jpeg" alt="img" style="zoom:50%;">
+<img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/aca32d162ba34b5c91f6007818b2121d.jpeg" alt="img" style="zoom:50%;">
 
 <p>Nginx 启动后，会有一个 master 进程和多个 worker 进程 ， master 进程接受管理员的信号量（如 Nginx -s reload, -s stop）来管理 worker 进程，master 本身并不接收 client 的请求，主要由 worker 进程来接收请求，不同于 apache 的每个请求会占用一个线程，且是同步IO，Nginx 是异步非阻塞的，每个 worker 可以同时处理的请求数只受限于内存大小，这里就要简单地了解一下 nginx 采用的 epoll 模型：</p>
 <p>epoll 采用多路复用模型，即同一时间虽然可能会有多个请求进来， 但只会用一个线程去监视，然后哪个请求数据准备好了，就调用相应的线程去处理，就像图中所示，如同拨开关一样，同一时间只有一个线程在处理， Nginx 底层就是用的 epoll ，基于事件驱动模型，每个请求进来注册事件并注册 callback 回调函数，等数据准入好了，就调用回调函数进行处理，它是异步非阻塞的，所以性能很高。</p>
 <p>打个简单的比方，我们都有订票的经验，当我们委托酒店订票时，接待员会先把我们的电话号码和相关信息等记下来（注册事件），挂断电话后接待员在操作期间我们就可以去做其他事了（非阻塞），当接待员把手续搞好后会主动打电话给我们通知我们票订好了（回调）。</p>
 <p>worker 进程是从 master fork 出来的，这意味着 worker 进程之间是互相独立的，这样不同 worker 进程之间处理并发请求几乎没有同步锁的限制，好处就是一个 worker 进程挂了，不会影响其他进程，我们一般把 worker 数量设置成和 CPU 的个数，这样可以减少不必要的 CPU 切换，提升性能，每个 worker 都是单线程执行的。那么 LuaJIT 在 OpenResty 架构中的位置是怎样的呢。</p>
-<img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/0824a88204a74393b455d5d51825fcca.png" alt="img" style="zoom:50%;">
+<img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/0824a88204a74393b455d5d51825fcca.png" alt="img" style="zoom:50%;">
 
 <p>首先启动的 master 进程带有 LuaJIT 的机虚拟，而 worker 进程是从 master 进程 fork 出来的，在 worker 内进程的工作主要由 Lua 协程来完成，也就是说在同一个 worker 内的所有协程，都会共享这个 LuaJIT 虚拟机，每个 worker 进程里 lua 的执行也是在这个虚拟机中完成的。</p>
 <p>同一个时间点，worker 进程只能处理一个用户请求，也就是说只有一个 lua 协程在运行，那为啥 OpenResty 能支持百万并发请求呢，这就需要了解 Lua 协程与 Nginx 事件机制是如何配合的了。</p>
-<img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/3e074ad22e0b4aaf900d4ad8c710b47e.png" alt="img" style="zoom:67%;">
+<img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/3e074ad22e0b4aaf900d4ad8c710b47e.png" alt="img" style="zoom:67%;">
 
 <p>如图示，当用 Lua 调用查询 MySQL 或 网络 IO 时，虚拟机会调用 Lua 协程的 yield 把自己挂起，在 Nginx 中注册回调，此时 worker 就可以处理另外的请求了（非阻塞），等到 IO 事件处理完了， Nginx 就会调用 resume 来唤醒 lua 协程。</p>
 <p>事实上，由 OpenResty 提供的所有 API，都是非阻塞的，下文提到的与 MySQL，Redis 等交互，都是非阻塞的，所以性能很高。</p>
 <h1><span id="openresty-请求生命周期">OpenResty 请求生命周期</span></h1><p>Nginx 的每个请求有 11 个阶段，OpenResty 也有11 个 *_by_lua 的指令，如下图示:</p>
-<p><img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/9a7c8592727044c49e9888ddfc3c04ea.png" alt="img"></p>
+<p><img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/9a7c8592727044c49e9888ddfc3c04ea.png" alt="img"></p>
 <p>各个阶段 *_by_lua 的解释如下</p>
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">set<span class="built_in">_</span>by<span class="built_in">_</span>lua：设置变量；</span><br><span class="line">rewrite<span class="built_in">_</span>by<span class="built_in">_</span>lua：转发、重定向等；</span><br><span class="line">access<span class="built_in">_</span>by<span class="built_in">_</span>lua：准入、权限等；</span><br><span class="line">content<span class="built_in">_</span>by<span class="built_in">_</span>lua：生成返回内容；</span><br><span class="line">header<span class="built_in">_</span>filter<span class="built_in">_</span>by<span class="built_in">_</span>lua：应答头过滤处理；</span><br><span class="line">body<span class="built_in">_</span>filter<span class="built_in">_</span>by<span class="built_in">_</span>lua：应答体过滤处理；</span><br><span class="line">log<span class="built_in">_</span>by<span class="built_in">_</span>lua：日志记录。</span><br></pre></td></tr></table></figure>
 
@@ -338,14 +338,14 @@
 <h1><span id="worker-间共享数据利器-shared-dict">worker 间共享数据利器: shared dict</span></h1><p>worker 既然是互相独立的进程，就需要考虑其共享数据的问题， OpenResty 提供了一种高效的数据结构: shared dict ,可以实现在 worker 间共享数据，shared dict 对外提供了 20 多个 Lua API，都是原子操作的，避免了高并发下的竞争问题。</p>
 <h1><span id="路由策略插件化实现">路由策略插件化实现</span></h1><p>有了以上 OpenResty 点的铺垫，来看看上文提的网关核心功能 「路由策略插件化」,「后端集群的动态变更」如何实现</p>
 <p>首先针对某个请求的路由策略大概是这样的</p>
-<img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/ac3bbde78f02400bbc5f1bf97c845bbb.png" alt="img" style="zoom:67%;">
+<img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/ac3bbde78f02400bbc5f1bf97c845bbb.png" alt="img" style="zoom:67%;">
 
 <p>整个插件化的步骤大致如下</p>
 <p>1、每条策略由 url ,action, cluster 等组成，代表请求 url 在打到后端集群过程中最终经历了哪些路由规则，这些规则统一在我们的路由管理平台配置，存在 db 里。</p>
 <p>2、OpenResty 启动时，在请求的 init 阶段 worker 进程会去拉取这些规则，将这些规则编译成一个个可执行的 lua 函数，这一个个函数就对应了一条条的规则。</p>
-<p><img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/e8d1190893e64121b658a18146bcf2f1.jpeg" alt="img"></p>
+<p><img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/e8d1190893e64121b658a18146bcf2f1.jpeg" alt="img"></p>
 <p>需要注意的是为了避免重复去 MySQL 中拉取数据，某个 worker 从 MySQL 拉取完规则（此步需要加锁，避免所有 worker 都去拉取）或者后端集群等配置信息后要将其保存在 shared dict 中，这样之后所有的 worker 请求只要从 shared dict 中获取这些规则，然后将其映射成对应模块的函数即可，如果配置规则有变动呢，配置后台通过接口通知 OpenResty 重新加载一下即可</p>
-<img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/822c06f6fba449878034192cd204bc88.jpeg" alt="img" style="zoom:50%;">
+<img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/822c06f6fba449878034192cd204bc88.jpeg" alt="img" style="zoom:50%;">
 
 <p>经过路由规则确定好每个请求对应要打的后端集群后，就需要根据 upstream 来确定最终打到哪个集群的哪台机器上，我们看看如何动态管理集群。</p>
 <h1><span id="后端集群的动态配置">后端集群的动态配置</span></h1><p>在 Nginx 中配置 upstream 的格式如下</p>
@@ -355,7 +355,7 @@
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">-- 动态配置 upstream 接口站点</span><br><span class="line">server &#123;</span><br><span class="line">     listen 127.0.0.1:81;</span><br><span class="line">      location / &#123;</span><br><span class="line">          dyups<span class="built_in">_</span>interface;</span><br><span class="line">     &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">-- 增加 upstream:user<span class="built_in">_</span>backend</span><br><span class="line">curl -d &quot;server 10.53.10.191;&quot; 127.0.0.1:81/upstream/user<span class="built_in">_</span>backend</span><br><span class="line"></span><br><span class="line">-- 删除 upstream:user<span class="built_in">_</span>backend</span><br><span class="line">curl -i -X DELETE 127.0.0.1:81/upstream/user<span class="built_in">_</span>backend</span><br></pre></td></tr></table></figure>
 
 <p>使用 dyups 就解决了动态配置 upstream 的问题</p>
-<h1><span id="网关最终架构设计图">网关最终架构设计图</span></h1><p><img src="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/bd72665e1a924db6886a048c207d3291.png" alt="img"></p>
+<h1><span id="网关最终架构设计图">网关最终架构设计图</span></h1><p><img src="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/bd72665e1a924db6886a048c207d3291.png" alt="img"></p>
 <p>通过这样的设计，最终实现了网关的配置化，动态化。</p>
 
     </div>
@@ -366,7 +366,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/gateway/" rel="tag"># gateway</a>
+              <a href="/tags/loadbalance/" rel="tag"># loadbalance</a>
           </div>
 
         
@@ -379,7 +379,7 @@
       <i class="fa fa-chevron-left"></i> Flowable基本操作
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/" rel="next" title="kong接入层网关设计及实现">
+    <a href="/2021/09/21/technology-stack/loadbalance/kong/kong-build/" rel="next" title="kong接入层网关设计及实现">
       kong接入层网关设计及实现 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
@@ -456,7 +456,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">58</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
