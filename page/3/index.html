@@ -190,6 +190,347 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/" class="post-title-link" itemprop="url">Flowable基本操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-19 09:25:48" itemprop="dateCreated datePublished" datetime="2021-09-19T09:25:48+08:00">2021-09-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-20 17:43:46" itemprop="dateModified" datetime="2022-04-20T17:43:46+08:00">2022-04-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java-tec-stack/" itemprop="url" rel="index"><span itemprop="name">java-tec-stack</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Flowable基本操作"><a href="#Flowable基本操作" class="headerlink" title="Flowable基本操作"></a>Flowable基本操作</h1><h1 id="创建ProcessEngine"><a href="#创建ProcessEngine" class="headerlink" title="创建ProcessEngine"></a>创建ProcessEngine</h1><p>  创建一个基本的maven工程，可以是Eclipse也可以是其他IDEA。然后添加两个依赖</p>
+<ul>
+<li>Flowable流程引擎。使我们可以创建一个ProcessEngine流程引擎对象，并访问Flowable API。</li>
+<li>一个是MySQL的数据库驱动</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/17/tools/net-tools/httpie/install-useage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/17/tools/net-tools/httpie/install-useage/" class="post-title-link" itemprop="url">httpie安装使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-17 23:03:14" itemprop="dateCreated datePublished" datetime="2021-09-17T23:03:14+08:00">2021-09-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-10-03 00:35:05" itemprop="dateModified" datetime="2022-10-03T00:35:05+08:00">2022-10-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#httpie%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3">HTTPie使用详解</a><ul>
+<li><a href="#%E6%A6%82%E8%BF%B0">概述</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85httpie">安装httpie</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8httpie">使用httpie</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="HTTPie使用详解"><a href="#HTTPie使用详解" class="headerlink" title="HTTPie使用详解"></a>HTTPie使用详解</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>httpie是一个命令行形式的http客户端，它提供了简单的http命令，返回带代码高亮的结果信息，可以很方便的在http交互场景下进行测试、调试等。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/17/tools/net-tools/httpie/install-useage/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/15/tools/LDAP-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/15/tools/LDAP-build/" class="post-title-link" itemprop="url">搭建LDAP服务器详细流程</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-15 23:03:14" itemprop="dateCreated datePublished" datetime="2021-09-15T23:03:14+08:00">2021-09-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-24 16:16:20" itemprop="dateModified" datetime="2022-09-24T16:16:20+08:00">2022-09-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="搭建LDAP服务器详细流程"><a href="#搭建LDAP服务器详细流程" class="headerlink" title="搭建LDAP服务器详细流程"></a>搭建LDAP服务器详细流程</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>LDAP（轻量级目录访问协议，Lightweight Directory Access Protocol)是实现提供被称为目录服务的信息服务。目录服务是一种特殊的数据库系统，其专门针对读取，浏览和搜索操作进行了特定的优化。目录一般用来包含描述性的，基于属性的信息并支持精细复杂的过滤能力。目录一般不支持通用数据库针对大量更新操作操作需要的复杂的事务管理或回卷策略。而目录服务的更新则一般都非常简单。这种目录可以存储包括个人信息、web链结、jpeg图像等各种信息。为了访问存储在目录中的信息，就需要使用运行在TCP/IP 之上的访问协议—LDAP。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/15/tools/LDAP-build/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/" class="post-title-link" itemprop="url">Resis布隆过滤器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-11 11:33:27" itemprop="dateCreated datePublished" datetime="2021-09-11T11:33:27+08:00">2021-09-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-12 12:14:27" itemprop="dateModified" datetime="2022-04-12T12:14:27+08:00">2022-04-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java-tec-stack/" itemprop="url" rel="index"><span itemprop="name">java-tec-stack</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是布隆过滤器"><a href="#什么是布隆过滤器" class="headerlink" title="什么是布隆过滤器"></a>什么是布隆过滤器</h1><p>布隆过滤器（Bloom Filter）是 1970 年由布隆提出的，是一种非常节省空间的概率数据结构，运行速度快，占用内存小，但是有一定的误判率且无法删除元素。它实际上是一个很长的二进制向量和一系列随机映射函数组成，主要用于判断一个元素是否在一个集合中。</p>
+<p>通常我们都会遇到判断一个元素是否在某个集合中的业务场景，这个时候我们可能都是采用 HashMap的Put方法或者其他集合将数据保存起来，然后进行比较确定，但是如果元素很多的情况下，采用这种方式就会非常浪费空间，最终达到瓶颈，检索速度也会越来越慢，这时布隆过滤器（Bloom Filter）就应运而生了。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/05/db-resource/mysql/mysql-base/master-slave/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -740,418 +1081,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/" class="post-title-link" itemprop="url">mysql mgr集群方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-03 11:33:27" itemprop="dateCreated datePublished" datetime="2021-08-03T11:33:27+08:00">2021-08-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-05 01:21:13" itemprop="dateModified" datetime="2022-05-05T01:21:13+08:00">2022-05-05</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92">集群规划</a><ul>
-<li><a href="#%E8%8A%82%E7%82%B9%E8%A7%84%E5%88%92">节点规划</a></li>
-<li><a href="#mysql-server%E7%89%88%E6%9C%AC">Mysql Server版本</a></li>
-</ul>
-</li>
-<li><a href="#mysql%E9%83%A8%E7%BD%B2%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85">Mysql部署（离线安装）</a><ul>
-<li><a href="#server%E5%AE%89%E8%A3%85">Server安装</a></li>
-<li><a href="#%E9%83%A8%E7%BD%B2%E8%84%9A%E6%9C%AC">部署脚本</a></li>
-<li><a href="#%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">默认配置文件</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">配置主从复制</a></li>
-<li><a href="#%E6%90%AD%E5%BB%BAgmr">搭建GMR</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB">常见问题汇总</a></li>
-</ul>
-<!-- tocstop -->
-
-<h2 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h2><h3 id="节点规划"><a href="#节点规划" class="headerlink" title="节点规划"></a>节点规划</h3><p>本示例地址以下,部署时候按照实际情况进行修改</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">mysql集群方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-08-02T23:33:27+08:00">2021-08-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-04 23:45:14" itemprop="dateModified" datetime="2022-05-04T23:45:14+08:00">2022-05-04</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E4%BB%8B%E7%BB%8D">介绍</a></li>
-<li><a href="#mysql%E5%8E%9F%E5%8E%82%E5%87%BA%E5%93%81">mysql原厂出品</a><ul>
-<li><a href="#mysql-replication">MySQL Replication</a></li>
-<li><a href="#mysql-fabirc">MySQL Fabirc</a></li>
-<li><a href="#mysql-cluster">MySQL Cluster</a></li>
-<li><a href="#mgr">MGR</a></li>
-</ul>
-</li>
-<li><a href="#mysql%E7%AC%AC%E4%B8%89%E6%96%B9%E4%BC%98%E5%8C%96">mysql第三方优化</a><ul>
-<li><a href="#mmm">MMM</a></li>
-<li><a href="#mha">MHA</a></li>
-<li><a href="#pxc">PXC</a></li>
-<li><a href="#galera-cluster">Galera Cluster</a></li>
-</ul>
-</li>
-<li><a href="#%E4%BE%9D%E6%89%98%E7%A1%AC%E4%BB%B6%E9%85%8D%E5%90%88">依托硬件配合</a><ul>
-<li><a href="#heartbeatsan">heartbeat+SAN</a></li>
-<li><a href="#heartbeatdrdb">heartbeat+DRDB</a></li>
-</ul>
-</li>
-<li><a href="#%E5%85%B6%E5%AE%83">其它</a><ul>
-<li><a href="#zookeeper-proxy">Zookeeper + proxy</a></li>
-<li><a href="#paxos">Paxos</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>集群的好处</p>
-<ul>
-<li>高可用性：故障检测及迁移，多节点备份。</li>
-<li>可伸缩性：新增数据库节点便利，方便扩容。</li>
-<li>负载均衡：切换某服务访问某节点，分摊单个节点的数据库压力。</li>
-</ul>
-<p>集群要考虑的风险</p>
-<ul>
-<li>网络分裂：群集还可能由于网络故障而拆分为多个部分，每部分内的节点相互连接，但各部分之间的节点失去连接。</li>
-<li>脑裂：导致数据库节点彼此独立运行的集群故障称为“脑裂”。这种情况可能导致数据不一致，并且无法修复，例如当两个数据库节点独立更新同一表上的同一行时。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/26/Architecture/Microservice/Microservice-split-principle/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/26/Architecture/Microservice/Microservice-split-principle/" class="post-title-link" itemprop="url">微服务设计、拆分原则</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-26 15:58:23" itemprop="dateCreated datePublished" datetime="2021-07-26T15:58:23+08:00">2021-07-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-19 12:07:01" itemprop="dateModified" datetime="2022-09-19T12:07:01+08:00">2022-09-19</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%BE%AE%E6%9C%8D%E5%8A%A1/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1><span id="akf拆分原则">AKF拆分原则</span></h1><p>业界对于可扩展系统架构设计有一个朴素的理念：通过加机器就可以解决容量和可用性问题。</p>
-<p>　　这一理念在云计算概念疯狂流行的今天，得到了广泛的认可，对于一个规模迅速增长的系统而言，容量和性能问题当然是首当其冲的。但随着时间的向前，系统规模的增长，除了面对性能与容量的问题外，还要面对功能与模块数量上的增长带来的系统复杂性问题以及业务的变化带来的提供差异化服务的问题。</p>
-<p>　　然而许多系统在架构设计时为充分考虑这些问题，导致系统重构成为常态，而影响业务交付能力，还浪费人力财力。对此《可扩展艺术》一书提出了一个系统可扩展模型–AKF可扩展立方（Scalability Cube）。</p>
-<p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/201960ca9cec5f39d2de41aba1b520c5.jpeg" alt="img"></p>
-<h3><span id="y轴功能关注应用中功能划分基于不同的业务拆分">Y轴（功能）关注应用中功能划分，基于不同的业务拆分</span></h3><p>　　Y轴扩展会将庞大的整体应用拆分为多个服务，每个服务实现一组相关的功能，如订单管理、客户管理等。在工程上常见的方案是服务化架构（SOA），比如对于一个电子商务平台，我们可以拆分成不同的服务，组成类似下面的架构：</p>
-<p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png.png" alt="img"></p>
-<p>但通过上图可以发现，当服务数量增多时，服务调用关系变得复杂，为系统添加一个新功能，要调用的服务数变得不可控，由此引发了服务管理上的混乱，所以一般情况下，需要采用服务注册的机制形成服务网关来进行服务治理</p>
-<p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png-20220919120444586.png" alt="img"></p>
-<h3><span id="x轴水平扩展关注水平扩展也就是加速器解决问题">X轴（水平扩展）关注水平扩展，也就是“加速器解决问题”</span></h3><p>　　X轴扩展与我们前面朴素理念是一致的，通过绝对平等的复制服务与数据，以解决容量与可用性的问题，其实就是将<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E5%BE%AE%E6%9C%8D%E5%8A%A1&spm=1001.2101.3001.7020">微服务</a>运行多个实例，做集群加负载均衡的模式。</p>
-<p>　　为了提升单个服务的可用性与容量，对每一个服务进行X轴扩展划分。</p>
-<p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png-20220919120504513.png" alt="img"></p>
-<h3><span id="z轴数据分区关注服务与数据的优先级划分如按地域划分">Z轴（数据分区）关注服务与数据的优先级划分，如按地域划分</span></h3><p>　　Z轴扩展通常是指基于请求者或用户独特的需求，进行系统划分，并使得划分出来的子系统相互隔离但又是完整的。以生产汽车的工厂来举例：福特公司为了发展在中国的业务，或者利用中国的廉价劳动力，在中国建立一个完整的子工厂，与美国工厂一样，负责完整的汽车生产。这就是一种Z 轴扩展。</p>
-<p>工程领域常见的Z轴扩展有以下两种方案</p>
-<p>1，单元化架构</p>
-<p>　　在分布式服务设计领域，一个单元Cell就是满足某个分区所有业务操作的自包含闭环。如上面我们说到的Y轴扩展的SOA架构。客户端对服务端节点的选择一般是随机的，但是，如果在此上加Z轴扩展，那服务节点的选择将不再是随机的，而是每个单元自成一体。</p>
-<p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png-20220919120524241.png" alt="img"></p>
-<p>2，数据分区</p>
-<p>　　为了性能数据安全上的考虑，我们将一个完整的数据集按一定维度划分出不同的子集。一个分区（Shard），就是整体数据集的一个子集。比如用尾号来划分用户，那同样尾号的那部分用户就可以认为是同一个分区，数据分区一般包括以下几种数据划分形式：</p>
-<p>　　数据类型：如业务类型</p>
-<p>　　数据范围：如时间段、用户ID</p>
-<p>　　数据热度：如用户活跃度、商品热度</p>
-<p>　　按读写分：如商品描述、商品库存</p>
-<h1><span id="前后端分离原则">前后端分离原则</span></h1><p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png-20220919120605378.png" alt="img"></p>
-<p>何为前后端分离？前后端本来不就是分离的吗？这要从jsp开始讲起。分工精细化从来都是蛋糕做大的原则，多个领域工程师最好在不需要接触其他领域知识的情况下合作，才能使效率越来越高，维护也会变得简单。jsp的模板技术融合了html和java代码，使得传统MVC开发中的前后端如胶似漆，前端做好页面，后端转成模板，发现问题再找前端，前端又看不懂java代码，前后端分离的目的就是打破这尴尬的局面，我们需要的是一个全能的团队，而不是一个个全能的人。</p>
-<p>　　前后端分离原则，简单的将就是前端和后端的代码分离，我们推荐的模式是最好采用物理分离的方式部署，进一步促使更彻底的分离。如果继续使用服务端模板技术，如jsp，把java、js、css、html都堆到一个页面里，稍微复杂一点的页面就无法维护了。</p>
-<p>这种前后端分离有几个好处：</p>
-<p>1，前后端技术分离，可以由各自的专家来对各自的领域进行优化，这样前端的用户体验会更好。</p>
-<p>2，分离模式下，前后端交互界面更清晰，就剩下接口模型，后端接口简介明了，更易于维护。</p>
-<p>3，前端多渠道继承场景更容易实现，后端服务无需变更，采用统一的数据和模型，可以支持多个前端，例如：微信h5前端、PC前端、安卓前端、IOS前端</p>
-<h1><span id="无状态服务">无状态服务</span></h1><p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png-20220919120628512.png" alt="img"></p>
-<p>对于无状态服务，首先说一下什么是状态：如果一个数据需要被多个服务共享，才能完成一笔交易，那么这个数据被称为状态。进而依赖这个状态的服务被称为有状态的服务，反之成为无状态服务。</p>
-<p>　　这个无状态服务原则并不是说在微服务架构里不允许存在状态，表达的真实意思就是要把有状态的业务服务改变为无状态的计算类服务，那么状态数据也就相应的迁移到对应的“有状态数据服务”中。</p>
-<p>　　场景说明：例如我们从前在本地内存中建立的数据缓存、Session缓存，到现在微服务架构中就应该把数据迁移到分布式缓存中存储，让业务服务变成一个无状态的计算节点。迁移后，就可以做到按需动态伸缩，微服务应用在运行时动态增删节点，就不再需要考虑缓存数据如何同步的问题。</p>
-<h1><span id="restful通讯风格">RestFul通讯风格</span></h1><p><img src="/2021/07/26/Architecture/Microservice/Microservice-split-principle/format,png-20220919120649142.png" alt="img"></p>
-<p>这里介绍一个“无状态通讯原则”-Restful通讯风格，它有许多优点：</p>
-<p>1，无状态协议HTTP，具备先天优势，扩展能力强，例如安全加密有成熟的https。</p>
-<p>2，JSON报文序列化，轻量简单，人与机均可读，学习成本低，搜索引擎友好。</p>
-<p>3，语言无关，各大热门语言都提供成熟的Restful API框架，相对一些其他RPC框架生态更加完善。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/25/technology-stack/LoadBanancer/nginx/Nginx%E7%B3%BB%E5%88%97(%E4%BA%8C):nginx%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/25/technology-stack/LoadBanancer/nginx/Nginx%E7%B3%BB%E5%88%97(%E4%BA%8C):nginx%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Nginx系列(二):nginx配置</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-25 15:58:23" itemprop="dateCreated datePublished" datetime="2021-07-25T15:58:23+08:00">2021-07-25</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-29 00:57:48" itemprop="dateModified" datetime="2021-07-29T00:57:48+08:00">2021-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/loadbalancer/" itemprop="url" rel="index"><span itemprop="name">loadbalancer</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>防盗链</p>
-<p>prometheus+grafnaa监控nginx</p>
-<p>生产级别高性能参考配置：<a target="_blank" rel="noopener" href="https://github.com/hepyu/k8s-app-config/tree/master/yaml/min-cluster-allinone/nginx">https://github.com/hepyu/k8s-app-config/tree/master/yaml/min-cluster-allinone/nginx</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1223,20 +1152,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">53</span>
+          <span class="site-state-item-count">57</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-count">23</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">32</span>
+        <span class="site-state-item-count">34</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

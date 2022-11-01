@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="前言 kong特性 Kong 的架构 Kong部署 Kong 的管理方式 高可扩展性的背后—插件机制 总结    前言Kong（https:&#x2F;&#x2F;github.com&#x2F;Kong&#x2F;kong）是一个云原生，高效，可扩展的分布式 API 网关。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kong接入层网关设计及实现">
+<meta property="og:url" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="前言 kong特性 Kong 的架构 Kong部署 Kong 的管理方式 高可扩展性的背后—插件机制 总结    前言Kong（https:&#x2F;&#x2F;github.com&#x2F;Kong&#x2F;kong）是一个云原生，高效，可扩展的分布式 API 网关。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/1461119-20200109090726458-785967999.jpeg">
+<meta property="article:published_time" content="2021-09-21T08:58:23.000Z">
+<meta property="article:modified_time" content="2022-11-01T09:31:35.561Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="gateway">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/1461119-20200109090726458-785967999.jpeg">
+
+<link rel="canonical" href="http://example.com/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>kong接入层网关设计及实现 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          kong接入层网关设计及实现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-21 16:58:23" itemprop="dateCreated datePublished" datetime="2021-09-21T16:58:23+08:00">2021-09-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-01 17:31:35" itemprop="dateModified" datetime="2022-11-01T17:31:35+08:00">2022-11-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/gateway/" itemprop="url" rel="index"><span itemprop="name">gateway</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
+<li><a href="#kong%E7%89%B9%E6%80%A7">kong特性</a></li>
+<li><a href="#kong-%E7%9A%84%E6%9E%B6%E6%9E%84">Kong 的架构</a></li>
+<li><a href="#kong%E9%83%A8%E7%BD%B2">Kong部署</a></li>
+<li><a href="#kong-%E7%9A%84%E7%AE%A1%E7%90%86%E6%96%B9%E5%BC%8F">Kong 的管理方式</a></li>
+<li><a href="#%E9%AB%98%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%E7%9A%84%E8%83%8C%E5%90%8E%E6%8F%92%E4%BB%B6%E6%9C%BA%E5%88%B6">高可扩展性的背后—插件机制</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="前言">前言</span></h1><p>Kong（<a target="_blank" rel="noopener" href="https://github.com/Kong/kong%EF%BC%89%E6%98%AF%E4%B8%80%E4%B8%AA%E4%BA%91%E5%8E%9F%E7%94%9F%EF%BC%8C%E9%AB%98%E6%95%88%EF%BC%8C%E5%8F%AF%E6%89%A9%E5%B1%95%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F">https://github.com/Kong/kong）是一个云原生，高效，可扩展的分布式</a> API 网关。</p>
+<span id="more"></span>
+
+<p><img src="/2021/09/21/technology-stack/LoadBanancer/kong/kong-build/1461119-20200109090726458-785967999.jpeg" alt="img"></p>
+<h1><span id="kong特性">kong特性</span></h1><p>SpringCloud 玩家肯定都听说过 Zuul 这个路由组件，包括 Zuul2 和 Springcloud Gateway 等框架，在国内的知名度都不低。没错，我称呼这些为组件 Or 框架，而 Kong 则更衬的上产品这个词。在此我们可以简单对比下 Zuul 和 Kong。</p>
+<p>举例而言，如果选择使用 Zuul，当需要为应用添加限流功能，由于 Zuul 只提供了基本的路由功能，开发者需要自己研发 Zuul Filter，可能你觉得一个功能还并不麻烦，但如果在此基础上对 Zuul 提出更多的要求，很遗憾，Zuul 使用者需要自行承担这些复杂性。而对于 Kong 来说，限流功能就是一个插件，只需要简单的配置，即可开箱即用。</p>
+<p>Kong 的插件机制是其高可扩展性的根源，Kong 可以很方便地为路由和服务提供各种插件，网关所需要的基本特性，Kong 都如数支持：</p>
+<ol>
+<li>云原生: 与平台无关，Kong可以从裸机运行到Kubernetes</li>
+<li>动态路由：Kong 的背后是 OpenResty+Lua，所以从 OpenResty 继承了动态路由的特性</li>
+<li>熔断</li>
+<li>健康检查</li>
+<li>日志: 可以记录通过 Kong 的 HTTP，TCP，UDP 请求和响应。</li>
+<li>鉴权: 权限控制，IP 黑白名单，同样是 OpenResty 的特性</li>
+<li>SSL: Setup a Specific SSL Certificate for an underlying service or API.</li>
+<li>监控: Kong 提供了实时监控插件</li>
+<li>认证: 如数支持 HMAC, JWT, Basic, OAuth2.0 等常用协议</li>
+<li>限流</li>
+<li>REST API: 通过 Rest API 进行配置管理，从繁琐的配置文件中解放</li>
+<li>可用性: 天然支持分布式</li>
+<li>高性能: 背靠非阻塞通信的 nginx，性能自不用说</li>
+<li>插件机制: 提供众多开箱即用的插件，且有易于扩展的自定义插件接口，用户可以使用 Lua 自行开发插件</li>
+</ol>
+<p>上面这些特性中，反复提及了 Kong 背后的 OpenResty，实际上，使用 Kong 之后，Nginx 可以完全摒弃，Kong 的功能是 Nginx 的父集。</p>
+<p>而 Zuul 除了基础的路由特性以及其本身和 SpringCloud 结合较为紧密之外，并无任何优势。</p>
+<h1><span id="kong-的架构">Kong 的架构</span></h1><p>从技术的角度讲，Kong 可以认为是一个 OpenResty 应用程序。 OpenResty 运行在 Nginx 之上，使用 Lua 扩展了 Nginx。 Lua 是一种非常容易使用的脚本语言，可以让你在 Nginx 中编写一些逻辑操作。之前我们提到过一个概念 Kong = OpenResty + Nginx + Lua，但想要从全局视角了解 Kong 的工作原理，还是直接看源码比较直接。我们定位到本地的 Kong 文件夹，按照上图中的目录层级来识识 Kong 的庐山真面目。</p>
+<ol>
+<li>Kong 文件下包含了全部源码和必要组件，分析他们，我们便得到了 Kong 的架构。0.13.x 是目前 Kong 的最新版本。</li>
+<li>从 2 号块中可以看到 nginx.conf ，这其实便是一个标准的 Nginx 目录结构，这也揭示了 Kong 其实就是运行在 Nginx 的基础之上，而进行的二次封装。由 share 文件夹向下展开下一次分析。</li>
+<li>share 文件夹中包含了 OpenResty 的相关内容，其实背后就是一堆 Lua 脚本，例如 lapis 包含了数据库操作，Nginx 生命周期，缓存控制等必要的 Lua 脚本，logging 包含了日志相关的 Lua 脚本，resty 包含了 dns，健康检查等相关功能的 Lua 脚本…而其中的 kong 目录值得我们重点分析，他包含了 Kong 的核心对象。</li>
+<li>api 和 core 文件夹，封装了 Kong 对 service，route，upstream，target 等核心对象的操作代码（这四个核心对象将会在下面的小节重点介绍），而 plugins 文件夹则是 Kong 高可扩展性的根源，存放了 kong 的诸多扩展功能。</li>
+<li>plugins 文件夹包含了上一节提到的 Kong 的诸多插件功能，如权限控制插件，跨域插件，jwt 插件，oauth2 插件…如果需要自定义插件，则需要将代码置于此处。</li>
+</ol>
+<p>从上述文件夹浏览下来，大概可以看到它和 Nginx 的相似之处，并在此基础之上借助于 Lua 对自身的功能进行了拓展，除了 nginx.conf 中的配置，和相对固定的文件层级，Kong 还需要连接一个数据库来管理路由配置，服务配置，upstream 配置等信息，是的，由于 Kong 支持动态路由的特性，所以几乎所有动态的配置都不是配置在文件中，而是借助于 Postgres 或者 Cassandra 进行管理。</p>
+<p>Kong 对外暴露了 Restful API，最终的配置便是落地在了数据库之中。</p>
+<h1><span id="kong部署">Kong部署</span></h1><p>根据官方文档进行部署</p>
+<h1><span id="kong-的管理方式">Kong 的管理方式</span></h1><p>通过文件夹结构的分析，以及数据库中的表结构，我们已经对 Kong 的整体架构有了一个基本的认识，但肯定还存在一个疑问：我会配置 Nginx 来控制路由，但这个 Kong 应当怎么配置才能达到相同的目的呢？莫急，下面来看看 Kong 如何管理配置。</p>
+<p>Kong 简单易用的背后，便是因为其所有的操作都是基于 HTTP Restful API 来进行的。</p>
+<p> 其中 8000/8443 分别是 Http 和 Https 的转发端口，等价于 Nginx 默认的 80 端口，而 8001 端口便是默认的管理端口，我们可以通过 HTTP Restful API 来动态管理 Kong 的配置。</p>
+<p>一个典型的 Nginx 配置</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">upstream helloUpstream &#123;</span><br><span class="line">    server localhost:3000 weight=100;</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">server &#123;</span><br><span class="line">    listen  80;</span><br><span class="line">    location /hello &#123;</span><br><span class="line">        proxy<span class="built_in">_</span>pass http://helloUpstream;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上这个简单的 Nginx 配置，便可以转换为如下的 Http 请求。</p>
+<p>对应的 Kong 配置</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 配置 upstream</span></span><br><span class="line">curl -X POST http://localhost:8001/upstreams --data <span class="string">&quot;name=helloUpstream&quot;</span></span><br><span class="line"><span class="comment"># 配置 target</span></span><br><span class="line">curl -X POST http://localhost:8001/upstreams/hello/targets --data <span class="string">&quot;target=localhost:3000&quot;</span> --data <span class="string">&quot;weight=100&quot;</span></span><br><span class="line"><span class="comment"># 配置 service</span></span><br><span class="line">curl -X POST http://localhost:8001/services --data <span class="string">&quot;name=hello&quot;</span> --data <span class="string">&quot;host=helloUpstream&quot;</span></span><br><span class="line"><span class="comment"># 配置 route</span></span><br><span class="line">curl -X POST http://localhost:8001/routes --data <span class="string">&quot;paths[]=/hello&quot;</span> --data <span class="string">&quot;service.id=8695cc65-16c1-43b1-95a1-5d30d0a50409&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>这一切都是动态的，无需手动 reload nginx.conf。</p>
+<p>我们为 Kong 新增路由信息时涉及到了 upstream，target，service，route 等概念，他们便是 Kong 最最核心的四个对象。（你可能在其他 Kong 的文章中见到了 api 这个对象，在最新版本 0.13 中已经被弃用，api 已经由 service 和 route 替代）</p>
+<p>从上面的配置以及他们的字面含义大概能够推测出他们的职责：</p>
+<p>upstream 是对上游服务器的抽象；</p>
+<p>target 代表了一个物理服务，是 ip + port 的抽象；</p>
+<p>service 是抽象层面的服务，他可以直接映射到一个物理服务(host 指向 ip + port)，也可以指向一个 upstream 来做到负载均衡；</p>
+<p>route 是路由的抽象，他负责将实际的 request 映射到 service。</p>
+<p>他们的关系如下</p>
+<p>upstream 和 target ：1 对 n</p>
+<p>service 和 upstream ：1 对 1 或 1 对 0 （service 也可以直接指向具体的 target，相当于不做负载均衡）</p>
+<p>service 和 route：1 对 n</p>
+<h1><span id="高可扩展性的背后插件机制">高可扩展性的背后—插件机制</span></h1><p>Kong 的另一大特色便是其插件机制，这也是我认为的 Kong 最优雅的一个设计。</p>
+<p>文章开始时我们便提到一点，微服务架构中，网关应当承担所有服务共同需要的那部分功能，这一节我们便来介绍下，Kong 如何添加 jwt 插件，限流插件。</p>
+<p>插件（Plugins）装在哪儿？对于部分插件，可能是全局的，影响范围是整个 Kong 服务；大多数插件都是装在 service 或者 route 之上。这使得插件的影响范围非常灵活，我们可能只需要对核心接口进行限流控制，只需要对部分接口进行权限控制，这时候，对特定的 service 和 route 进行定向的配置即可。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 为 hello 服务添加50次/秒的限流</span></span><br><span class="line">curl -X POST http://localhost:8001/services/hello/plugins \</span><br><span class="line">--data <span class="string">&quot;name=rate-limiting&quot;</span> \</span><br><span class="line">--data <span class="string">&quot;config.second=50&quot;</span></span><br><span class="line"><span class="comment"># 为 hello 服务添加 jwt 插件</span></span><br><span class="line">curl -X POST http://localhost:8001/services/login/plugins \</span><br><span class="line">--data <span class="string">&quot;name=jwt&quot;</span></span><br><span class="line"><span class="comment"># 同理，插件也可以安装在 route 之上</span></span><br><span class="line">curl -X POST http://localhost:8001/routes/&#123;routeId&#125;/plugins \</span><br><span class="line">--data <span class="string">&quot;name=rate-limiting&quot;</span> \</span><br><span class="line">--data <span class="string">&quot;config.second=50&quot;</span></span><br><span class="line"> </span><br><span class="line">curl -X POST http://localhost:8001/routes/&#123;routeId&#125;/plugins \</span><br><span class="line">--data <span class="string">&quot;name=jwt&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>在官方文档中，我们可以获取全部的插件 <a target="_blank" rel="noopener" href="https://konghq.com/plugins/%EF%BC%8C%E9%83%A8%E5%88%86%E6%8F%92%E4%BB%B6%E9%9C%80%E8%A6%81%E6%94%B6%E8%B4%B9%E7%9A%84%E4%BC%81%E4%B8%9A%E7%89%88%E6%89%8D%E5%8F%AF%E4%BD%BF%E7%94%A8%E3%80%82">https://konghq.com/plugins/，部分插件需要收费的企业版才可使用。</a></p>
+<h1><span id="总结">总结</span></h1><p>Kong 是目前市场上相对较为成熟的开源 API 网关产品，无论是性能，扩展性，还是功能特性，都决定了它是一款优秀的产品，对 OpenResty 和 Lua 感兴趣的同学，Kong 也是一个优秀的学习参考对象。基于 OpenResty，可以在现有 Kong 的基础上进行一些扩展，从而实现更复杂的特性，比如我司内部的 ABTest 插件和定制化的认证插件，开发成本都相对较低。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/gateway/" rel="tag"># gateway</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/21/technology-stack/LoadBanancer/OpenResty/OpenResty-build/" rel="prev" title="OpenResty接入层网关设计及实现">
+      <i class="fa fa-chevron-left"></i> OpenResty接入层网关设计及实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/" rel="next" title="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署">
+      k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">kong特性</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">Kong 的架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">Kong部署</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">Kong 的管理方式</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">高可扩展性的背后—插件机制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">23</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">34</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
