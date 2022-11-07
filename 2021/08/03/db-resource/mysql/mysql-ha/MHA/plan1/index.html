@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="MHA简介 软件准备 MHA环境规划 MHA环境准备 配置MySQL主从复制 MHA配置 MHA配置过程中的一些错误解决    MHA简介MHA（Master High Availability）是MySQL高可用方面的一个相对成熟的解决方案，在MySQL故障切换过程中，MHA能做到在0~30秒之内自动完成数据库的故障切换操作，并且 在进行故障切换的过程中，MHA能在最大程度上保证数据的一致">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL8.0搭建MHA一">
+<meta property="og:url" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="MHA简介 软件准备 MHA环境规划 MHA环境准备 配置MySQL主从复制 MHA配置 MHA配置过程中的一些错误解决    MHA简介MHA（Master High Availability）是MySQL高可用方面的一个相对成熟的解决方案，在MySQL故障切换过程中，MHA能做到在0~30秒之内自动完成数据库的故障切换操作，并且 在进行故障切换的过程中，MHA能在最大程度上保证数据的一致">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/d6077d4f3378493f8a4d0933da527610.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/5f6dee4e812e44ffb802aeb8a393a469.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/05aa68810e9840a085052ff2b362ecf0.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/88acc2b381a54b99906b2c62ef022b5c.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/e31b72e5e0e74f68a2500e736cc27e8b.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/159ac31da7a541df9119ae620f9d9428.jpeg">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/472c87f9523e4148a22427579ae8f6e9.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/85f0afe3a4c74cf1bd88f1a809293e1a.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/56119bce526d4950a7636857e954f802.png">
+<meta property="og:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/01ef1ea1eed2446db2a0f5a53f30def2.png">
+<meta property="article:published_time" content="2021-08-03T02:33:27.000Z">
+<meta property="article:modified_time" content="2022-11-07T15:04:58.484Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/d6077d4f3378493f8a4d0933da527610.png">
+
+<link rel="canonical" href="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySQL8.0搭建MHA一 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQL8.0搭建MHA一
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-03 10:33:27" itemprop="dateCreated datePublished" datetime="2021-08-03T10:33:27+08:00">2021-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-07 23:04:58" itemprop="dateModified" datetime="2022-11-07T23:04:58+08:00">2022-11-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#mha%E7%AE%80%E4%BB%8B">MHA简介</a></li>
+<li><a href="#%E8%BD%AF%E4%BB%B6%E5%87%86%E5%A4%87">软件准备</a></li>
+<li><a href="#mha%E7%8E%AF%E5%A2%83%E8%A7%84%E5%88%92">MHA环境规划</a></li>
+<li><a href="#mha%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">MHA环境准备</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AEmysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">配置MySQL主从复制</a></li>
+<li><a href="#mha%E9%85%8D%E7%BD%AE">MHA配置</a></li>
+<li><a href="#mha%E9%85%8D%E7%BD%AE%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%94%99%E8%AF%AF%E8%A7%A3%E5%86%B3">MHA配置过程中的一些错误解决</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="mha简介">MHA简介</span></h1><p>MHA（Master High Availability）是MySQL高可用方面的一个相对成熟的解决方案，在MySQL故障切换过程中，MHA能做到在0~30秒之内自动完成数据库的故障切换操作，并且 在进行故障切换的过程中，MHA能在最大程度上保证数据的一致性，以达到真正意义上的高可用。</p>
+<span id="more"></span>
+
+<ol>
+<li>MHA里有两个重要的角色：</li>
+</ol>
+<p><strong>MHA Node</strong>（<strong>数据节点</strong>）：<strong>MHA Node</strong>运行在每台MySQL服务器上，MHA Manager会定时探测集群中的master节点，当master出现故障时，它可以自动将最新数据的slave提升为新的master，然后将所有其他的slave重新指向新的master。整个故障转移过程对应用程序完全透明。</p>
+<p>Node提供的工具包主要工具：</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>save_binary_logs</th>
+<th>保存和复制master的二进制日志</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>apply_diff_relay_logs</td>
+<td>识别差异的中继日志事件并将其差异的事件应用于其他的slave</td>
+</tr>
+<tr>
+<td>3</td>
+<td>filter_mysqlbinlog</td>
+<td>去除不必要的ROLLBACK事件（MHA已不再使用这个工具）</td>
+</tr>
+<tr>
+<td>4</td>
+<td>purge_relay_logs</td>
+<td>清除中继日志（不会阻塞SQL线程）</td>
+</tr>
+</tbody></table>
+<p><strong>MHA Manager</strong>（<strong>管理节点</strong>）：<strong>MHA Manage</strong>r可以单独部署在一台独立的机器上管理多个master-slave集群，也可以部署在一台slave节点上。</p>
+<p>Manager提供的工具包主要工具：</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>masterha_check_ssh</th>
+<th>检查MHA的SSH配置状况</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>masterha_check_repl</td>
+<td>检查MySQL复制状况</td>
+</tr>
+<tr>
+<td>3</td>
+<td>masterha_manger</td>
+<td>启动MHA</td>
+</tr>
+<tr>
+<td>4</td>
+<td>masterha_check_status</td>
+<td>检测当前MHA运行状态</td>
+</tr>
+<tr>
+<td>5</td>
+<td>masterha_master_monitor</td>
+<td>检测master是否宕机</td>
+</tr>
+<tr>
+<td>6</td>
+<td>masterha_master_switch</td>
+<td>控制故障转移（自动或者手动）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>masterha_conf_host</td>
+<td>添加或删除配置的server信息</td>
+</tr>
+</tbody></table>
+<p>注意：为了尽可能地减少主库硬件损坏宕机造成的数据丢失，因此在配置MHA的同时建议配置成<strong>MySQL的半同步复制</strong>（<strong>不是必须</strong>）。</p>
+<ol start="2">
+<li>MAH工作原理</li>
+</ol>
+<p>1） 从宕机崩溃的Master保存二进制日志事件（binlog event）；</p>
+<p>2） 识别含有最新更新的Slave；</p>
+<p>3） 应用差异的中继日志（relay log）到其他Slave；</p>
+<p>4） 应用从Master保存的二进制日志事件；</p>
+<p>5） 提升一个Slave为新的Master；</p>
+<p>6） 使其他的Slave连接新的Master进行复制；</p>
+<h1><span id="软件准备">软件准备</span></h1><p>在进行搭建MHA之前，需要提前准备好如下文件</p>
+<blockquote>
+<p>VM： VMware-workstation-full-10.0.1-1379776.exe</p>
+<p>CentOS： CentOS-7-x86_64-Minimal-2009.iso</p>
+<p>MySQL 8.0： mysql-community-client-8.0.31-1.el7.x86_64.rpm</p>
+<p>mysql-community-client-plugins-8.0.31-1.el7.x86_64.rpm</p>
+<p>mysql-community-common-8.0.31-1.el7.x86_64.rpm</p>
+<p>mysql-community-icu-data-files-8.0.31-1.el7.x86_64.rpm</p>
+<p>mysql-community-libs-8.0.31-1.el7.x86_64.rpm</p>
+<p>mysql-community-libs-compat-8.0.31-1.el7.x86_64.rpm</p>
+<p>mysql-community-server-8.0.31-1.el7.x86_64.rpm</p>
+<p>MHA: mha4mysql-manager-0.56.tar.gz</p>
+<p>mha4mysql-node-0.56.tar.gz</p>
+</blockquote>
+<h1><span id="mha环境规划">MHA环境规划</span></h1><p>首先创建4个已经安装好CentOS系统的虚拟机，其用途如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>虚拟机角色</th>
+<th>IP</th>
+<th>安装服务</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Master</td>
+<td>192.168.246.129</td>
+<td>MySQL + MHA Node</td>
+</tr>
+<tr>
+<td>Slave – 备用 Master</td>
+<td>192.168.246.128</td>
+<td>MySQL + MHA Node</td>
+</tr>
+<tr>
+<td>Slave</td>
+<td>192.168.246.131</td>
+<td>MySQL + MHA Node</td>
+</tr>
+<tr>
+<td>MHA Manager</td>
+<td>192.168.246.130</td>
+<td>MHA Node+ MHA Manager</td>
+</tr>
+</tbody></table>
+<h1><span id="mha环境准备">MHA环境准备</span></h1><ol>
+<li><p>关闭防火墙</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure></li>
+<li><p>开启端口3306</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">firewall-cmd --zone=public --add-port=3306/tcp --permanent</span><br><span class="line">firewall-cmd --reload</span><br></pre></td></tr></table></figure></li>
+<li><p>依赖包安装</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 全部4台服务器均需要安装相关的依赖包，如果已经安装过，请忽略。</span></span><br><span class="line">yum install perl-DBD-MySQL perl-Config-Tiny perl-log-Dispatch perl-Parallel-ForkManager perl-Time-HiRes perl-Config-IniFiles ncftp perl-Params-Validate perl-CPAN perl-LWP-Authen-Negotiate.noarch perl-devel perl-ExtUtils-CBuilder perl-ExtUtils-MakeMaker -y</span><br></pre></td></tr></table></figure></li>
+<li><p>SSH 互信</p>
+<p>全部4台服务器都要相互做密钥登录</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">1） 192.168.246.129上执行：</span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.128</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.130</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.131</span><br><span class="line"></span><br><span class="line">2） 192.168.246.128上执行：</span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.129</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.130</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.131</span><br><span class="line"></span><br><span class="line">3） 192.168.246.130上执行：</span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.128</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.129</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.131</span><br><span class="line"></span><br><span class="line">4） 192.168.246.131上执行：</span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.128</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.129</span><br><span class="line">ssh-copy-id -i ~/.ssh/id_rsa.pub root@192.168.246.130</span><br><span class="line"><span class="comment"># 注：在/.ssh文件夹下，会生成id_rsa（私钥），id_rsa.pub（公钥</span></span><br></pre></td></tr></table></figure>
+
+<p>互信验证：</p>
+<p>在每一台服务器上，都要对其它三台服务器，执行如下命令：</p>
+<p>ssh ip地址 ls</p>
+<p>如果均可以顺利ls到对方主机文件，则证明配置成功。</p>
+</li>
+</ol>
+<h1><span id="配置mysql主从复制">配置MySQL主从复制</span></h1><p>为了尽可能的减少主库硬件损坏宕机造成的数据丢失，在这里，配置成MySQL的半同步复制。</p>
+<ol>
+<li>MySQL安装</li>
+</ol>
+<p>所有3台MySQL服务器执行如下进行Server的安装：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">rpm -ivh mysql-community-common-8.0.31-1.el7.x86_64.rpm</span><br><span class="line">rpm -ivh mysql-community-client-plugins-8.0.31-1.el7.x86_64.rpm</span><br><span class="line">rpm -ivh mysql-community-libs-8.0.31-1.el7.x86_64.rpm</span><br><span class="line">rpm -ivh mysql-community-client-8.0.31-1.el7.x86_64.rpm</span><br><span class="line">rpm -ivh mysql-community-icu-data-files-8.0.31-1.el7.x86_64.rpm</span><br><span class="line">rpm -ivh mysql-community-server-8.0.31-1.el7.x86_64.rpm</span><br><span class="line">rpm -ivh mysql-community-libs-compat-8.0.31-1.el7.x86_64.rpm</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>MySQL启动</li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start mysqld</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>修改密码</li>
+</ol>
+<p>首次安装，登录的密码在相关的mysqld.log文件中。</p>
+<p>查询初始密码</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="string">&#x27;temporary password&#x27;</span> /var/<span class="built_in">log</span>/mysqld.log</span><br></pre></td></tr></table></figure>
+
+<p>登录并修改密码</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Alter</span> <span class="keyword">user</span> ‘root’@’localhost’ identified <span class="keyword">by</span> ‘root’;</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>半同步插件安装</li>
+</ol>
+<p>需要在每一台MySQL服务器上执行如下命令安装半同步插件，这里是三台服务器：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">install plugin rpl_semi_sync_master SONAME <span class="string">&#x27;semisync_master.so&#x27;</span>;</span><br><span class="line">install plugin rpl_semi_sync_slave SONAME <span class="string">&#x27;semisync_slave.so&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>​    可以执行如下命令检查Plugin是否已经安装：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Show</span> plugins;</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>My.cnf配置</li>
+</ol>
+<p>三台MySQL服务器的my.cnf配置如下：</p>
+<p><strong>192.168.246.129(master)</strong>:</p>
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/d6077d4f3378493f8a4d0933da527610.png" alt="img"></p>
+<p><strong>192.168.246.128</strong></p>
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/5f6dee4e812e44ffb802aeb8a393a469.png" alt="img"></p>
+<p><strong>192.168.246.131</strong></p>
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/05aa68810e9840a085052ff2b362ecf0.png" alt="img"></p>
+<p>在修改之后，记得重启MySQL服务</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart mysqld</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>创建用户</li>
+</ol>
+<p><strong>192.168.246.129(master)</strong>:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 创建复制用户：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="string">&#x27;rpl&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;Ygzlpaul*2022&#x27;</span>;</span><br><span class="line"><span class="keyword">grant</span> replication slave <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;rpl&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"># 创建监控用户：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;Ygzlpaul*2022&#x27;</span>;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> privileges <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+
+<p><strong>192.168.246.128:</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># 创建复制用户：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="string">&#x27;rpl&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;Ygzlpaul*2022&#x27;</span>;</span><br><span class="line"><span class="keyword">grant</span> replication slave <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;rpl&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line"># 创建监控用户：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;Ygzlpaul*2022&#x27;</span>;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> privileges <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+
+<p><strong>192.168.246.131</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 创建监控用户：</span><br><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span> identified <span class="keyword">by</span> <span class="string">&#x27;Ygzlpaul*2022&#x27;</span>;</span><br><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> privileges <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span> <span class="string">&#x27;root&#x27;</span>@<span class="string">&#x27;%&#x27;</span>;</span><br><span class="line">flush privileges;</span><br><span class="line"># 注：监控用户是给MHA Manager使用的</span><br></pre></td></tr></table></figure>
+
+<ol start="7">
+<li>复制搭建</li>
+</ol>
+<p>在<strong>192.168.246.129(master)上</strong>:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Show</span> master status;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/88acc2b381a54b99906b2c62ef022b5c.png" alt="img"></p>
+<p>在<strong>192.168.246.128上:</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> stop slave；</span><br><span class="line">mysql<span class="operator">&gt;</span> change master <span class="keyword">to</span> master_host<span class="operator">=</span><span class="string">&#x27;192.168.246.129&#x27;</span>, master_port<span class="operator">=</span><span class="number">3306</span>, master_user<span class="operator">=</span><span class="string">&#x27;rpl&#x27;</span>, master_password<span class="operator">=</span><span class="string">&#x27;root&#x27;</span>, master_log_file<span class="operator">=</span><span class="string">&#x27;mysql-bin1.000009&#x27;</span>, master_log_pos<span class="operator">=</span><span class="number">157</span>;</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">start</span> slave ;</span><br></pre></td></tr></table></figure>
+
+<p><strong>在192.168.246.131上:</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> stop slave；</span><br><span class="line">mysql<span class="operator">&gt;</span> change master <span class="keyword">to</span> master_host<span class="operator">=</span><span class="string">&#x27;192.168.246.129&#x27;</span>, master_port<span class="operator">=</span><span class="number">3306</span>, master_user<span class="operator">=</span><span class="string">&#x27;rpl&#x27;</span>, master_password<span class="operator">=</span><span class="string">&#x27;Ygzlpaul*2022&#x27;</span>, master_log_file<span class="operator">=</span><span class="string">&#x27;mysql-bin1.000009&#x27;</span>, master_log_pos<span class="operator">=</span><span class="number">157</span>;</span><br><span class="line">mysql<span class="operator">&gt;</span><span class="keyword">start</span> slave ;</span><br><span class="line"># 可以在slave上，分别执行如下命令进行检测，是否主从复制正常</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">SHOW</span> SLAVE STATUS;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="mha配置">MHA配置</span></h1><p><strong>1. MHA Node 安装</strong></p>
+<p>依次对所有的4台服务器均执行如下命令进行安装：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tar zxf mha4mysql-node-0.56.tar.gz</span><br><span class="line"><span class="built_in">cd</span> mha4mysql-node-0.56</span><br><span class="line">perl Makefile.PL</span><br><span class="line">Make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. MHA Manager安装</strong></p>
+<p>仅需要在需要的管理服务器上进行安装，这里是 192.168.246.130</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tar zxf mha4mysql-manager-0.56.tar.gz</span><br><span class="line"><span class="built_in">cd</span> mha4mysql-manager-0.56</span><br><span class="line">perl Makefile.PL</span><br><span class="line">Make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+
+<p><strong>3. 编辑MHA 配置文件</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir /etc/masterha</span><br><span class="line">cp /mha4mysql-manager-0.56/samples/conf/* /etc/masterha</span><br><span class="line">vi /etc/masterha/app1.cnf</span><br><span class="line"><span class="comment"># 进行修改配置文件内容如下：</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/e31b72e5e0e74f68a2500e736cc27e8b.png" alt="img"></p>
+<p>参数解释：</p>
+<blockquote>
+<p>manager_workdir=/masterha/app1 # 设置manager的工作目录</p>
+<p>manager_log=/masterha/app1/manager.log # 设置manager的日志位置</p>
+<p>user=root # 设置监控用户</p>
+<p>password=Ygzlpaul*2022 # 设置监控用户的密码</p>
+<p>ssh_user=root # 设置ssh连接用户</p>
+<p>repl_user=rpl # 设置主从复制用户</p>
+<p>repl_password=Ygzlpaul*2022 # 设置主从复制用户的密码</p>
+<p>ping_interval=1 # 设置监控主库，发送ping包的时间间隔，默认是3秒</p>
+<p>candidate_master=1 #设置为候选master,发生主从切换以后，无论此服务器的日志是否最新，都将强行提升为master</p>
+<p>no_master=1 # 永不提升为master</p>
+</blockquote>
+<p><strong>4. SSH有效性验证</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterha_check_ssh --conf=/etc/masterha/app1.cnf</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/159ac31da7a541df9119ae620f9d9428.jpeg" alt="img"></p>
+<p>只有当出现如上图所示的All SSH connection tests passed successfully. 信息才表示通过SSH验证。否则，请依照提示信息，修复SSH未互信成功的服务器。</p>
+<p><strong>5. 复制有效性验证</strong></p>
+<p>前提：所有的MySQL服务必须全部启动</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterha_check_repl --conf=/etc/masterha/app1.cnf</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/472c87f9523e4148a22427579ae8f6e9.png" alt="img"></p>
+<p>验证成功的话会自动识别出所有服务器和主从状况，请见上图中的3台MySQL服务器的相关信息。</p>
+<p>最后的显示信息MySQL Replication Health is OK.表明验证成功。</p>
+<p><strong>6. 启动MHA</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup masterha_manager --conf=/etc/masterha/app1.cnf &gt; /tmp/mha_manager.log &lt;/dev/null 2&gt;&amp;1 &amp;</span><br></pre></td></tr></table></figure>
+
+<p><strong>7. 状态检查</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterha_check_status --conf=/etc/masterha/app1.cnf</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/85f0afe3a4c74cf1bd88f1a809293e1a.png" alt="img"></p>
+<p>如图所示，证明正常启动，也识别出来了master</p>
+<p><strong>8. 故障转移验证</strong></p>
+<p>让我们来模拟一下master（192.168.246.129）宕机，查看备用master（192.168.246.128）是否会成为新的master。</p>
+<p>192.168.246.129上，执行：systemctl stop mysqld</p>
+<p>192.168.246.131上，我们登录数据库，查看Slave状态：</p>
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/56119bce526d4950a7636857e954f802.png" alt="img"></p>
+<p>发现，新Master已经成为备用master（192.168.246.128）</p>
+<p>再查看MHA日志</p>
+<p>cat /masterha/app1/manager.log</p>
+<p><img src="/2021/08/03/db-resource/mysql/mysql-ha/MHA/plan1/01ef1ea1eed2446db2a0f5a53f30def2.png" alt="img"></p>
+<p>日志表明，备用master（192.168.246.128）已经被选为new master.</p>
+<p>至此，MHA成功搭建。</p>
+<h1><span id="mha配置过程中的一些错误解决">MHA配置过程中的一些错误解决</span></h1><p>注意：在以下错误中，我仅仅列出错误的重点关键信息。</p>
+<p>\1. 执行：masterha_check_repl –conf=/etc/masterha/app1.cnf 报告Error：</p>
+<p>… perhaps the DBD::mysql perl module hasn’t been fully installed …</p>
+<p>解决办法：系统没有按安装DBI组件。DBI(Database Interface)是perl连接数据库的接口</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install perl-DBI perl-DBD-MySQL -y</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>执行：masterha_check_repl –conf=/etc/masterha/app1.cnf 报告Error：</li>
+</ol>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Can&#x27;t locate MHA/BinlogManager.pm in @INC (@INC contains: /usr/local/lib64/perl5 /usr/local/share/perl5 /usr/lib64/perl5/vendor<span class="built_in">_</span>perl /usr/share/perl5/vendor<span class="built_in">_</span>perl /usr/lib64/perl5 /usr/share/perl5 .) at /usr/bin/apply<span class="built_in">_</span>diff<span class="built_in">_</span>relay<span class="built_in">_</span>logs line 24.</span><br></pre></td></tr></table></figure>
+
+<p>解决办法：在每个节点上设置软链接：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/lib/perl5/vendor_perl/MHA /usr/lib64/perl5/vendor_perl/</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>执行：masterha_check_repl –conf=/etc/masterha/app1.cnf 报告Error：</li>
+</ol>
+<p>node version on 192.168.246.131 not found! Maybe MHA Node package is not installed?</p>
+<p>解决办法：请检查是否MHA Node没有安装，安装即可。</p>
+<ol start="4">
+<li>执行：masterha_check_repl –conf=/etc/masterha/app1.cnf 报告Error：</li>
+</ol>
+<p>Can’t exec “mysqlbinlog”</p>
+<p>解决办法：ln -s /usr/local/mysql/bin/* /usr/local/bin/</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/02/db-resource/mysql/mysql-ha/mysql%E9%9B%86%E7%BE%A4%E6%96%B9%E6%A1%88/" rel="prev" title="mysql集群方案">
+      <i class="fa fa-chevron-left"></i> mysql集群方案
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/" rel="next" title="mysql mgr集群方案">
+      mysql mgr集群方案 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">MHA简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">软件准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">MHA环境规划</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">MHA环境准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">配置MySQL主从复制</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">MHA配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">MHA配置过程中的一些错误解决</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

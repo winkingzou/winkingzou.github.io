@@ -190,6 +190,323 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/23/java/spring/springboot/springboot-data/springboot-data-redis/%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/23/java/spring/springboot/springboot-data/springboot-data-redis/%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/" class="post-title-link" itemprop="url">spring-boot-data-redis使用问题总结</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-23 17:17:36 / 修改时间：17:24:44" itemprop="dateCreated datePublished" datetime="2021-07-23T17:17:36+08:00">2021-07-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springboot-redis/" itemprop="url" rel="index"><span itemprop="name">springboot-redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="SpringBoot2-1-X使用Redis连接池Lettuce踩坑"><a href="#SpringBoot2-1-X使用Redis连接池Lettuce踩坑" class="headerlink" title="SpringBoot2.1.X使用Redis连接池Lettuce踩坑"></a>SpringBoot2.1.X使用Redis连接池Lettuce踩坑</h1><h2 id="踩坑场景"><a href="#踩坑场景" class="headerlink" title="踩坑场景"></a>踩坑场景</h2><p>　　运行环境Redis集群中某个master节点不稳定连接不上，导致SpringBoot应用连接Redis报错，报错连接timeout。</p>
+<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><p>基于Spring-data-redis重写RedisConnectionFactory Bean。需要设置“取消校验集群节点的成员关系”：.validateClusterNodeMembership(false)。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/23/java/spring/springboot/springboot-data/springboot-data-redis/%E4%BD%BF%E7%94%A8%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/23/java/spring/springboot/springboot-data/springboot-data-redis/springboot-data-redis%E4%BD%BF%E7%94%A8-md/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/23/java/spring/springboot/springboot-data/springboot-data-redis/springboot-data-redis%E4%BD%BF%E7%94%A8-md/" class="post-title-link" itemprop="url">SpringBootRedis系列(一)：springboot-data-redis基本使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-07-23 16:59:02 / 修改时间：17:32:44" itemprop="dateCreated datePublished" datetime="2021-07-23T16:59:02+08:00">2021-07-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springboot-redis/" itemprop="url" rel="index"><span itemprop="name">springboot-redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>springboot版本: 2.5.2</p>
+<p>spring-boot-data-redis默认采用lettuce作为客户端对redis进行操作。</p>
+<p>官网文档: <a target="_blank" rel="noopener" href="https://docs.spring.io/spring-data/redis/docs/2.5.3/reference/html/#redis">https://docs.spring.io/spring-data/redis/docs/2.5.3/reference/html/#redis</a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/23/java/spring/springboot/springboot-data/springboot-data-redis/springboot-data-redis%E4%BD%BF%E7%94%A8-md/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/23/db-resource/redis/Redis-3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/23/db-resource/redis/Redis-3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96/" class="post-title-link" itemprop="url">Redis系列（三）Redis配置文件和持久化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-07-23T16:23:28+08:00">2021-07-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-07 03:14:45" itemprop="dateModified" datetime="2022-01-07T03:14:45+08:00">2022-01-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis系列-三-Redis配置文件和持久化"><a href="#Redis系列-三-Redis配置文件和持久化" class="headerlink" title="Redis系列(三): Redis配置文件和持久化"></a>Redis系列(三): Redis配置文件和持久化</h1><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>官方配置文件文档：<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/redis/redis/6.0/redis.conf">https://raw.githubusercontent.com/redis/redis/6.0/redis.conf</a></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/23/db-resource/redis/Redis-3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%92%8C%E6%8C%81%E4%B9%85%E5%8C%96/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/22/db-resource/redis/Redis-2-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/22/db-resource/redis/Redis-2-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/" class="post-title-link" itemprop="url">Redis系列(二)：redis数据类型及基本操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-22 16:23:28" itemprop="dateCreated datePublished" datetime="2021-07-22T16:23:28+08:00">2021-07-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-01-07 03:15:53" itemprop="dateModified" datetime="2022-01-07T03:15:53+08:00">2022-01-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis系列-二-：redis数据类型及基本操作"><a href="#Redis系列-二-：redis数据类型及基本操作" class="headerlink" title="Redis系列(二)：redis数据类型及基本操作"></a>Redis系列(二)：redis数据类型及基本操作</h1><h1 id="Redis-的五大数据类型"><a href="#Redis-的五大数据类型" class="headerlink" title="Redis 的五大数据类型"></a>Redis 的五大数据类型</h1><h2 id="String（字符串）"><a href="#String（字符串）" class="headerlink" title="String（字符串）"></a>String（字符串）</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; <span class="built_in">set</span> key1 v1			<span class="comment">#设置值</span></span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; get key1</span><br><span class="line"><span class="string">&quot;v1&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; append key1 <span class="string">&quot;hello&quot;</span>		<span class="comment"># 追加值，如果不存在，相当于 set key</span></span><br><span class="line">(<span class="built_in">integer</span>) 7</span><br><span class="line">127.0.0.1:6379&gt; get key1</span><br><span class="line"><span class="string">&quot;v1hello&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; strlen key1		<span class="comment"># 获取字符串长度</span></span><br><span class="line">(<span class="built_in">integer</span>) 7</span><br><span class="line">127.0.0.1:6379&gt; </span><br></pre></td></tr></table></figure>
+
+<p>自增、自减</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/22/db-resource/redis/Redis-2-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/22/db-resource/redis/redis-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -724,338 +1041,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/" class="post-title-link" itemprop="url">Java应用迁移到容器后会出现OOM</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-07-23 17:36:40" itemprop="dateModified" datetime="2021-07-23T17:36:40+08:00">2021-07-23</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/kubernetes/" itemprop="url" rel="index"><span itemprop="name">kubernetes</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>JVM启动后默认将最大使用堆大小设置为物理内存的四分之一，譬如一台普通的x86服务器配置128G内存，那么启动在容器的内启动JVM会将自己最大允许使用的堆内存调整为32G内存，如果容器启动时设置JVM只允许使用4G大小的内存，那么当JVM使用内存超过4G后，将会导致内核杀死JVM。</p>
-<p>JAVA 10版本后，已经原生支持容器环境,最大堆调整到内存限制的四分之一，而非物理内存的四分之一。还可以支持CPU自适应。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/java/spring/springboot/springboo-base/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/17/java/spring/springboot/springboo-base/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">SpringBoot配置文件密码加密</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-20 18:11:14" itemprop="dateModified" datetime="2022-04-20T18:11:14+08:00">2022-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/springboot/" itemprop="url" rel="index"><span itemprop="name">springboot</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在日常开发中，可能很随意把数据库密码直接明文暴露在配置文件中，在开发环境可以这么做，但是在生产环境，是相当不建议这么做，毕竟安全无小事，谁也不知道哪天密码就莫名其妙泄露了。springboot项目中如何对数据库密码进行加密</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/17/java/spring/springboot/springboo-base/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/technology-stack/Dubbo/DubboSPI/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/17/technology-stack/Dubbo/DubboSPI/" class="post-title-link" itemprop="url">Dubbo的SPI机制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-19 12:01:09" itemprop="dateModified" datetime="2022-09-19T12:01:09+08:00">2022-09-19</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/" itemprop="url" rel="index"><span itemprop="name">技术栈</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Dubbo的SPI机制"><a href="#Dubbo的SPI机制" class="headerlink" title="Dubbo的SPI机制"></a>Dubbo的SPI机制</h1><p><img src="/2021/07/17/technology-stack/Dubbo/DubboSPI/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lhbmdiYWdnaW8=,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述"></p>
-<p>在<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=Dubbo&spm=1001.2101.3001.7020">Dubbo</a>中，SPI贯穿整个Dubbo的核心，所以理解Dubbo中的SPI对于理解Dubbo的原理有着至关重要的作用。在Spring中，我们知道SpringFactoriesLoader这个类，它也是一种SPI机制。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/17/technology-stack/Dubbo/DubboSPI/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/15/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hexo-them-config/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/07/15/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hexo-them-config/" class="post-title-link" itemprop="url">them-config</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-07-15 23:03:14" itemprop="dateCreated datePublished" datetime="2021-07-15T23:03:14+08:00">2021-07-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-24 15:49:56" itemprop="dateModified" datetime="2022-09-24T15:49:56+08:00">2022-09-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="hexo-theme-indigo-plus"><a href="#hexo-theme-indigo-plus" class="headerlink" title="hexo-theme-indigo-plus"></a>hexo-theme-indigo-plus</h1><blockquote>
-<p>基于 <a target="_blank" rel="noopener" href="https://github.com/yscoder/hexo-theme-indigo">hexo-theme-indigo</a> 主题进行优化，效果展示参见 <a target="_blank" rel="noopener" href="https://abelsu7.top/">我的博客</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/07/15/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hexo-them-config/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1123,7 +1112,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">61</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

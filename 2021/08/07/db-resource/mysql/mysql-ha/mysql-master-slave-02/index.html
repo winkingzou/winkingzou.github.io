@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="GTID介绍 GTID是什么 GTID Replication介绍 GTID的组成 GTID的作用 为什么要用GTID GTID比传统复制的优势 GTID复制实现的工作原理   主从复制 一主一从 部署数据库可查看 &lt;MYSQL主从&gt; 授权一个用户，用于主从复制 修改master主配文件 slave主配文件 配置slave主机，授权从数据库 验证主从复制   一主多从 第二台从数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQLGTID主从复制">
+<meta property="og:url" content="http://example.com/2021/08/07/db-resource/mysql/mysql-ha/mysql-master-slave-02/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="GTID介绍 GTID是什么 GTID Replication介绍 GTID的组成 GTID的作用 为什么要用GTID GTID比传统复制的优势 GTID复制实现的工作原理   主从复制 一主一从 部署数据库可查看 &lt;MYSQL主从&gt; 授权一个用户，用于主从复制 修改master主配文件 slave主配文件 配置slave主机，授权从数据库 验证主从复制   一主多从 第二台从数">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-08-07T15:33:27.000Z">
+<meta property="article:modified_time" content="2022-11-07T15:23:49.434Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/08/07/db-resource/mysql/mysql-ha/mysql-master-slave-02/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MySQLGTID主从复制 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/07/db-resource/mysql/mysql-ha/mysql-master-slave-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MySQLGTID主从复制
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-08-07 23:33:27" itemprop="dateCreated datePublished" datetime="2021-08-07T23:33:27+08:00">2021-08-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-07 23:23:49" itemprop="dateModified" datetime="2022-11-07T23:23:49+08:00">2022-11-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#gtid%E4%BB%8B%E7%BB%8D">GTID介绍</a><ul>
+<li><a href="#gtid%E6%98%AF%E4%BB%80%E4%B9%88">GTID是什么</a></li>
+<li><a href="#gtid-replication%E4%BB%8B%E7%BB%8D">GTID Replication介绍</a></li>
+<li><a href="#gtid%E7%9A%84%E7%BB%84%E6%88%90">GTID的组成</a></li>
+<li><a href="#gtid%E7%9A%84%E4%BD%9C%E7%94%A8">GTID的作用</a></li>
+<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8gtid">为什么要用GTID</a></li>
+<li><a href="#gtid%E6%AF%94%E4%BC%A0%E7%BB%9F%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BC%98%E5%8A%BF">GTID比传统复制的优势</a></li>
+<li><a href="#gtid%E5%A4%8D%E5%88%B6%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86">GTID复制实现的工作原理</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a><ul>
+<li><a href="#%E4%B8%80%E4%B8%BB%E4%B8%80%E4%BB%8E">一主一从</a><ul>
+<li><a href="#%E9%83%A8%E7%BD%B2%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%AF%E6%9F%A5%E7%9C%8B-mysql%E4%B8%BB%E4%BB%8E">部署数据库可查看 &lt;MYSQL主从&gt;</a></li>
+<li><a href="#%E6%8E%88%E6%9D%83%E4%B8%80%E4%B8%AA%E7%94%A8%E6%88%B7%E7%94%A8%E4%BA%8E%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">授权一个用户，用于主从复制</a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9master%E4%B8%BB%E9%85%8D%E6%96%87%E4%BB%B6">修改master主配文件</a></li>
+<li><a href="#slave%E4%B8%BB%E9%85%8D%E6%96%87%E4%BB%B6">slave主配文件</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AEslave%E4%B8%BB%E6%9C%BA%E6%8E%88%E6%9D%83%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93">配置slave主机，授权从数据库</a></li>
+<li><a href="#%E9%AA%8C%E8%AF%81%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">验证主从复制</a></li>
+</ul>
+</li>
+<li><a href="#%E4%B8%80%E4%B8%BB%E5%A4%9A%E4%BB%8E">一主多从</a><ul>
+<li><a href="#%E7%AC%AC%E4%BA%8C%E5%8F%B0%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93slave%E4%B8%BB%E9%85%8D%E6%96%87%E4%BB%B6">第二台从数据库slave主配文件</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E7%AC%AC%E4%BA%8C%E5%8F%B0slave%E4%B8%BB%E6%9C%BA">配置第二台slave主机</a></li>
+</ul>
+</li>
+<li><a href="#%E5%A4%9A%E4%B8%BB%E4%B8%80%E4%BB%8E">多主一从</a><ul>
+<li><a href="#%E4%B8%A4%E5%8F%B0%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE%E5%92%8C%E4%B8%8A%E8%BF%B0%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%90%8C%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE%E4%B9%9F%E7%9B%B8%E5%90%8C">两台主数据库配置和上述主数据库相同，从数据库配置也相同</a></li>
+<li><a href="#%E6%9F%A5%E7%9C%8B%E4%B8%BB%E5%BA%93%E4%BF%A1%E6%81%AF">查看主库信息</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AEslave%E4%B8%BB%E6%9C%BA">配置slave主机</a></li>
+<li><a href="#%E5%9C%A8%E4%BB%8E%E5%BA%93%E4%B8%8A%E9%85%8D%E7%BD%AE%E4%B8%BB%E5%BA%93%E4%BF%A1%E6%81%AF">在从库上配置主库信息</a></li>
+<li><a href="#%E9%AA%8C%E8%AF%81%E6%B5%8B%E8%AF%95">验证测试</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="gtid介绍">GTID介绍</span></h1><h2><span id="gtid是什么">GTID是什么</span></h2><p>GTID(Global Transaction ID)是对于一个已提交事务的编号，并且是一个全局唯一的编号。GTID实际上是由UUID+TID组成的。其中UUID是一个MySQL实例的唯一标识，保存在mysql数据目录下的auto.cnf文件里。TID代表了该实例上已经提交的事务数量，并且随着事务提交单调递增。下面是一个GTID的具体形式：3E11FA47-71CA-11E1-9E33-C80AA9429562:23。</p>
+<span id="more"></span>
+
+<p>全称为: Global Transaction ID ,可简化MySQL(5.6版本之后)的主从切换以及Failover。<br>       GTID是一个字符串类似 <code>3E11FA47-71CA-11E1-9E33-C80AA9429562:23</code><br>        由UUID+TID组成，<br>                UUID代表MySQL实例，<br>                TID代表这个实例提交的事务数量。</p>
+<h2><span id="gtid-replication介绍">GTID Replication介绍</span></h2><p>从MySQL5.6开始增加了强大的GTID（Global Transaction ID，全局事务ID）这个特性，用来强化数据库的主备一致性， 故障恢复， 以及容错能力。用于取代过去传统的主从复制（即：基于binlog和position的异步复制）。借助GTID，在发生主备切换的情况下，MySQL的其他slave可以自动在新主上找到正确的复制位置，这大大简化了复杂复制拓扑下集群的维护，也减少了人为设置复制position发生误操作的风险。另外，基于GTID的复制可以忽略已经执行过的事务，减少了数据发生不一致的风险。</p>
+<h2><span id="gtid的组成">GTID的组成</span></h2><p>GTID是由server_uuid和事务id组成的，即GTID=server_uuid:transaction_id。<br>server_uuid，是在MySQL第一次启动时自动生成并持久化到auto.cnf文件（存放在数据目录下，每台机器的server_uuid都不一样。<br>transaction_id，是一个从1开始的自增计数，表示在这个主库上执行的第n个事务。MySQL会保证事务与GTID之间的1:1映射，如：6ba9a76d-606b-11ea-b3ce-000c29cb3421:1<br>表示在以6ba9a76d-606b-11ea-b3ce-000c29cb3421为唯一标识的MySQL实例上执行的第1个数据库事务。<br>一组连续的事务可以用 “-” 连接的事务序号范围表示。例如：6ba9a76d-606b-11ea-b3ce-000c29cb3421:1-15</p>
+<h2><span id="gtid的作用">GTID的作用</span></h2><ol>
+<li>根据GTID可以知道事务最初是在哪个实例上提交的</li>
+<li>GTID的存在方便了Replication的Failover</li>
+</ol>
+<h2><span id="为什么要用gtid">为什么要用GTID</span></h2><p>在主从复制中，尤其是半同步复制中， 由于Master 的dump进程一边要发送binlog给Slave，一边要等待Slave的ACK消息，这个过程是串行的，即前一个事物的ACK没有收到消息，那么后一个事物只能排队候着； 这样将会极大地影响性能；有了GTID后，SLAVE就直接可以通过数据流获得GTID信息，而且可以同步</p>
+<p>主从故障切换中，如果一台MASTER down，需要提取拥有最新日志的SLAVE做MASTER，这个是很好判断，而有了GTID，就只要以GTID为准即可方便判断；而有了GTID后，SLAVE就不需要一直保存这bin-log 的文件名和Position了；只要启用MASTER_AUTO_POSITION 即可</p>
+<p>当MASTER crash的时候，GTID有助于保证数据一致性，因为每个事物都对应唯一GTID，如果在恢复的时候某事物被重复提交，SLAVE会直接忽略</p>
+<h2><span id="gtid比传统复制的优势">GTID比传统复制的优势</span></h2><ol>
+<li>更简单的实现failover，不用以前那样在需要找log_file和log_Pos</li>
+<li>更简单的搭建主从复制</li>
+<li>比传统复制更加安全</li>
+<li>GTID是连续没有空洞的，因此主从库出现数据冲突时，可以用添加空事物的方式进行跳过</li>
+</ol>
+<h2><span id="gtid复制实现的工作原理">GTID复制实现的工作原理</span></h2><p>主节点更新数据时，会在事务前产生GTID，一起记录到binlog日志中<br>从节点的I/O线程将变更的bin log，写入到本地的relay log中<br>SQL线程从relay log中获取GTID，然后对比本地binlog是否有记录（所以MySQL从节点必须要开启binary log）<br>如果有记录，说明该GTID的事务已经执行，从节点会忽略<br>如果没有记录，从节点就会从relay log中执行该GTID的事务，并记录到bin log<br>在解析过程中会判断是否有主键，如果没有就用二级索引，如果有就用全部扫描</p>
+<h1><span id="主从复制">主从复制</span></h1><h2><span id="一主一从">一主一从</span></h2><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.268.25.140</td>
+</tr>
+<tr>
+<td>slave</td>
+<td>192.168.25.142</td>
+</tr>
+</tbody></table>
+<h3><span id="部署数据库可查看-ltmysql主从gt">部署数据库可查看 &lt;MYSQL主从&gt;</span></h3><h3><span id="授权一个用户用于主从复制">授权一个用户，用于主从复制</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span>  variables <span class="keyword">like</span> <span class="string">&#x27;%gtid%&#x27;</span>;</span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> Variable_name                    <span class="operator">|</span> <span class="keyword">Value</span>     <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> binlog_gtid_simple_recovery      <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> enforce_gtid_consistency         <span class="operator">|</span> OFF       <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_executed_compression_period <span class="operator">|</span> <span class="number">1000</span>      <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_mode                        <span class="operator">|</span> OFF       <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_next                        <span class="operator">|</span> AUTOMATIC <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_owned                       <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_purged                      <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> session_track_gtids              <span class="operator">|</span> OFF       <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="number">8</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.01</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">create</span> <span class="keyword">user</span> <span class="string">&#x27;zj&#x27;</span>@<span class="string">&#x27;192.168.25.142&#x27;</span> identified <span class="keyword">by</span> &quot;1&quot;;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.01</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">grant</span>  replication slave <span class="keyword">on</span> <span class="operator">*</span>.<span class="operator">*</span> <span class="keyword">to</span>  <span class="string">&#x27;zj&#x27;</span>@<span class="string">&#x27;192.168.25.142&#x27;</span>  ;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> flush privileges;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="修改master主配文件">修改master主配文件</span></h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">root@localhost ~]<span class="comment"># vim /etc/my.cnf</span></span><br><span class="line">[mysqld]</span><br><span class="line">basedir = /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">datadir = /opt/data</span><br><span class="line">socket = /tmp/mysql.sock</span><br><span class="line">port = 3306</span><br><span class="line">pid-file = /opt/data/mysql.pid</span><br><span class="line">skip-name-resolve</span><br><span class="line"></span><br><span class="line">log-bin = mysql-bin <span class="comment">#开启二进制日志 </span></span><br><span class="line">server-id = 1</span><br><span class="line">gtid-mode = on <span class="comment">#开启gtid模式</span></span><br><span class="line">enforce-gtid-consistency = on <span class="comment">#强制gtid一致性，开启后对特定的create table不被支持</span></span><br><span class="line">binlog-format = row  <span class="comment">#默认为mixed混合模式，更改成row复制，为了数据一致性</span></span><br><span class="line">log-slave-updates = 1  <span class="comment">#从库binlog才会记录主库同步的操作日志</span></span><br><span class="line">skip-slave-start = 1   <span class="comment">#跳过slave复制线程</span></span><br><span class="line"></span><br><span class="line">// 重启数据库服务</span><br><span class="line">[root@localhost ~]<span class="comment"># service mysqld restart</span></span><br><span class="line">Shutting down MySQL.. SUCCESS! </span><br><span class="line">Starting MySQL. SUCCESS! </span><br><span class="line"></span><br><span class="line">// 查看master数据库状态</span><br><span class="line">mysql&gt; show master status;</span><br><span class="line">+------------------+----------+--------------+------------------+------------------------------------------+</span><br><span class="line">| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB | Executed_Gtid_Set                        |</span><br><span class="line">+------------------+----------+--------------+------------------+------------------------------------------+</span><br><span class="line">| mysql-bin.000014 |     1951 |              |                  | b736875b-097e-11ec-b557-000c29810dc2:1-9 |</span><br><span class="line">+------------------+----------+--------------+------------------+------------------------------------------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="slave主配文件">slave主配文件</span></h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># vim /etc/my.cnf</span></span><br><span class="line">[mysqld]</span><br><span class="line">basedir = /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">datadir = /opt/data</span><br><span class="line">socket = /tmp/mysql.sock</span><br><span class="line">port = 3306  </span><br><span class="line">pid-file = /opt/data/mysql.pid</span><br><span class="line">skip-name-resolve </span><br><span class="line">            </span><br><span class="line">server-id = 2    </span><br><span class="line">log-bin = mysql-bin </span><br><span class="line">binlog-format = row </span><br><span class="line">skip-slave-start = 1</span><br><span class="line">log-slave-updates = 1</span><br><span class="line">gtid-mode = on </span><br><span class="line">enforce-gtid-consistency = on  </span><br><span class="line"></span><br><span class="line">[root@localhost ~]<span class="comment"># service mysqld restart</span></span><br><span class="line">Shutting down MySQL.. SUCCESS! </span><br><span class="line">Starting MySQL. SUCCESS!</span><br></pre></td></tr></table></figure>
+
+<h3><span id="配置slave主机授权从数据库">配置slave主机，授权从数据库</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">/</span><span class="operator">/</span> 检查gtid模式状态</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span>  variables <span class="keyword">like</span> <span class="string">&#x27;%gtid%&#x27;</span>;</span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> Variable_name                    <span class="operator">|</span> <span class="keyword">Value</span>     <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> binlog_gtid_simple_recovery      <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> enforce_gtid_consistency         <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_executed_compression_period <span class="operator">|</span> <span class="number">1000</span>      <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_mode                        <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_next                        <span class="operator">|</span> AUTOMATIC <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_owned                       <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_purged                      <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> session_track_gtids              <span class="operator">|</span> OFF       <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> reset slave;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.01</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> change master <span class="keyword">to</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_host<span class="operator">=</span><span class="string">&#x27;192.168.25.140&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_user<span class="operator">=</span><span class="string">&#x27;zj&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_password<span class="operator">=</span><span class="string">&#x27;1&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_auto_position<span class="operator">=</span><span class="number">1</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected, <span class="number">2</span> warnings (<span class="number">0.01</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">start</span> slave ;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> slave status\G</span><br><span class="line"><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span> <span class="number">1.</span> <span class="type">row</span> <span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span></span><br><span class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master <span class="keyword">to</span> send event</span><br><span class="line">                  Master_Host: <span class="number">192.168</span><span class="number">.25</span><span class="number">.140</span></span><br><span class="line">                  Master_User: zj</span><br><span class="line">                  Master_Port: <span class="number">3306</span></span><br><span class="line">                Connect_Retry: <span class="number">60</span></span><br><span class="line">              Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000014</span></span><br><span class="line">          Read_Master_Log_Pos: <span class="number">154</span></span><br><span class="line">               Relay_Log_File: localhost<span class="operator">-</span>relay<span class="operator">-</span>bin<span class="number">.000003</span></span><br><span class="line">                Relay_Log_Pos: <span class="number">367</span></span><br><span class="line">        Relay_Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000014</span></span><br><span class="line">             Slave_IO_Running: Yes</span><br><span class="line">            Slave_SQL_Running: Yes</span><br></pre></td></tr></table></figure>
+
+<h3><span id="验证主从复制">验证主从复制</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> databases;</span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> Database           <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> information_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> JJ         <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mysql              <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> performance_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> sys                <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="number">5</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> master status;</span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> File             <span class="operator">|</span> Position <span class="operator">|</span> Binlog_Do_DB <span class="operator">|</span> Binlog_Ignore_DB <span class="operator">|</span> Executed_Gtid_Set                         <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> mysql_bin<span class="number">.000006</span> <span class="operator">|</span>     <span class="number">1389</span> <span class="operator">|</span>              <span class="operator">|</span>                  <span class="operator">|</span> b736875b<span class="number">-097e-11</span>ec<span class="operator">-</span>b557<span class="number">-000</span>c29810dc2:<span class="number">1</span><span class="number">-10</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h2><span id="一主多从">一主多从</span></h2><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.168.25.140</td>
+</tr>
+<tr>
+<td>slave</td>
+<td>192.168.25.142</td>
+</tr>
+<tr>
+<td>slave</td>
+<td>192.268.25.144</td>
+</tr>
+</tbody></table>
+<h3><span id="第二台从数据库slave主配文件">第二台从数据库slave主配文件</span></h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]<span class="comment"># vim /etc/my.cnf</span></span><br><span class="line">[mysqld]</span><br><span class="line">basedir = /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">datadir = /opt/data</span><br><span class="line">socket = /tmp/mysql.sock</span><br><span class="line">port = 3306  </span><br><span class="line">pid-file = /opt/data/mysql.pid</span><br><span class="line">skip-name-resolve </span><br><span class="line">            </span><br><span class="line">server-id = 3  //第三台从服务器id 不能与前面使用过的一样  </span><br><span class="line">log-bin = mysql-bin </span><br><span class="line">binlog-format = row </span><br><span class="line">skip-slave-start = 1</span><br><span class="line">log-slave-updates = 1</span><br><span class="line">gtid-mode = on </span><br><span class="line">enforce-gtid-consistency = on  </span><br><span class="line"></span><br><span class="line">[root@localhost ~]<span class="comment"># service mysqld restart</span></span><br><span class="line">Shutting down MySQL.. SUCCESS! </span><br><span class="line">Starting MySQL. SUCCESS</span><br></pre></td></tr></table></figure>
+
+<h3><span id="配置第二台slave主机">配置第二台slave主机</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span>  variables <span class="keyword">like</span> <span class="string">&#x27;%gtid%&#x27;</span>;</span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> Variable_name                    <span class="operator">|</span> <span class="keyword">Value</span>     <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> binlog_gtid_simple_recovery      <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> enforce_gtid_consistency         <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_executed_compression_period <span class="operator">|</span> <span class="number">1000</span>      <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_mode                        <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_next                        <span class="operator">|</span> AUTOMATIC <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_owned                       <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_purged                      <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> session_track_gtids              <span class="operator">|</span> OFF       <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> reset slave;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.01</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> change master <span class="keyword">to</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_host<span class="operator">=</span><span class="string">&#x27;192.168.25.140&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_user<span class="operator">=</span><span class="string">&#x27;zj&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_password<span class="operator">=</span><span class="string">&#x27;1&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_auto_position<span class="operator">=</span><span class="number">1</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected, <span class="number">2</span> warnings (<span class="number">0.01</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">start</span> slave ;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> slave status\G</span><br><span class="line"><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span> <span class="number">1.</span> <span class="type">row</span> <span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span></span><br><span class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master <span class="keyword">to</span> send event</span><br><span class="line">                  Master_Host: <span class="number">192.168</span><span class="number">.25</span><span class="number">.140</span></span><br><span class="line">                  Master_User: zj</span><br><span class="line">                  Master_Port: <span class="number">3306</span></span><br><span class="line">                Connect_Retry: <span class="number">60</span></span><br><span class="line">              Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000014</span></span><br><span class="line">          Read_Master_Log_Pos: <span class="number">1776</span></span><br><span class="line">               Relay_Log_File: localhost<span class="operator">-</span>relay<span class="operator">-</span>bin<span class="number">.000004</span></span><br><span class="line">                Relay_Log_Pos: <span class="number">454</span></span><br><span class="line">        Relay_Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000014</span></span><br><span class="line">             Slave_IO_Running: Yes</span><br><span class="line">            Slave_SQL_Running: Yes</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> databases;</span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> Database           <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> information_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> JJ                 <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mysql              <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> performance_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> sys                <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="number">5</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> master status;</span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+---------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> File             <span class="operator">|</span> Position <span class="operator">|</span> Binlog_Do_DB <span class="operator">|</span> Binlog_Ignore_DB <span class="operator">|</span> Executed_Gtid_Set                                                                                                         <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+---------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> mysql_bin<span class="number">.000008</span> <span class="operator">|</span>      <span class="number">750</span> <span class="operator">|</span>              <span class="operator">|</span>                  <span class="operator">|</span> b736875b<span class="number">-097e-11</span>ec<span class="operator">-</span>b557<span class="number">-000</span>c29810dc2:<span class="number">1</span><span class="number">-10</span>,</span><br><span class="line">ba11a7ff<span class="number">-097</span>f<span class="number">-11</span>ec<span class="number">-9272</span><span class="number">-000</span>c29959565:<span class="number">1</span>,</span><br><span class="line">ddd6f885<span class="number">-0</span>a26<span class="number">-11</span>ec<span class="number">-81</span>cc<span class="number">-000</span>c29f2278e:<span class="number">1</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+---------------------------------------------------------------------------------------------------------------------------+</span></span><br><span class="line">————————————————</span><br></pre></td></tr></table></figure>
+
+<h2><span id="多主一从">多主一从</span></h2><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>IP</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>master</td>
+<td>192.168.25.140</td>
+</tr>
+<tr>
+<td>master</td>
+<td>192.168.25.142</td>
+</tr>
+<tr>
+<td>slave</td>
+<td>192.168.25.144</td>
+</tr>
+</tbody></table>
+<h3><span id="两台主数据库配置和上述主数据库相同从数据库配置也相同">两台主数据库配置和上述主数据库相同，从数据库配置也相同</span></h3><h3><span id="查看主库信息">查看主库信息</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">/</span><span class="operator">/</span>主库<span class="number">1</span></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> master status;</span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> File             <span class="operator">|</span> Position <span class="operator">|</span> Binlog_Do_DB <span class="operator">|</span> Binlog_Ignore_DB <span class="operator">|</span> Executed_Gtid_Set                         <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> mysql<span class="operator">-</span>bin<span class="number">.000014</span> <span class="operator">|</span>     <span class="number">2128</span> <span class="operator">|</span>              <span class="operator">|</span>                  <span class="operator">|</span> b736875b<span class="number">-097e-11</span>ec<span class="operator">-</span>b557<span class="number">-000</span>c29810dc2:<span class="number">1</span><span class="number">-10</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">主库<span class="number">2</span></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> master status;</span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> File             <span class="operator">|</span> Position <span class="operator">|</span> Binlog_Do_DB <span class="operator">|</span> Binlog_Ignore_DB <span class="operator">|</span> Executed_Gtid_Set                         <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="operator">|</span> mysql<span class="operator">-</span>bin<span class="number">.000002</span> <span class="operator">|</span>      <span class="number">154</span> <span class="operator">|</span>              <span class="operator">|</span>                  <span class="operator">|</span> b736875b<span class="number">-097e-11</span>ec<span class="operator">-</span>b557<span class="number">-000</span>c29810dc2:<span class="number">1</span><span class="number">-10</span> <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">------------------+----------+--------------+------------------+-------------------------------------------+</span></span><br><span class="line"><span class="number">1</span> <span class="type">row</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="配置slave主机">配置slave主机</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">/</span><span class="operator">/</span>检查gtid模式状态</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span>  variables <span class="keyword">like</span> <span class="string">&#x27;%gtid%&#x27;</span>;</span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> Variable_name                    <span class="operator">|</span> <span class="keyword">Value</span>     <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"><span class="operator">|</span> binlog_gtid_simple_recovery      <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> enforce_gtid_consistency         <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_executed_compression_period <span class="operator">|</span> <span class="number">1000</span>      <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_mode                        <span class="operator">|</span> <span class="keyword">ON</span>        <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_next                        <span class="operator">|</span> AUTOMATIC <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_owned                       <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> gtid_purged                      <span class="operator">|</span>           <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> session_track_gtids              <span class="operator">|</span> OFF       <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">----------------------------------+-----------+</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> reset slave;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.01</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="在从库上配置主库信息">在从库上配置主库信息</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">/</span><span class="operator">/</span>配置主库<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="operator">/</span><span class="operator">/</span>下面两条命令不执行，后续会报错</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">set</span> <span class="keyword">global</span> master_info_repository<span class="operator">=</span><span class="string">&#x27;table&#x27;</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">set</span> <span class="keyword">global</span> relay_log_info_repository<span class="operator">=</span><span class="string">&#x27;table&#x27;</span>;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> change master <span class="keyword">to</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_host<span class="operator">=</span><span class="string">&#x27;192.168.25.140&#x27;</span> ,  <span class="operator">/</span><span class="operator">/</span>这里是主库IP</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_user<span class="operator">=</span><span class="string">&#x27;zj&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_password<span class="operator">=</span><span class="string">&#x27;1&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_log_file<span class="operator">=</span><span class="string">&#x27;mysql-bin.000014&#x27;</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_log_pos<span class="operator">=</span><span class="number">2128</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> <span class="keyword">for</span> channel <span class="string">&#x27;master-1&#x27;</span>;  <span class="operator">/</span><span class="operator">/</span>创建隧道</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">配置主库<span class="number">2</span></span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> change master <span class="keyword">to</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_host<span class="operator">=</span><span class="string">&#x27;192.168.25.142&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_user<span class="operator">=</span><span class="string">&#x27;zj&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_password<span class="operator">=</span><span class="string">&#x27;1&#x27;</span> ,</span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_log_file<span class="operator">=</span><span class="string">&#x27;mysql-bin.000002&#x27;</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> master_log_pos<span class="operator">=</span><span class="number">154</span></span><br><span class="line">    <span class="operator">-</span><span class="operator">&gt;</span> <span class="keyword">for</span> channel <span class="string">&#x27;master-2&#x27;</span>;  <span class="operator">/</span><span class="operator">/</span>创建隧道</span><br><span class="line">    </span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">START</span> SLAVE;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="operator">/</span><span class="operator">/</span>查看发现都已经开启</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">SHOW</span> SLAVE STATUS\G</span><br><span class="line"><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span> <span class="number">1.</span> <span class="type">row</span> <span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span></span><br><span class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master <span class="keyword">to</span> send event</span><br><span class="line">                  Master_Host: <span class="number">192.168</span><span class="number">.25</span><span class="number">.140</span></span><br><span class="line">                  Master_User: zj</span><br><span class="line">                  Master_Port: <span class="number">3306</span></span><br><span class="line">                Connect_Retry: <span class="number">60</span></span><br><span class="line">              Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000014</span></span><br><span class="line">          Read_Master_Log_Pos: <span class="number">2128</span></span><br><span class="line">               Relay_Log_File: localhost<span class="operator">-</span>relay<span class="operator">-</span>bin<span class="operator">-</span>master<span class="variable">@002d1</span><span class="number">.000002</span></span><br><span class="line">                Relay_Log_Pos: <span class="number">320</span></span><br><span class="line">        Relay_Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000014</span></span><br><span class="line">             Slave_IO_Running: Yes</span><br><span class="line">            Slave_SQL_Running: Yes</span><br><span class="line">              Replicate_Do_DB: </span><br><span class="line">          Replicate_Ignore_DB: </span><br><span class="line">           Replicate_Do_Table: </span><br><span class="line">       Replicate_Ignore_Table: </span><br><span class="line">      Replicate_Wild_Do_Table: </span><br><span class="line">  Replicate_Wild_Ignore_Table: </span><br><span class="line">                   Last_Errno: <span class="number">0</span></span><br><span class="line">                   Last_Error: </span><br><span class="line">                 Skip_Counter: <span class="number">0</span></span><br><span class="line">          Exec_Master_Log_Pos: <span class="number">2128</span></span><br><span class="line">              Relay_Log_Space: <span class="number">544</span></span><br><span class="line">              Until_Condition: <span class="keyword">None</span></span><br><span class="line">               Until_Log_File: </span><br><span class="line">                Until_Log_Pos: <span class="number">0</span></span><br><span class="line">           Master_SSL_Allowed: <span class="keyword">No</span></span><br><span class="line">           Master_SSL_CA_File: </span><br><span class="line">           Master_SSL_CA_Path: </span><br><span class="line">              Master_SSL_Cert: </span><br><span class="line">            Master_SSL_Cipher: </span><br><span class="line">               Master_SSL_Key: </span><br><span class="line">        Seconds_Behind_Master: <span class="number">0</span></span><br><span class="line">Master_SSL_Verify_Server_Cert: <span class="keyword">No</span></span><br><span class="line">                Last_IO_Errno: <span class="number">0</span></span><br><span class="line">                Last_IO_Error: </span><br><span class="line">               Last_SQL_Errno: <span class="number">0</span></span><br><span class="line">               Last_SQL_Error: </span><br><span class="line">  Replicate_Ignore_Server_Ids: </span><br><span class="line">             Master_Server_Id: <span class="number">1</span></span><br><span class="line">                  Master_UUID: b736875b<span class="number">-097e-11</span>ec<span class="operator">-</span>b557<span class="number">-000</span>c29810dc2</span><br><span class="line">             Master_Info_File: mysql.slave_master_info</span><br><span class="line">                    SQL_Delay: <span class="number">0</span></span><br><span class="line">          SQL_Remaining_Delay: <span class="keyword">NULL</span></span><br><span class="line">      Slave_SQL_Running_State: Slave has read <span class="keyword">all</span> relay log; waiting <span class="keyword">for</span> more updates</span><br><span class="line">           Master_Retry_Count: <span class="number">86400</span></span><br><span class="line">                  Master_Bind: </span><br><span class="line">      Last_IO_Error_Timestamp: </span><br><span class="line">     Last_SQL_Error_Timestamp: </span><br><span class="line">               Master_SSL_Crl: </span><br><span class="line">           Master_SSL_Crlpath: </span><br><span class="line">           Retrieved_Gtid_Set: </span><br><span class="line">            Executed_Gtid_Set: baf6e1ae<span class="number">-0</span>a32<span class="number">-11</span>ec<span class="operator">-</span>bf3d<span class="number">-000</span>c29f2278e:<span class="number">1</span></span><br><span class="line">                Auto_Position: <span class="number">0</span></span><br><span class="line">         Replicate_Rewrite_DB: </span><br><span class="line">                 Channel_Name: master<span class="number">-1</span></span><br><span class="line">           Master_TLS_Version: </span><br><span class="line"><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span> <span class="number">2.</span> <span class="type">row</span> <span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span><span class="operator">*</span></span><br><span class="line">               Slave_IO_State: Waiting <span class="keyword">for</span> master <span class="keyword">to</span> send event</span><br><span class="line">                  Master_Host: <span class="number">192.168</span><span class="number">.25</span><span class="number">.142</span></span><br><span class="line">                  Master_User: zj</span><br><span class="line">                  Master_Port: <span class="number">3306</span></span><br><span class="line">                Connect_Retry: <span class="number">60</span></span><br><span class="line">              Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000002</span></span><br><span class="line">          Read_Master_Log_Pos: <span class="number">154</span></span><br><span class="line">               Relay_Log_File: localhost<span class="operator">-</span>relay<span class="operator">-</span>bin<span class="operator">-</span>master<span class="variable">@002d2</span><span class="number">.000002</span></span><br><span class="line">                Relay_Log_Pos: <span class="number">320</span></span><br><span class="line">        Relay_Master_Log_File: mysql<span class="operator">-</span>bin<span class="number">.000002</span></span><br><span class="line">             Slave_IO_Running: Yes</span><br><span class="line">            Slave_SQL_Running: Yes</span><br><span class="line">              Replicate_Do_DB: </span><br><span class="line">          Replicate_Ignore_DB: </span><br><span class="line">           Replicate_Do_Table: </span><br><span class="line">       Replicate_Ignore_Table: </span><br><span class="line">      Replicate_Wild_Do_Table: </span><br><span class="line">  Replicate_Wild_Ignore_Table: </span><br><span class="line">                   Last_Errno: <span class="number">0</span></span><br><span class="line">                   Last_Error: </span><br><span class="line">                 Skip_Counter: <span class="number">0</span></span><br><span class="line">          Exec_Master_Log_Pos: <span class="number">154</span></span><br><span class="line">              Relay_Log_Space: <span class="number">544</span></span><br><span class="line">              Until_Condition: <span class="keyword">None</span></span><br><span class="line">               Until_Log_File: </span><br><span class="line">                Until_Log_Pos: <span class="number">0</span></span><br><span class="line">           Master_SSL_Allowed: <span class="keyword">No</span></span><br><span class="line">           Master_SSL_CA_File: </span><br><span class="line">           Master_SSL_CA_Path: </span><br><span class="line">              Master_SSL_Cert: </span><br><span class="line">            Master_SSL_Cipher: </span><br><span class="line">               Master_SSL_Key: </span><br><span class="line">        Seconds_Behind_Master: <span class="number">0</span></span><br><span class="line">Master_SSL_Verify_Server_Cert: <span class="keyword">No</span></span><br><span class="line">                Last_IO_Errno: <span class="number">0</span></span><br><span class="line">                Last_IO_Error: </span><br><span class="line">               Last_SQL_Errno: <span class="number">0</span></span><br><span class="line">               Last_SQL_Error: </span><br><span class="line">  Replicate_Ignore_Server_Ids: </span><br><span class="line">             Master_Server_Id: <span class="number">2</span></span><br><span class="line">                  Master_UUID: ba11a7ff<span class="number">-097</span>f<span class="number">-11</span>ec<span class="number">-9272</span><span class="number">-000</span>c29959565</span><br><span class="line">             Master_Info_File: mysql.slave_master_info</span><br><span class="line">                    SQL_Delay: <span class="number">0</span></span><br><span class="line">          SQL_Remaining_Delay: <span class="keyword">NULL</span></span><br><span class="line">      Slave_SQL_Running_State: Slave has read <span class="keyword">all</span> relay log; waiting <span class="keyword">for</span> more updates</span><br><span class="line">           Master_Retry_Count: <span class="number">86400</span></span><br><span class="line">                  Master_Bind: </span><br><span class="line">      Last_IO_Error_Timestamp: </span><br><span class="line">     Last_SQL_Error_Timestamp: </span><br><span class="line">               Master_SSL_Crl: </span><br><span class="line">           Master_SSL_Crlpath: </span><br><span class="line">           Retrieved_Gtid_Set: </span><br><span class="line">            Executed_Gtid_Set: baf6e1ae<span class="number">-0</span>a32<span class="number">-11</span>ec<span class="operator">-</span>bf3d<span class="number">-000</span>c29f2278e:<span class="number">1</span></span><br><span class="line">                Auto_Position: <span class="number">0</span></span><br><span class="line">         Replicate_Rewrite_DB: </span><br><span class="line">                 Channel_Name: master<span class="number">-2</span></span><br><span class="line">           Master_TLS_Version: </span><br><span class="line"><span class="number">2</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+<h3><span id="验证测试">验证测试</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">主库<span class="number">1</span>上创建数据库ll</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">create</span> database ll;</span><br><span class="line">Query OK, <span class="number">1</span> <span class="type">row</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> databases;</span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> Database           <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> information_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> ll                 <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mysql              <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> performance_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> sys                <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="number">5</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">主库<span class="number">2</span>上创建数据库mm</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">create</span> database mm;</span><br><span class="line">Query OK, <span class="number">1</span> <span class="type">row</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> databases;</span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> Database           <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> information_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mysql              <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> performance_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> sys                <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mm                 <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="number">5</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 从库上开启从服务后查看</span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">start</span> slave;</span><br><span class="line">Query OK, <span class="number">0</span> <span class="keyword">rows</span> affected (<span class="number">0.00</span> sec)</span><br><span class="line"></span><br><span class="line">mysql<span class="operator">&gt;</span> <span class="keyword">show</span> databases;</span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> Database           <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="operator">|</span> information_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> ll                 <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mysql              <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> performance_schema <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> sys                <span class="operator">|</span></span><br><span class="line"><span class="operator">|</span> mm                 <span class="operator">|</span></span><br><span class="line"><span class="operator">+</span><span class="comment">--------------------+</span></span><br><span class="line"><span class="number">6</span> <span class="keyword">rows</span> <span class="keyword">in</span> <span class="keyword">set</span> (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/08/04/db-resource/mysql/mysql-ha/mysql-master-slave-01/" rel="prev" title="MySQL主从复制、读写分离理、实践">
+      <i class="fa fa-chevron-left"></i> MySQL主从复制、读写分离理、实践
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" rel="next" title="Redis系列(四):Redis性能及优化">
+      Redis系列(四):Redis性能及优化 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">GTID介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.1.</span> <span class="nav-text">GTID是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.2.</span> <span class="nav-text">GTID Replication介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.3.</span> <span class="nav-text">GTID的组成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.4.</span> <span class="nav-text">GTID的作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.5.</span> <span class="nav-text">为什么要用GTID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.6.</span> <span class="nav-text">GTID比传统复制的优势</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.7.</span> <span class="nav-text">GTID复制实现的工作原理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">主从复制</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.1.</span> <span class="nav-text">一主一从</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.1.</span> <span class="nav-text">部署数据库可查看 &lt;MYSQL主从&gt;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.2.</span> <span class="nav-text">授权一个用户，用于主从复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.3.</span> <span class="nav-text">修改master主配文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.4.</span> <span class="nav-text">slave主配文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.5.</span> <span class="nav-text">配置slave主机，授权从数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.6.</span> <span class="nav-text">验证主从复制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.2.</span> <span class="nav-text">一主多从</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.2.1.</span> <span class="nav-text">第二台从数据库slave主配文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.2.2.</span> <span class="nav-text">配置第二台slave主机</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.3.</span> <span class="nav-text">多主一从</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.3.1.</span> <span class="nav-text">两台主数据库配置和上述主数据库相同，从数据库配置也相同</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.3.2.</span> <span class="nav-text">查看主库信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.3.3.</span> <span class="nav-text">配置slave主机</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.3.4.</span> <span class="nav-text">在从库上配置主库信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.3.5.</span> <span class="nav-text">验证测试</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

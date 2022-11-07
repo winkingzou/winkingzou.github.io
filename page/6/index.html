@@ -190,6 +190,334 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/" class="post-title-link" itemprop="url">Java应用迁移到容器后会出现OOM</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-07-23 17:36:40" itemprop="dateModified" datetime="2021-07-23T17:36:40+08:00">2021-07-23</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/kubernetes/" itemprop="url" rel="index"><span itemprop="name">kubernetes</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>JVM启动后默认将最大使用堆大小设置为物理内存的四分之一，譬如一台普通的x86服务器配置128G内存，那么启动在容器的内启动JVM会将自己最大允许使用的堆内存调整为32G内存，如果容器启动时设置JVM只允许使用4G大小的内存，那么当JVM使用内存超过4G后，将会导致内核杀死JVM。</p>
+<p>JAVA 10版本后，已经原生支持容器环境,最大堆调整到内存限制的四分之一，而非物理内存的四分之一。还可以支持CPU自适应。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/17/java/container/Java%E5%BA%94%E7%94%A8%E8%BF%81%E7%A7%BB%E5%88%B0%E5%AE%B9%E5%99%A8%E5%90%8E%E4%BC%9A%E5%87%BA%E7%8E%B0OOM/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/java/spring/springboot/springboo-base/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/17/java/spring/springboot/springboo-base/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/" class="post-title-link" itemprop="url">SpringBoot配置文件密码加密</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-20 18:11:14" itemprop="dateModified" datetime="2022-04-20T18:11:14+08:00">2022-04-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springboot/" itemprop="url" rel="index"><span itemprop="name">springboot</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在日常开发中，可能很随意把数据库密码直接明文暴露在配置文件中，在开发环境可以这么做，但是在生产环境，是相当不建议这么做，毕竟安全无小事，谁也不知道哪天密码就莫名其妙泄露了。springboot项目中如何对数据库密码进行加密</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/17/java/spring/springboot/springboo-base/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%AF%86%E7%A0%81%E5%8A%A0%E5%AF%86/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/17/technology-stack/Dubbo/DubboSPI/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/17/technology-stack/Dubbo/DubboSPI/" class="post-title-link" itemprop="url">Dubbo的SPI机制</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-07-17T09:35:48+08:00">2021-07-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-19 12:01:09" itemprop="dateModified" datetime="2022-09-19T12:01:09+08:00">2022-09-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/" itemprop="url" rel="index"><span itemprop="name">技术栈</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Dubbo的SPI机制"><a href="#Dubbo的SPI机制" class="headerlink" title="Dubbo的SPI机制"></a>Dubbo的SPI机制</h1><p><img src="/2021/07/17/technology-stack/Dubbo/DubboSPI/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3lhbmdiYWdnaW8=,size_16,color_FFFFFF,t_70.png" alt="在这里插入图片描述"></p>
+<p>在<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=Dubbo&spm=1001.2101.3001.7020">Dubbo</a>中，SPI贯穿整个Dubbo的核心，所以理解Dubbo中的SPI对于理解Dubbo的原理有着至关重要的作用。在Spring中，我们知道SpringFactoriesLoader这个类，它也是一种SPI机制。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/17/technology-stack/Dubbo/DubboSPI/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/15/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hexo-them-config/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/07/15/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hexo-them-config/" class="post-title-link" itemprop="url">them-config</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-07-15 23:03:14" itemprop="dateCreated datePublished" datetime="2021-07-15T23:03:14+08:00">2021-07-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-09-24 15:49:56" itemprop="dateModified" datetime="2022-09-24T15:49:56+08:00">2022-09-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="hexo-theme-indigo-plus"><a href="#hexo-theme-indigo-plus" class="headerlink" title="hexo-theme-indigo-plus"></a>hexo-theme-indigo-plus</h1><blockquote>
+<p>基于 <a target="_blank" rel="noopener" href="https://github.com/yscoder/hexo-theme-indigo">hexo-theme-indigo</a> 主题进行优化，效果展示参见 <a target="_blank" rel="noopener" href="https://abelsu7.top/">我的博客</a></p>
+</blockquote>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/15/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hexo-them-config/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/14/tools/%E5%8D%9A%E5%AE%A2%E5%8F%8A%E8%BE%85%E5%8A%A9%E5%B7%A5%E5%85%B7/hexo/hello-world/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -706,99 +1034,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/17/os/Mac/Mac-DS_Store/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/02/17/os/Mac/Mac-DS_Store/" class="post-title-link" itemprop="url">Mac系统中的.DS_Store</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-02-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-02-17T09:35:48+08:00">2021-02-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-06-24 23:24:05" itemprop="dateModified" datetime="2022-06-24T23:24:05+08:00">2022-06-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#ds_store%E6%98%AF%E4%BB%80%E4%B9%88">.DS_Store是什么？</a></li>
-<li><a href="#%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6">删除文件：</a></li>
-<li><a href="#%E7%A6%81%E6%AD%A2%E7%94%9F%E6%88%90">禁止生成：</a></li>
-<li><a href="#%E6%81%A2%E5%A4%8D%E7%94%9F%E6%88%90">恢复生成：</a></li>
-</ul>
-<!-- tocstop -->
-
-<h2><span id="ds_store是什么">.DS_Store是什么？</span></h2><p>.DS_Store是Mac系统中产生的一个隐藏文件，记录文件或目录的一些自定义属性，如果我们有什么特殊的定制，完全是没用的。</p>
-<h2><span id="删除文件">删除文件：</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -name <span class="string">&#x27;*.DS_Store&#x27;</span> -<span class="built_in">type</span> f -delete</span><br></pre></td></tr></table></figure>
-
-<h2><span id="禁止生成">禁止生成：</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool TRUE</span><br></pre></td></tr></table></figure>
-
-<h2><span id="恢复生成">恢复生成：</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults delete com.apple.desktopservices DSDontWriteNetworkStores</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -866,7 +1105,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">61</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

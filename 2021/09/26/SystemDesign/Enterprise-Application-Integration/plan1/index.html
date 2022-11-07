@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="介绍 总体说明 集成架构说明 业务场景说明 主数据同步 主数据分发   账号分发 实施模式介绍 实施流程说明   方案分析 5A管控方案 统一集成平台 基础数据治理   标准建设 基础数据标准 数据管理标准 数据集成标准 接口管理标准   实施要点 数据集成要点 应用集成要点 服务集成要点 产品培训要点   方案意义 消除应用孤岛 加强身份管理 提高数据质量      介绍对于绝大多数企业来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="集成底座iPaaS解决方案一">
+<meta property="og:url" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="介绍 总体说明 集成架构说明 业务场景说明 主数据同步 主数据分发   账号分发 实施模式介绍 实施流程说明   方案分析 5A管控方案 统一集成平台 基础数据治理   标准建设 基础数据标准 数据管理标准 数据集成标准 接口管理标准   实施要点 数据集成要点 应用集成要点 服务集成要点 产品培训要点   方案意义 消除应用孤岛 加强身份管理 提高数据质量      介绍对于绝大多数企业来">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/d0f916eb73f547adbdea93f5189cd8f3.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/bcb04e748cdc45d79c20cc1158cb5b15.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/494e631406c84b90a276130fe18f2243.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/e15ad106b741446b912017e304ab2333.jpeg">
+<meta property="og:image" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/d56409e19539425b9b4031185e9dc0f6.jpeg">
+<meta property="article:published_time" content="2021-09-26T08:58:23.000Z">
+<meta property="article:modified_time" content="2022-11-07T12:49:28.778Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/d0f916eb73f547adbdea93f5189cd8f3.jpeg">
+
+<link rel="canonical" href="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>集成底座iPaaS解决方案一 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          集成底座iPaaS解决方案一
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-26 16:58:23" itemprop="dateCreated datePublished" datetime="2021-09-26T16:58:23+08:00">2021-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-07 20:49:28" itemprop="dateModified" datetime="2022-11-07T20:49:28+08:00">2022-11-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">系统设计</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E4%BB%8B%E7%BB%8D">介绍</a></li>
+<li><a href="#%E6%80%BB%E4%BD%93%E8%AF%B4%E6%98%8E">总体说明</a><ul>
+<li><a href="#%E9%9B%86%E6%88%90%E6%9E%B6%E6%9E%84%E8%AF%B4%E6%98%8E">集成架构说明</a></li>
+<li><a href="#%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E">业务场景说明</a><ul>
+<li><a href="#%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5">主数据同步</a></li>
+<li><a href="#%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%88%86%E5%8F%91">主数据分发</a></li>
+</ul>
+</li>
+<li><a href="#%E8%B4%A6%E5%8F%B7%E5%88%86%E5%8F%91">账号分发</a></li>
+<li><a href="#%E5%AE%9E%E6%96%BD%E6%A8%A1%E5%BC%8F%E4%BB%8B%E7%BB%8D">实施模式介绍</a></li>
+<li><a href="#%E5%AE%9E%E6%96%BD%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E">实施流程说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90">方案分析</a><ul>
+<li><a href="#5a%E7%AE%A1%E6%8E%A7%E6%96%B9%E6%A1%88">5A管控方案</a></li>
+<li><a href="#%E7%BB%9F%E4%B8%80%E9%9B%86%E6%88%90%E5%B9%B3%E5%8F%B0">统一集成平台</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E6%B2%BB%E7%90%86">基础数据治理</a></li>
+</ul>
+</li>
+<li><a href="#%E6%A0%87%E5%87%86%E5%BB%BA%E8%AE%BE">标准建设</a><ul>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E6%A0%87%E5%87%86">基础数据标准</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86%E6%A0%87%E5%87%86">数据管理标准</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90%E6%A0%87%E5%87%86">数据集成标准</a></li>
+<li><a href="#%E6%8E%A5%E5%8F%A3%E7%AE%A1%E7%90%86%E6%A0%87%E5%87%86">接口管理标准</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%9E%E6%96%BD%E8%A6%81%E7%82%B9">实施要点</a><ul>
+<li><a href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9">数据集成要点</a></li>
+<li><a href="#%E5%BA%94%E7%94%A8%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9">应用集成要点</a></li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9">服务集成要点</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E5%9F%B9%E8%AE%AD%E8%A6%81%E7%82%B9">产品培训要点</a></li>
+</ul>
+</li>
+<li><a href="#%E6%96%B9%E6%A1%88%E6%84%8F%E4%B9%89">方案意义</a><ul>
+<li><a href="#%E6%B6%88%E9%99%A4%E5%BA%94%E7%94%A8%E5%AD%A4%E5%B2%9B">消除应用孤岛</a></li>
+<li><a href="#%E5%8A%A0%E5%BC%BA%E8%BA%AB%E4%BB%BD%E7%AE%A1%E7%90%86">加强身份管理</a></li>
+<li><a href="#%E6%8F%90%E9%AB%98%E6%95%B0%E6%8D%AE%E8%B4%A8%E9%87%8F">提高数据质量</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="介绍">介绍</span></h1><p>对于绝大多数企业来说，企业的信息化建设是随着企业业务的发展不断推进的，而随着企业业务的复杂化和多元化，对于信息化系统的要求也越来越高，对于信息化建设的整体架构、集成整合、数据治理、安全管控的要求也在不断提升，而集成底座方案就是从企业信息化建设的角度出发，搭建统一、标准、柔性、可复用、可扩展的IT架构，解决企业信息化建设过程中缺乏整体规划、集成整合难度大、安全管控不到位等问题。</p>
+<p>集成底座主要包括IDM统一认证平台、MDM基础数据平台、ESB企业服务总线三个产品，产品之间相互支撑，同时对外提供数据和服务。对于企业而言，<strong>集成底座方案作为企业数字化转型的一站式解决方案，能为企业奠定IT基础</strong>，所以在实施集成底座项目时，要立足长远，要充分考虑企业未来的信息化发展趋势。</p>
+<span id="more"></span>
+
+<h1><span id="总体说明">总体说明</span></h1><p>集成底座主要包括三个产品：IDM统一认证平台、MDM基础数据平台、ESB企业服务总线，其中IDM平台基于5A管控体系实现<strong>统一用户、统一认证、统一授权、统一审计、统一应用管控</strong>等安全管控；MDM通过支持组织、岗位、人员等主数据的同步分发，<strong>实现主数据的标准化，实现全生命周期的主数据管理</strong>；ESB作为<strong>集成通道</strong>，通过API管理将业务系统接口注册、代理到ESB平台，并通过平台实现集中监控、认证、限流、报警等功能，在满足IDM、MDM以及上下游系统的集成管理的同时实现服务接口的集中化管理。</p>
+<h2><span id="集成架构说明">集成架构说明</span></h2><img src="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/d0f916eb73f547adbdea93f5189cd8f3.jpeg" alt="img" style="zoom:67%;">
+
+<p>集成底座方案的集成主要是基于IDM和MDM作为数据的集中维护平台，通过ESB进行服务API的管理，构建集成通道，从而实现IDM、MDM以及上下游系统的打通。由业务系统作为基础数据的源头，这些基础数据通过ESB同步至MDM平台进行统一管理，<strong>保证基础数据的准确性、唯一性、完整性</strong>；MDM将组织、人员等基础数据分发至IDM生成对应认证账号信息，用于支持<strong>统一认证</strong>等业务；整个集成过程中，ESB作为服务总线负责对各个系统的接口和服务进行注册和管理，同时<strong>构建系统数据对接的集成流程</strong>。</p>
+<h2><span id="业务场景说明">业务场景说明</span></h2><img src="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/bcb04e748cdc45d79c20cc1158cb5b15.jpeg" alt="img" style="zoom:67%;">
+
+<p>集成的业务场景集成主要是基于IDM和MDM的数据同步分发，其中包括业务系统到MDM的主数据同步，主数据到下游系统的下发（包括下发IDM），以及IDM下发账号到下游系统等。</p>
+<h3><span id="主数据同步">主数据同步</span></h3><p>1)源头推送数据（或者推送查询标识）至ESB的集成流程；</p>
+<p>2)ESB集成获取源头数据（或者通过查询标识从源头查询数据）后，在集成流程内部调用MDM的接口，将数据写入MDM，同时生成任务和日志，并回写源头系统；</p>
+<p>3)ESB集成流程调用MDM的自动提交接口将任务提交至MDM的BPM工作流中，BPM工作流调用MDM接口实现数据向下游系统的分发。</p>
+<h3><span id="主数据分发">主数据分发</span></h3><p>1)主数据分发采用推送的方式，在MDM的BPM工作流中触发推送；</p>
+<p>2)下游系统需要提供数据接收接口，在MDM中配置该接口，并在MDM的BPM工作流中调用MDM的分发接口（分发接口内部调用下游系统接收接口）实现数据分发；</p>
+<p>3)下游系统接收数据后，接口内部进行系统写入，完成后调用MDM的日志回写接口进行数据回写操作。</p>
+<h2><span id="账号分发">账号分发</span></h2><p>1)账号分发主要是通过IDM将登录用户信息分发至下游系统，实现各系统的统一认证和单点登录；</p>
+<p>2)IDM账号分发主要是将IDM的账号信息通过任务的形式分发下游系统，和MDM的分发方式类似；</p>
+<p>3)在账号信息进入IDM平台，可以手动或自动的方式生成分发任务，再通过IDM内置的BPM工作流进行自动提交；</p>
+<p>4)在BPM工作流内调用IDM的分发接口将数据推送至下游系统的数据接收接口中，而下游系统的数据接收接口则配置在IDM平台的应用管理中；</p>
+<p>5)下游系统完成数据写入后调用IDM的日志回写接口进行数据回写操作。</p>
+<h2><span id="实施模式介绍">实施模式介绍</span></h2><p>集成底座主要包括IDM、MDM和ESB三款核心产品，通过反复的内部演练以及实际项目的磨练，目前集成底座已经逐渐形成了一套标准的实施规范，包括<strong>主数据的规划、数据同步分发、账号管理、统一认证、API管理</strong>等，所以目前集成底座更多采用产品 + 培训的交付模式，即我们提供产品以及基于云平台的环境部署、产品安装，同时提供对于各个产品、集成方案、接口开发的培训，由伙伴或者客户方来完成具体的实施和建设工作，而在实施过程中，我们进行远程或现场的技术支持和指导。</p>
+<p>集成底座的实施模式需要<strong>轻实施、重培训，强调伙伴或客户在实施过程中的参与</strong>，这样做的好处在于：</p>
+<p>1.降低项目参与度，减轻工作量，能将项目团队投入到更多的项目中，满足公司的发展需要；</p>
+<p>2.内部团队有更多的机会参与项目、了解业务，了解产品和方案在实际项目中应用，有利于团队的建设和成员能力的培养；</p>
+<p>3.培训伙伴或客户熟悉产品的使用和项目实施，发挥伙伴方、客户方的优势，加快项目实施交付的效率；</p>
+<p>4.伙伴或客户掌握到产品和方案的精髓后，更有意愿去推动更多的同类项目，从而提供更多的商机，提高产品出货量。</p>
+<h2><span id="实施流程说明">实施流程说明</span></h2><p>集成底座项目的实施流程也是遵循规范的项目实施流程，包括<strong>需求调研、环境部署、实施交付、上线验收、后期运维</strong>等阶段，但是和实施类项目不同，集成底座采用产品 + 培训的模式，所以更多的工作是需要交付伙伴或客户方完成的，项目团队更多的是起到辅助的作用。</p>
+<p>1.<strong>需求调研</strong>：由项目团队和实施方共同完成，项目团队提供调研模板、调研大纲、调研思路，双方共同参与明确项目需求和范围，实施方了解业务、需求，同时熟悉产品的使用，便于后续的实施交付；项目团队提供资料协助实施方完成调研，同时搭建测试环境，培训实施方了解产品的使用，同时项目团队需要在调研过程中了解客户的业务，强化业务能力，也为后续项目提供借鉴；</p>
+<p>2.<strong>环境部署</strong>：环境部署一般由项目团队或内部运维团队负责，集成底座采用云平台的部署方案，提供一键部署脚本和对应的文档，可以实现快速部署；在实际项目中一般会部署两套环境：一套测试环境采用非高可用部署，在前期调研阶段部署，用于给客户演示、调研需求和产品使用培训；一套生产环境，一般在正式实施时部署，采用高可用部署，搭建开发、测试、生产环境，满足后续项目开发、测试、生产运行需要；</p>
+<p>3.<strong>实施交付</strong>：集成底座主要采用产品 + 培训的实施模式，实施交付的主体一般是合作伙伴或客户的信息化团队，项目团队主要是根据前期调研的需求协助输出对应的标准规范、蓝图资料，以及在实施过程中提供产品培训、技术指导、方案支持等，一般提供远程支持，但可以根据实际情况，提供短期的现场支持；</p>
+<p>4.<strong>上线验收</strong>：上线、验收和实施一样，主体也是合作伙伴或客户的信息化团队，项目团队以支持、辅助为主，协助实施方输出上线文档、上线流程、回滚策略等，协助实施方完成项目的整体上线试运行，以及最终的项目验收；</p>
+<p>5.<strong>后期运维</strong>：一般运维工作内部会移交运维团队，具体运维工作由伙伴或客户方进行，内部运维团队只负责解决一些产品使用、功能上的问题，同时针对伙伴或客户方经常出现的问题进行技术指导和培训，协助伙伴或客户更加深入的掌握产品和方案，以促进后续更多的合作。</p>
+<h1><span id="方案分析">方案分析</span></h1><p>集成底座方案包括三个子方案，分别是IDM+ESB统一身份5A管控方案、ESB+MDM统一集成平台方案和MDM+ESB主数据治理方案，先从各子方案角度剖析各产品的作用。</p>
+<h2><span id="5a管控方案">5A管控方案</span></h2><p>在IDM+ESB构成的统一身份5A管控方案中，主要以权威的业务系统为源头，将组织、角色、用户等信息经过MDM平台治理后，同步到IDM平台，基于同一的用户信息完成统一认证；根据需求在IDM平台进行业务角色、权限角色的统一管理与权限分配，再通过IDM分发到对应的业务系统中，实现权限的统一；作为5A安全管控平台，IDM提供的密码策略、认证策略、监控预警、统一分析、业务系统注册与管理等功能能充分满足企业系统集成的需求</p>
+<img src="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/494e631406c84b90a276130fe18f2243.jpeg" alt="img" style="zoom:67%;">
+
+<h2><span id="统一集成平台">统一集成平台</span></h2><p>由ESB+MDM构成的统一集成平台方案，主要目的是通过集成底座平台打通系统间业务单据集成的难题，主要面向各个系统的业务数据，如财务单据、财务凭证、收/付款单、入库/出库单等。由业务系统提供标准化的业务单据接口，ESB将接口注册到平台，构建API注册中心，实现对API的管理、监控、测试、预警等，同时通过应用集成进行服务接口编排，实现系统单据的集成。</p>
+<p><img src="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/e15ad106b741446b912017e304ab2333.jpeg" alt="img"></p>
+<h2><span id="基础数据治理">基础数据治理</span></h2><p>在MDM+ESB 构成的基础数据治理方案中，以MDM为核心实现基础数据的全生命周期管理，将各个业务中的基础数据同步到MDM平台，并完成相关的数据清洗、统一、编码等，再将治理后的数据分发到下游系统，从而实现各个系统基础数据的同源、统一、准确，为后续深度的业务集成、数据分析、数据挖掘奠定基础。</p>
+<img src="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/d56409e19539425b9b4031185e9dc0f6.jpeg" alt="img" style="zoom:67%;">
+
+<h1><span id="标准建设">标准建设</span></h1><p>标准体系的建设是企业信息化建设的核心内容之一，对于信息化建设而言，只有建立一套统一、标准、行之有效的标准规范体系，才能保证系统集成过程中数据的有效落地。</p>
+<h2><span id="基础数据标准">基础数据标准</span></h2><p>根据制定的主数据范围，<strong>制定每类主数据的相关数据标准</strong>，包括编码、属性、参考数据等；<strong>建立基础数据的模型、编码标准体系</strong>，统一建立并管理维护基础数据，保证现有系统基础数据的集成统一和数据准确，同时为后续系统接入奠定主数据标准。</p>
+<h2><span id="数据管理标准">数据管理标准</span></h2><p>根据各类基础数据业务应用模式，结合业务管理职责，明确各类数据责任部门，<strong>建立各类数据相关职能岗位和运行维护团队</strong>，统一进行数据的管理维护, 并明确数据相关岗位操作规范，形成各类数据的标准化操作流程规范。</p>
+<h2><span id="数据集成标准">数据集成标准</span></h2><p>根据数据管理和应用的需求，设计数据管理系统的应用架构（包括部署模式、软硬件环境以及网络部署模式等），同时根据业务需求需求，梳理数据管理系统与各业务系统的集成关系，完成数据管理系统集成架构的设计，<strong>建立异构系统的集成标准</strong>，数据结构、服务接口、集成方式等统一、标准，支撑业务系统集成以及后续新系统上线的统一。</p>
+<h2><span id="接口管理标准">接口管理标准</span></h2><p>针对各个业务系统的服务接口，<strong>制定统一接口标准</strong>，包括接口协议、命名、参数、格式等，基于统一的标准规范进行集中管理、统一维护、分散使用，保证集成对接灵活性的同时保证集成的效果和质量。</p>
+<h1><span id="实施要点">实施要点</span></h1><p>集成底座方案能构建一体化集成底座平台，满足企业5A管控、主数据治理、异构系统业务集成等需求，消除孤岛，为企业IT架构奠定坚实技术保障。在项目实施过程中有一些实施要点需要注意。</p>
+<h2><span id="数据集成要点">数据集成要点</span></h2><p>主要是主数据的同步分发，包括：</p>
+<p>1.从源头系统主数据同步MDM平台；</p>
+<p>2.MDM平台数据下发下游业务系统；</p>
+<p>3.MDM平台组织、岗位、人员数据下发IDM；</p>
+<p>4.IDM用户数据下发需要接入统一认证的系统，保证账号一致。</p>
+<p>数据集成的过程中，需要主推标准的集成方案，集成底座内部的数据集成可以直接复用预置的相关服务样例，和上下游系统对接时直接根据蓝图阶段制定的标准规范。推荐实施方式如下：</p>
+<ul>
+<li><p>主数据同步采用推送模式，由<strong>源头系统触发推送数据</strong>，通过ESB开发应用集成流程实现源头系统到MDM平台的数据写入；</p>
+</li>
+<li><p>MDM平台下发由<strong>下游系统提供接收接口</strong>，集成底座提供标准的数据格式，采用MDM的推送（或推拉）模式将数据（或任务标识）发送给下游系统；</p>
+</li>
+<li><p>IDM的账号下发和MDM一样，也是由<strong>下游系统提供接收接口</strong>，IDM采用推送（或推拉）模式将数据（或任务标识）发送给下游系统。</p>
+</li>
+</ul>
+<h2><span id="应用集成要点">应用集成要点</span></h2><p>应用集成主要是基于IDM平台构建统一认证体系，打通系统访问的壁垒，IDM平台<strong>提供CAS、OAuth、接口认证</strong>三种认证方式，业务系统根据自身系统情况自行选择，实施团队协助提供配置样例和说明文档。</p>
+<p>一般集成底座的IDM实施会以统一用户、统一认证、统一审计、统一应用管控这4A为主，而统一应用管控是在IDM平台配置各个系统信息，统一审计是对数据的统计、分析和监控，所以统一用户、统一认证往往是集成底座项目中最多的内容。</p>
+<p>1.统一用户：IDM用户分发下游系统，保证IDM和下游系统登录账号的一致性，建议采用推送模式，IDM提供标准的参数格式，下游系统提供数据接收接口，由IDM平台推送用户数据至下游系统；</p>
+<p>2.统一认证：基于IDM的标准认证方式，以下游系统为主配置统一认证。</p>
+<h2><span id="服务集成要点">服务集成要点</span></h2><p>以ESB的API管理为主，对业务系统的服务接口进行<strong>API注册、API管理、API代理、安全策略、监控预警</strong>等内容。</p>
+<p>1.配置ESB应用集成时进行服务接口的引用；</p>
+<p>2.其他系统集成时调用ESB代理接口，通过ESB进行日志记录、监控、预警等；</p>
+<p>3.推荐对接的接口都注册到ESB中，基于ESB进行监听和管控；</p>
+<p>4.对于IDM、MDM、ESB等内部使用的接口，全部注册到ESB中通过应用集成调用；如果支持外部系统调用，则需要对接口进行代理；</p>
+<p>5.如果项目中存在单据集成、凭证集成的业务集成需求，则需要通过ESB进行API的注册、代理，业务系统直接调用代理接口；</p>
+<p>6.如果需要保证数据安全性，建议采用数据加密、token认证等机制进行接口控制。</p>
+<h2><span id="产品培训要点">产品培训要点</span></h2><p>产品培训是集成底座项目中非常重要的部分，由于采用的产品+培训的模式，所以需要通过培训让实施方充分<strong>了解产品的特性、使用场景</strong>，以及对于不同的业务场景，应该如何通过产品配置进行实现。培训的主要内容需要包括：</p>
+<p>1.集成底座的整体集成架构、数据架构、集成方式等；</p>
+<p>2.集成底座和上下游系统集成时，集成的内容、集成的方式，提供的数据；</p>
+<p>3.MDM平台数据管理维护的方式，主数据模型的配置过程，包括模型定义、属性定义、编码规则、校验规则，以及同步分发过程中的系统注册、分发范围、接口调用等；</p>
+<p>4.IDM平台组织、岗位、用户的管理维护方式，扩展字段的配置，密码策略的配置，统一认证的配置，同步分发的相关接口说明等。</p>
+<h1><span id="方案意义">方案意义</span></h1><p>集成底座是基于IDM、MDM、ESB等核心产品构建的解决方案，主要是满足企业信息化建设中系统集成的需要，打通系统壁垒，实现异构系统的统一认证和单点登录，通过基于MDM平台进行基础数据治理，实现各业务系统的基础数据同源，从而为后续深度的业务集成和数据集成提供基础支撑。</p>
+<h2><span id="消除应用孤岛">消除应用孤岛</span></h2><p>信息孤岛割裂了信息系统之间的互联互通，被割裂的信息系统无法有效对公司经营、管理、决策形成统一的视图，对公司长期、高速发展的战略形成了一定的阻碍。统筹规划全局的信息基础与应用平台，在统一化、集成化的基础架构与平台之上，<strong>整合遗留的应用系统，推进及保障企业的业务战略落地</strong>。</p>
+<h2><span id="加强身份管理">加强身份管理</span></h2><p>实现对IT系统帐号基础信息（包括用户身份信息、机构部门信息、其他公司相关信息以及生命周期信息等）的标准化管理，能够为各IT系统提供基础的用户信息源。通过统一用户信息维护入口，<strong>保证各系统用户帐号信息的唯一性和同步更新</strong>。</p>
+<p><strong>3.加强应用管控</strong></p>
+<p>通过人员、信息、流程、应用系统的全面整合，打通各业务系统，整合系统资源，<strong>实现针对应用系统的访问控制</strong>。集中展示用户所拥有的访问权限，按照事先设置的策略，实现应用系统访问控制的功能；搭建认证及单点登录平台，实现多应用系统之间安全的单点登录与退出。</p>
+<h2><span id="提高数据质量">提高数据质量</span></h2><p>通过数据总线，实现一致性的企业数据视图，大大降低数据交互访问的复杂性。基于面向服务架构的标准化数据服务，实现访问的透明化。数据自动化服务实现了统一的业务访问标准，主动分发服务保证了相关业务目标系统数据的变更同步性，大幅降低数据的集成和共享成本，有效降低人为因素所产生的数据问题，<strong>提高数据应用质量</strong>。</p>
+<p>集成底座方案以IDM、MDM、ESB产品为核心，为企业信息化建设搭建<strong>基础的、统一的、标准的、可复用的、易扩展的IT框架</strong>，在复用企业IT资产的同时也为后续的信息系统建设奠定基础。而作为标准的集成方案，目前集成底座已经满足了在不同项目中快速复用的条件。</p>
+<p>对于企业而言集成底座的建设是为信息化搭建一套基础框架，企业后续的系统建设都会在此基础上进行集成和延展，所以在建设集成底座项目时，一定不能只局限当下，<strong>要着眼未来，考虑企业未来的信息化发展方向和发展战略</strong>，从更高的层面考虑集成底座应该如何建设，后续如果发展，如何融合业务和信息化的发展。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/21/technology-stack/loadbalance/kong/kong-build/" rel="prev" title="kong接入层网关设计及实现">
+      <i class="fa fa-chevron-left"></i> kong接入层网关设计及实现
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/" rel="next" title="IDM身份管理系统-方案一">
+      IDM身份管理系统-方案一 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">总体说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.1.</span> <span class="nav-text">集成架构说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.2.</span> <span class="nav-text">业务场景说明</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.2.1.</span> <span class="nav-text">主数据同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.2.2.</span> <span class="nav-text">主数据分发</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.3.</span> <span class="nav-text">账号分发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.4.</span> <span class="nav-text">实施模式介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.5.</span> <span class="nav-text">实施流程说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">方案分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.1.</span> <span class="nav-text">5A管控方案</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text">统一集成平台</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.3.</span> <span class="nav-text">基础数据治理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">标准建设</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.1.</span> <span class="nav-text">基础数据标准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.2.</span> <span class="nav-text">数据管理标准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.3.</span> <span class="nav-text">数据集成标准</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.4.</span> <span class="nav-text">接口管理标准</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">实施要点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.1.</span> <span class="nav-text">数据集成要点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.2.</span> <span class="nav-text">应用集成要点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.3.</span> <span class="nav-text">服务集成要点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.4.</span> <span class="nav-text">产品培训要点</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">方案意义</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">6.1.</span> <span class="nav-text">消除应用孤岛</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">6.2.</span> <span class="nav-text">加强身份管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">6.3.</span> <span class="nav-text">提高数据质量</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
