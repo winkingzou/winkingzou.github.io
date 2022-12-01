@@ -302,7 +302,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-07 03:41:41" itemprop="dateModified" datetime="2022-01-07T03:41:41+08:00">2022-01-07</time>
+                <time title="修改时间：2022-12-02 01:01:28" itemprop="dateModified" datetime="2022-12-02T01:01:28+08:00">2022-12-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -366,7 +366,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" class="post-title-link" itemprop="url">Redis系列(六):发布订阅模式、主从复制和哨兵模式</a>
+            <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" class="post-title-link" itemprop="url">Redis系列(六):发布订阅模式、主从复制、哨兵模式和集群</a>
         </h2>
 
         <div class="post-meta">
@@ -383,7 +383,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-07 03:36:31" itemprop="dateModified" datetime="2022-01-07T03:36:31+08:00">2022-01-07</time>
+                <time title="修改时间：2022-12-02 04:12:46" itemprop="dateModified" datetime="2022-12-02T04:12:46+08:00">2022-12-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -406,7 +406,46 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="Redis系列（六）发布订阅模式、主从复制和哨兵模式"><a href="#Redis系列（六）发布订阅模式、主从复制和哨兵模式" class="headerlink" title="Redis系列（六）发布订阅模式、主从复制和哨兵模式"></a>Redis系列（六）发布订阅模式、主从复制和哨兵模式</h1><h1 id="Redis-订阅发布"><a href="#Redis-订阅发布" class="headerlink" title="Redis 订阅发布"></a>Redis 订阅发布</h1><p>Redis 发布订阅（pub/sub）是一种消息通信模式：发送者发（pub）送消息，订阅者(sub)接收消息。</p>
+          <!-- toc -->
+
+<ul>
+<li><a href="#redis%E7%B3%BB%E5%88%97%E5%85%AD%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E5%92%8C%E9%9B%86%E7%BE%A4">Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群</a></li>
+<li><a href="#redis-%E8%AE%A2%E9%98%85%E5%8F%91%E5%B8%83">Redis 订阅发布</a></li>
+<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a><ul>
+<li><a href="#%E6%A6%82%E5%BF%B5">概念</a></li>
+<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%9C%E7%94%A8">主从复制的作用</a></li>
+<li><a href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE">环境配置</a></li>
+<li><a href="#%E4%B8%80%E4%B8%BB%E4%BA%8C%E4%BB%8E">一主二从</a></li>
+<li><a href="#%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86">复制原理</a></li>
+<li><a href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%A8%A1%E5%BC%8F">第二种模式</a></li>
+</ul>
+</li>
+<li><a href="#%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F">哨兵模式</a><ul>
+<li><a href="#%E6%A6%82%E8%BF%B0">概述</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E4%B8%80%E4%B8%BB%E4%BA%8C%E4%BB%8E%E7%9A%84%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F">配置一主二从的哨兵模式</a></li>
+</ul>
+</li>
+<li><a href="#%E9%9B%86%E7%BE%A4">集群</a><ul>
+<li><a href="#%E6%A6%82%E8%BF%B0-1">概述</a></li>
+<li><a href="#redis%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BC%98%E7%82%B9">Redis集群的优点</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1meet">集群通信：MEET</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E4%B8%AD%E7%9A%84%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">集群中的主从复制</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E6%9C%89%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9%E6%8C%82%E6%8E%89">集群是如何判断是否有某个节点挂掉</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E6%8C%82%E6%8E%89%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D">集群挂掉怎么恢复</a></li>
+<li><a href="#%E6%96%B0%E5%A2%9E%E4%B8%80%E4%B8%AA%E4%B8%BB%E8%8A%82%E7%82%B9">新增一个主节点</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%B8%BB%E8%8A%82%E7%82%B9">删除一个主节点</a></li>
+<li><a href="#redis%E9%9B%86%E7%BE%A4%E6%A7%BD%E4%BD%8D%E6%A6%82%E5%BF%B5">redis集群槽位概念</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB">数据迁移</a></li>
+<li><a href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB">故障转移</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6">集群健康检查机制</a></li>
+<li><a href="#%E6%90%AD%E5%BB%BA">搭建</a></li>
+<li><a href="#%E5%85%B3%E4%BA%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%99%BB%E5%BD%95%E9%9B%86%E7%BE%A4%E5%90%8E%E8%B7%9Fcluster%E7%9B%B8%E5%85%B3%E7%9A%84%E5%91%BD%E4%BB%A4">关于客户端登录集群后，跟CLUSTER相关的命令：</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群"><a href="#Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群" class="headerlink" title="Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群"></a>Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群</h1><h1 id="Redis-订阅发布"><a href="#Redis-订阅发布" class="headerlink" title="Redis 订阅发布"></a>Redis 订阅发布</h1><p>Redis 发布订阅（pub/sub）是一种消息通信模式：发送者发（pub）送消息，订阅者(sub)接收消息。</p>
 <p>Redis 客户端可以订阅任意数量的频道。</p>
 <p>订阅 / 发布消息图：</p>
           <!--noindex-->
@@ -466,7 +505,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-07 03:18:04" itemprop="dateModified" datetime="2022-01-07T03:18:04+08:00">2022-01-07</time>
+                <time title="修改时间：2022-12-02 01:02:18" itemprop="dateModified" datetime="2022-12-02T01:02:18+08:00">2022-12-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">

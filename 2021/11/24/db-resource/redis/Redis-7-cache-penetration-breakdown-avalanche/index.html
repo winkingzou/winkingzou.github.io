@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/YyUHN8.png">
 <meta property="og:image" content="http://example.com/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/Yy0d56.png">
 <meta property="article:published_time" content="2021-11-24T08:13:28.000Z">
-<meta property="article:modified_time" content="2022-01-06T19:41:41.338Z">
+<meta property="article:modified_time" content="2022-12-01T17:01:28.936Z">
 <meta property="article:author" content="Winking">
 <meta property="article:tag" content="redis">
 <meta name="twitter:card" content="summary">
@@ -230,7 +230,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-01-07 03:41:41" itemprop="dateModified" datetime="2022-01-07T03:41:41+08:00">2022-01-07</time>
+                <time title="修改时间：2022-12-02 01:01:28" itemprop="dateModified" datetime="2022-12-02T01:01:28+08:00">2022-12-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -260,31 +260,31 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Redis系列-七-缓存穿透、缓存击穿和缓存雪崩"><a href="#Redis系列-七-缓存穿透、缓存击穿和缓存雪崩" class="headerlink" title="Redis系列(七):缓存穿透、缓存击穿和缓存雪崩"></a>Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</h1><h1 id="缓存穿透（查不到数据导致）"><a href="#缓存穿透（查不到数据导致）" class="headerlink" title="缓存穿透（查不到数据导致）"></a>缓存穿透（查不到数据导致）</h1><p>缓存穿透的概念简单，用户想要查询一个数据，发现 Redis 内存数据库没有，也就是缓存没有命中。于是向持久层数据库查询。发现也没有，于是本次查询失败。当用户很多的时候，缓存都没有命中，于是都去请求了持久层数据库。这给持久层数据库造成很大的压力，这时候就相当于出现了缓存穿透。</p>
+        <h1><span id="redis系列七缓存穿透-缓存击穿和缓存雪崩">Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</span></h1><h1><span id="缓存穿透查不到数据导致">缓存穿透（查不到数据导致）</span></h1><p>缓存穿透的概念简单，用户想要查询一个数据，发现 Redis 内存数据库没有，也就是缓存没有命中。于是向持久层数据库查询。发现也没有，于是本次查询失败。当用户很多的时候，缓存都没有命中，于是都去请求了持久层数据库。这给持久层数据库造成很大的压力，这时候就相当于出现了缓存穿透。</p>
 <span id="more"></span>
 
 <p><img src="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/YyJzFg.png" alt="img"></p>
-<h2 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h2><h3 id="布隆过滤器"><a href="#布隆过滤器" class="headerlink" title="布隆过滤器"></a>布隆过滤器</h3><p>布隆过滤器是一种数据结构，对所有可能查询的参数以 hash 形式存储，在控制层先进行校验，不符合则丢弃，从而避免了对底层存储系统的查询压力。</p>
+<h2><span id="解决方案">解决方案：</span></h2><h3><span id="布隆过滤器">布隆过滤器</span></h3><p>布隆过滤器是一种数据结构，对所有可能查询的参数以 hash 形式存储，在控制层先进行校验，不符合则丢弃，从而避免了对底层存储系统的查询压力。</p>
 <img src="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/YytSHK.png" alt="img" style="zoom:67%;">
 
-<h3 id="缓存空对象"><a href="#缓存空对象" class="headerlink" title="缓存空对象"></a>缓存空对象</h3><p>当存储层不命中后，即使返回的空对象也将其缓存起来，同步会同步一个过期时间，之后再访问这个数据将会从存储中获取，保护了后端数据源。</p>
+<h3><span id="缓存空对象">缓存空对象</span></h3><p>当存储层不命中后，即使返回的空对象也将其缓存起来，同步会同步一个过期时间，之后再访问这个数据将会从存储中获取，保护了后端数据源。</p>
 <img src="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/Yytcb6.png" alt="img" style="zoom:67%;">
 
 <p>但是这种方法会存在两个问题：</p>
 <p>1、如果控制能够被缓存起来，这就意味着缓存需要更多的空间存储，因为这当中可能会有很多的空值的键；</p>
 <p>2、即使对空值设置了过期时间，还是会存在缓存层和存储层的数据会有一段时间窗口的不一致，这对于需要保持一致性的业务会有影响。</p>
-<h1 id="缓存击穿（请求太多，缓存过期）"><a href="#缓存击穿（请求太多，缓存过期）" class="headerlink" title="缓存击穿（请求太多，缓存过期）"></a>缓存击穿（请求太多，缓存过期）</h1><p>这里需要注意和缓存穿透的区别。缓存击穿，是指一个 key 非常热点，在不停的扛着大并发，大并发集中对这一个点进行访问，当这个 key 在失效的瞬间，持续的大并发就穿破缓存，直接请求数据库，就像在一个屏障上凿开了一个洞。</p>
+<h1><span id="缓存击穿请求太多缓存过期">缓存击穿（请求太多，缓存过期）</span></h1><p>这里需要注意和缓存穿透的区别。缓存击穿，是指一个 key 非常热点，在不停的扛着大并发，大并发集中对这一个点进行访问，当这个 key 在失效的瞬间，持续的大并发就穿破缓存，直接请求数据库，就像在一个屏障上凿开了一个洞。</p>
 <p>当某个 key 在过期的瞬间，有大量的请求并发访问，这类数据一般是热点数据，由于缓存过期，会同时访问数据库来查询最新的数据，并回写缓存，会导致数据库瞬间压力过大。</p>
-<h2 id="解决方案：-1"><a href="#解决方案：-1" class="headerlink" title="解决方案："></a>解决方案：</h2><h3 id="设置热点数据永不过期"><a href="#设置热点数据永不过期" class="headerlink" title="设置热点数据永不过期"></a>设置热点数据永不过期</h3><p>从缓存层来看，没有设置过期时间，所以不会出现热点 key 过期后产生的问题。</p>
-<h3 id="加互斥锁"><a href="#加互斥锁" class="headerlink" title="加互斥锁"></a>加互斥锁</h3><p>分布式锁：使用分布式锁，保证对于每个 key 同时只有一个线程去查询后端服务，其他线程没有获得分布式锁的权限，因此只需要等待即可。这种方式将高并发的压力转移到了分布式锁，因对分布式锁的考验很大。</p>
+<h2><span id="解决方案">解决方案：</span></h2><h3><span id="设置热点数据永不过期">设置热点数据永不过期</span></h3><p>从缓存层来看，没有设置过期时间，所以不会出现热点 key 过期后产生的问题。</p>
+<h3><span id="加互斥锁">加互斥锁</span></h3><p>分布式锁：使用分布式锁，保证对于每个 key 同时只有一个线程去查询后端服务，其他线程没有获得分布式锁的权限，因此只需要等待即可。这种方式将高并发的压力转移到了分布式锁，因对分布式锁的考验很大。</p>
 <p><img src="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/YyUHN8.png" alt="img"></p>
-<h1 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h1><p>缓存雪崩，是指在某一个时间段，缓存集中过期失效。</p>
+<h1><span id="缓存雪崩">缓存雪崩</span></h1><p>缓存雪崩，是指在某一个时间段，缓存集中过期失效。</p>
 <p>产生雪崩的原因之一，比如马上就要双十二零点，，很快就会有一波抢购，这波商品时间比较集中的放在了缓存，假设缓存一个小时。那么到了凌晨一点钟的时候，这批商品的缓存就都会过期了。而对这批商品的访问查询，都落到数据库上，对于数据库而言，就会产生周期性的压力波峰。于是所有的请求都会到达存储层，存储层的调用量会暴增，造成存储层也回掉的情况。</p>
 <p><img src="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/Yy0d56.png" alt="img"></p>
 <p>其实集中时期，倒不是非常致命，比较致命的缓存雪崩，是缓存服务器某个节点宕机或者断网。因为自然形成 的缓存雪崩，一定是某个时间段中创建缓存，这个时候也是可以顶住压力的。无非就是对数据库产生周期性的压力而已。而缓存服务节点的宕机，对于数据库服务器的压力是不可预的，很有可能瞬间就把数据库压垮。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><h3 id="Redis-高可用"><a href="#Redis-高可用" class="headerlink" title="Redis 高可用"></a>Redis 高可用</h3><p>这个思想的含义是，既然 redis 有可能挂掉，那我多增设几台 redis，这样一台挂掉之后其他的还可以继续工作，其实就是搭建的集群。</p>
-<h3 id="限流降级"><a href="#限流降级" class="headerlink" title="限流降级"></a>限流降级</h3><p>这个解决方案的思想是，在缓存失效后，通过加锁或者队列来控制数据库写缓存的线程数量。比如对某个 key 只允许一个线程查询数据和写缓存，其他线程等待。</p>
-<h3 id="数据预热"><a href="#数据预热" class="headerlink" title="数据预热"></a>数据预热</h3><p>数据预热的含义是在正式部署之前，把可能的数据线预先访问一遍，这样部分可能大量访问的数据就会加载到缓存。在即将发生大并发访问前手动触发加载缓存不同的key，设置不同的过期时间，让缓存失效的时间点尽量均匀。</p>
+<h2><span id="解决方案">解决方案</span></h2><h3><span id="redis-高可用">Redis 高可用</span></h3><p>这个思想的含义是，既然 redis 有可能挂掉，那我多增设几台 redis，这样一台挂掉之后其他的还可以继续工作，其实就是搭建的集群。</p>
+<h3><span id="限流降级">限流降级</span></h3><p>这个解决方案的思想是，在缓存失效后，通过加锁或者队列来控制数据库写缓存的线程数量。比如对某个 key 只允许一个线程查询数据和写缓存，其他线程等待。</p>
+<h3><span id="数据预热">数据预热</span></h3><p>数据预热的含义是在正式部署之前，把可能的数据线预先访问一遍，这样部分可能大量访问的数据就会加载到缓存。在即将发生大并发访问前手动触发加载缓存不同的key，设置不同的过期时间，让缓存失效的时间点尽量均匀。</p>
 
     </div>
 
@@ -303,8 +303,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" rel="prev" title="Redis系列(六):发布订阅模式、主从复制和哨兵模式">
-      <i class="fa fa-chevron-left"></i> Redis系列(六):发布订阅模式、主从复制和哨兵模式
+    <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" rel="prev" title="Redis系列(六):发布订阅模式、主从复制、哨兵模式和集群">
+      <i class="fa fa-chevron-left"></i> Redis系列(六):发布订阅模式、主从复制、哨兵模式和集群
     </a></div>
       <div class="post-nav-item">
     <a href="/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/" rel="next" title="git使用规范">
@@ -368,7 +368,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Redis%E7%B3%BB%E5%88%97-%E4%B8%83-%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E3%80%81%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%E5%92%8C%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="nav-number">1.</span> <span class="nav-text">Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%EF%BC%88%E6%9F%A5%E4%B8%8D%E5%88%B0%E6%95%B0%E6%8D%AE%E5%AF%BC%E8%87%B4%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">缓存穿透（查不到数据导致）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">解决方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">2.1.1.</span> <span class="nav-text">布隆过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E7%A9%BA%E5%AF%B9%E8%B1%A1"><span class="nav-number">2.1.2.</span> <span class="nav-text">缓存空对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E5%87%BB%E7%A9%BF%EF%BC%88%E8%AF%B7%E6%B1%82%E5%A4%AA%E5%A4%9A%EF%BC%8C%E7%BC%93%E5%AD%98%E8%BF%87%E6%9C%9F%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">缓存击穿（请求太多，缓存过期）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%EF%BC%9A-1"><span class="nav-number">3.1.</span> <span class="nav-text">解决方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E7%83%AD%E7%82%B9%E6%95%B0%E6%8D%AE%E6%B0%B8%E4%B8%8D%E8%BF%87%E6%9C%9F"><span class="nav-number">3.1.1.</span> <span class="nav-text">设置热点数据永不过期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E4%BA%92%E6%96%A5%E9%94%81"><span class="nav-number">3.1.2.</span> <span class="nav-text">加互斥锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%93%E5%AD%98%E9%9B%AA%E5%B4%A9"><span class="nav-number">4.</span> <span class="nav-text">缓存雪崩</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">4.1.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Redis-%E9%AB%98%E5%8F%AF%E7%94%A8"><span class="nav-number">4.1.1.</span> <span class="nav-text">Redis 高可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%99%90%E6%B5%81%E9%99%8D%E7%BA%A7"><span class="nav-number">4.1.2.</span> <span class="nav-text">限流降级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%A2%84%E7%83%AD"><span class="nav-number">4.1.3.</span> <span class="nav-text">数据预热</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">缓存穿透（查不到数据导致）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.1.</span> <span class="nav-text">解决方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.1.</span> <span class="nav-text">布隆过滤器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">2.1.2.</span> <span class="nav-text">缓存空对象</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">缓存击穿（请求太多，缓存过期）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.1.</span> <span class="nav-text">解决方案：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">3.1.1.</span> <span class="nav-text">设置热点数据永不过期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">3.1.2.</span> <span class="nav-text">加互斥锁</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">缓存雪崩</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">4.1.</span> <span class="nav-text">解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">4.1.1.</span> <span class="nav-text">Redis 高可用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">4.1.2.</span> <span class="nav-text">限流降级</span></a></li><li class="nav-item nav-level-3"><a class="nav-link"><span class="nav-number">4.1.3.</span> <span class="nav-text">数据预热</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
