@@ -190,6 +190,366 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/29/technology-stack/etl/datax/SpringBoot-datax/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/29/technology-stack/etl/datax/SpringBoot-datax/" class="post-title-link" itemprop="url">SpringBoot整合datax</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-29 16:58:23" itemprop="dateCreated datePublished" datetime="2021-09-29T16:58:23+08:00">2021-09-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-08 00:02:47" itemprop="dateModified" datetime="2022-12-08T00:02:47+08:00">2022-12-08</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/etl/" itemprop="url" rel="index"><span itemprop="name">etl</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#springboot%E6%95%B4%E5%90%88datax">SpringBoot整合datax</a></li>
+<li><a href="#%E4%B8%8B%E8%BD%BD%E5%AE%98%E6%96%B9%E5%AE%89%E8%A3%85%E5%8C%85%E6%88%96%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91">下载官方安装包或源码编译</a></li>
+<li><a href="#%E5%AF%BC%E5%85%A5%E5%BF%85%E8%A6%81%E7%9A%84%E4%BE%9D%E8%B5%96">导入必要的依赖</a></li>
+<li><a href="#%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0">执行函数</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="springboot整合datax">SpringBoot整合datax</span></h1><h1><span id="下载官方安装包或源码编译">下载官方安装包或源码编译</span></h1><p>地址：<a target="_blank" rel="noopener" href="https://github.com/alibaba/DataX">https://github.com/alibaba/DataX</a></p>
+<p>解压后保留conf、job、lib、plugin目录，其余目录和文件可以删掉。其中plugin目录只保留需要的插件。</p>
+<p>源码编译的文件在target目录下</p>
+<p>将datax目录移动到springboot项目目录下（也可以不放到该目录下，在使用时指定具体地址即可）</p>
+<h1><span id="导入必要的依赖">导入必要的依赖</span></h1><p><strong>pom.xml中加入以下依赖，其中版本号为0.0.1-SNAPSHOT的依赖包可从datax压缩包中获取，需要安装到本地仓库或上传到私有仓库。</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>datax-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>datax-common<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>datax-transformer<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysqlreader<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysqlwriter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>oraclereader<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>plugin-rdbms-util<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.datax<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ojdbc6<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>11.2.0.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-cli<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-cli<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.httpcomponents<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>httpclient<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-io<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-io<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.commons<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang3<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.3.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>commons-lang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>commons-lang<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.15<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>fastjson<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.73<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的涉及到的datax的jar包均在lib目录或plugin目录下，找到jar并上传的maven私服或者安装到本地仓库，安装到本地仓库命令如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mvn install:install-file -DgroupId=com.alibaba.datax -DartifactId=plugin-rdbms-util -Dversion=0.0.1-SNAPSHOT -Dpackaging=jar -Dfile=plugin-rdbms-util-0.0.1-SNAPSHOT.jar</span><br><span class="line"><span class="comment"># 依次把所有jar都安装到本地maven仓库</span></span><br></pre></td></tr></table></figure>
+
+<h1><span id="执行函数">执行函数</span></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Value(&quot;$&#123;datax.home&#125;&quot;)</span></span><br><span class="line"><span class="keyword">private</span> String dataxHome;</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(String jobConfig)</span> </span>&#123;</span><br><span class="line">    System.setProperty(<span class="string">&quot;datax.home&quot;</span>, dataxHome);</span><br><span class="line">    System.setProperty(<span class="string">&quot;now&quot;</span>, LocalTime.now().toString());</span><br><span class="line">    String[] dataxArgs = &#123;<span class="string">&quot;-job&quot;</span>, dataxHome + <span class="string">&quot;/job/&quot;</span> + jobConfig, <span class="string">&quot;-mode&quot;</span>, <span class="string">&quot;standalone&quot;</span>, <span class="string">&quot;-jobid&quot;</span>, <span class="string">&quot;-1&quot;</span>&#125;;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        Engine.entry(dataxArgs);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">        e.printStackTrace();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>dataxHome参数为前面下载的datax目录路径；</li>
+<li>jobConfig 参数是配置数据同步任务的json文件，放在${dataxHome}/job目录下，格式为xxx.json；</li>
+</ul>
+<p>源码见：</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/" class="post-title-link" itemprop="url">IDM身份管理系统-方案一</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-26 17:58:23" itemprop="dateCreated datePublished" datetime="2021-09-26T17:58:23+08:00">2021-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-07 21:52:27" itemprop="dateModified" datetime="2022-11-07T21:52:27+08:00">2022-11-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">系统设计</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E8%AF%B4%E6%98%8E">说明</a></li>
+<li><a href="#%E6%95%B4%E4%BD%93%E4%BB%8B%E7%BB%8D">整体介绍</a><ul>
+<li><a href="#%E4%BA%A7%E5%93%81%E4%BD%93%E7%B3%BB">产品体系</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E7%AE%80%E4%BB%8B">产品简介</a></li>
+<li><a href="#%E7%BB%9F%E4%B8%80%E6%9D%83%E9%99%90">统一权限</a></li>
+</ul>
+</li>
+<li><a href="#%E6%A0%87%E5%87%86%E8%A7%92%E8%89%B2">标准角色</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%9E%E9%99%85%E8%A7%92%E8%89%B2">实际角色</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-1">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-1">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-1">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%B5%84%E6%BA%90">功能资源</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-2">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-2">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-2">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E8%B5%84%E6%BA%90">数据资源</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-3">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-3">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-3">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%8E%A5%E5%8F%A3%E8%B5%84%E6%BA%90">接口资源</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-4">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-4">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-4">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%80%BB%E7%BB%93%E6%A6%82%E8%BF%B0">总结概述</a><ul>
+<li><a href="#%E6%80%BB%E7%BB%93%E8%AF%B4%E6%98%8E">总结说明</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E7%90%86%E8%A7%A3">产品理解</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E5%8F%91%E5%B1%95">产品发展</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>IDM身份管理系统，是一款为解决企业内部多系统之间的用户信息不一致的问题，也是满足企业在5A功能上的需求而开发的产品，包括Account<strong>账号管理</strong>、Authentication<strong>认证管理</strong>、Authorization<strong>授权管理</strong>、Audit<strong>审计管理</strong>、App Control<strong>应用管控</strong>五个方面的实际需求，进而规范用户身份信息，保证系统安全，提高工作效率。</p>
+<p>目前IDM统一权限的权限资源信息，是先通过认证接口获取，再通过Oauth认证成功后获取人员信息，同时会把该人员的权限资源信息给到业务系统。但在实际项目中业务系统的标准产品是不能改动的，因此项目实施人员只能在产品外面进行扩展开发，然后适配标准产品进行登录认证，在这个过程中权限信息也要初始化到业务系统中，这时就会影响到登录认证的性能。本次开发需要<strong>复用现有的生成任务形式</strong>，通过任务把权限信息下发给业务系统，进而解决以往会出现的问题。现将在本次开发中积累的学习经验和心得体会总结如下。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/" class="post-title-link" itemprop="url">集成底座iPaaS解决方案一</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-26 16:58:23" itemprop="dateCreated datePublished" datetime="2021-09-26T16:58:23+08:00">2021-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-07 20:49:28" itemprop="dateModified" datetime="2022-11-07T20:49:28+08:00">2022-11-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">系统设计</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E4%BB%8B%E7%BB%8D">介绍</a></li>
+<li><a href="#%E6%80%BB%E4%BD%93%E8%AF%B4%E6%98%8E">总体说明</a><ul>
+<li><a href="#%E9%9B%86%E6%88%90%E6%9E%B6%E6%9E%84%E8%AF%B4%E6%98%8E">集成架构说明</a></li>
+<li><a href="#%E4%B8%9A%E5%8A%A1%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E">业务场景说明</a><ul>
+<li><a href="#%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%90%8C%E6%AD%A5">主数据同步</a></li>
+<li><a href="#%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%88%86%E5%8F%91">主数据分发</a></li>
+</ul>
+</li>
+<li><a href="#%E8%B4%A6%E5%8F%B7%E5%88%86%E5%8F%91">账号分发</a></li>
+<li><a href="#%E5%AE%9E%E6%96%BD%E6%A8%A1%E5%BC%8F%E4%BB%8B%E7%BB%8D">实施模式介绍</a></li>
+<li><a href="#%E5%AE%9E%E6%96%BD%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E">实施流程说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%96%B9%E6%A1%88%E5%88%86%E6%9E%90">方案分析</a><ul>
+<li><a href="#5a%E7%AE%A1%E6%8E%A7%E6%96%B9%E6%A1%88">5A管控方案</a></li>
+<li><a href="#%E7%BB%9F%E4%B8%80%E9%9B%86%E6%88%90%E5%B9%B3%E5%8F%B0">统一集成平台</a></li>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E6%B2%BB%E7%90%86">基础数据治理</a></li>
+</ul>
+</li>
+<li><a href="#%E6%A0%87%E5%87%86%E5%BB%BA%E8%AE%BE">标准建设</a><ul>
+<li><a href="#%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E6%A0%87%E5%87%86">基础数据标准</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86%E6%A0%87%E5%87%86">数据管理标准</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90%E6%A0%87%E5%87%86">数据集成标准</a></li>
+<li><a href="#%E6%8E%A5%E5%8F%A3%E7%AE%A1%E7%90%86%E6%A0%87%E5%87%86">接口管理标准</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%9E%E6%96%BD%E8%A6%81%E7%82%B9">实施要点</a><ul>
+<li><a href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9">数据集成要点</a></li>
+<li><a href="#%E5%BA%94%E7%94%A8%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9">应用集成要点</a></li>
+<li><a href="#%E6%9C%8D%E5%8A%A1%E9%9B%86%E6%88%90%E8%A6%81%E7%82%B9">服务集成要点</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E5%9F%B9%E8%AE%AD%E8%A6%81%E7%82%B9">产品培训要点</a></li>
+</ul>
+</li>
+<li><a href="#%E6%96%B9%E6%A1%88%E6%84%8F%E4%B9%89">方案意义</a><ul>
+<li><a href="#%E6%B6%88%E9%99%A4%E5%BA%94%E7%94%A8%E5%AD%A4%E5%B2%9B">消除应用孤岛</a></li>
+<li><a href="#%E5%8A%A0%E5%BC%BA%E8%BA%AB%E4%BB%BD%E7%AE%A1%E7%90%86">加强身份管理</a></li>
+<li><a href="#%E6%8F%90%E9%AB%98%E6%95%B0%E6%8D%AE%E8%B4%A8%E9%87%8F">提高数据质量</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>对于绝大多数企业来说，企业的信息化建设是随着企业业务的发展不断推进的，而随着企业业务的复杂化和多元化，对于信息化系统的要求也越来越高，对于信息化建设的整体架构、集成整合、数据治理、安全管控的要求也在不断提升，而集成底座方案就是从企业信息化建设的角度出发，搭建统一、标准、柔性、可复用、可扩展的IT架构，解决企业信息化建设过程中缺乏整体规划、集成整合难度大、安全管控不到位等问题。</p>
+<p>集成底座主要包括IDM统一认证平台、MDM基础数据平台、ESB企业服务总线三个产品，产品之间相互支撑，同时对外提供数据和服务。对于企业而言，<strong>集成底座方案作为企业数字化转型的一站式解决方案，能为企业奠定IT基础</strong>，所以在实施集成底座项目时，要立足长远，要充分考虑企业未来的信息化发展趋势。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/loadbalance/kong/kong-build/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -800,283 +1160,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/05/java/java-tec-stack/WorkerFlow/Flowable/flowable/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/05/java/java-tec-stack/WorkerFlow/Flowable/flowable/" class="post-title-link" itemprop="url">SpringBoot整合flowable快速实现工作流</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-05 11:33:27" itemprop="dateCreated datePublished" datetime="2021-09-05T11:33:27+08:00">2021-09-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-20 17:44:23" itemprop="dateModified" datetime="2022-04-20T17:44:23+08:00">2022-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java-tec-stack/" itemprop="url" rel="index"><span itemprop="name">java-tec-stack</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="SpringBoot-flowable快速实现工作流"><a href="#SpringBoot-flowable快速实现工作流" class="headerlink" title="SpringBoot+flowable快速实现工作流"></a>SpringBoot+flowable快速实现工作流</h1><h1 id="总览"><a href="#总览" class="headerlink" title="总览"></a>总览</h1><ul>
-<li>使用flowable自带的flowable-ui制作流程图</li>
-<li>使用springboot开发流程使用的接口完成流程的业务功能</li>
-</ul>
-<h1 id="flowable-ui部署运行"><a href="#flowable-ui部署运行" class="headerlink" title="flowable-ui部署运行"></a>flowable-ui部署运行</h1><p>flowable-6.6.0 运行 官方demo</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/05/java/java-tec-stack/WorkerFlow/Flowable/flowable/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">mysql安装配置</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-09-02T23:33:27+08:00">2021-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-16 01:56:20" itemprop="dateModified" datetime="2022-08-16T01:56:20+08:00">2022-08-16</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#mysql8x%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE">Mysql8.x二进制安装配置</a><ul>
-<li><a href="#%E4%B8%8B%E8%BD%BD%E8%A7%A3%E5%8E%8B">下载解压</a></li>
-<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%89%E8%A3%85">初始化安装</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
-<li><a href="#%E5%90%AF%E5%8A%A8-%E6%8E%88%E6%9D%83">启动、授权</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="Mysql8-x二进制安装配置"><a href="#Mysql8-x二进制安装配置" class="headerlink" title="Mysql8.x二进制安装配置"></a>Mysql8.x二进制安装配置</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/02/db-resource/mysql/mysql-tx/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/02/db-resource/mysql/mysql-tx/" class="post-title-link" itemprop="url">mysql事务隔离级别</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-09-02T23:33:27+08:00">2021-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-05-15 22:34:23" itemprop="dateModified" datetime="2022-05-15T22:34:23+08:00">2022-05-15</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E7%8E%AF%E5%A2%83">环境</a></li>
-<li><a href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%9F%BA%E6%9C%AC%E8%A6%81%E7%B4%A0acid">事务的基本要素（ACID）</a></li>
-<li><a href="#%E4%BA%8B%E5%8A%A1%E7%9A%84%E5%B9%B6%E5%8F%91%E9%97%AE%E9%A2%98">事务的并发问题</a></li>
-<li><a href="#mysql%E4%BA%8B%E5%8A%A1%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB">MySQL事务隔离级别</a></li>
-<li><a href="#%E7%A4%BA%E4%BE%8B%E6%BC%94%E7%A4%BA">示例演示</a><ul>
-<li><a href="#%E8%AF%BB%E6%9C%AA%E6%8F%90%E4%BA%A4">读未提交</a></li>
-<li><a href="#%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4">读已提交</a></li>
-<li><a href="#%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB">可重复读</a></li>
-<li><a href="#%E4%B8%B2%E8%A1%8C%E5%8C%96">串行化</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><p>mysql：5.7</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/02/db-resource/mysql/mysql-tx/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1148,20 +1231,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">61</span>
+          <span class="site-state-item-count">66</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-count">24</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-count">36</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1188,7 +1271,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>

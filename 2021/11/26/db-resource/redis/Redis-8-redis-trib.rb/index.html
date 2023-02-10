@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="Redis系列（八）redis-trib.rb命令详解 redis-trib.rb环境配置 创建集群 查看集群信息 检查集群状态 在线迁移slot 平衡集群节点slot数量 添加新节点 删除节点 修复集群 设置节点超时时间 在集群所有节点上执行命令 将外部redis数据导入集群    Redis系列（八）redis-trib.rb命令详解 redis-trib.rb是官方提供的Redis C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis系列(八):redis-trib.rb命令详解">
+<meta property="og:url" content="http://example.com/2021/11/26/db-resource/redis/Redis-8-redis-trib.rb/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="Redis系列（八）redis-trib.rb命令详解 redis-trib.rb环境配置 创建集群 查看集群信息 检查集群状态 在线迁移slot 平衡集群节点slot数量 添加新节点 删除节点 修复集群 设置节点超时时间 在集群所有节点上执行命令 将外部redis数据导入集群    Redis系列（八）redis-trib.rb命令详解 redis-trib.rb是官方提供的Redis C">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-11-26T08:23:28.000Z">
+<meta property="article:modified_time" content="2022-12-05T21:35:28.939Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2021/11/26/db-resource/redis/Redis-8-redis-trib.rb/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Redis系列(八):redis-trib.rb命令详解 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/26/db-resource/redis/Redis-8-redis-trib.rb/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Redis系列(八):redis-trib.rb命令详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-26 16:23:28" itemprop="dateCreated datePublished" datetime="2021-11-26T16:23:28+08:00">2021-11-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-06 05:35:28" itemprop="dateModified" datetime="2022-12-06T05:35:28+08:00">2022-12-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#redis%E7%B3%BB%E5%88%97%E5%85%ABredis-tribrb%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3">Redis系列（八）redis-trib.rb命令详解</a></li>
+<li><a href="#redis-tribrb%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE">redis-trib.rb环境配置</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4">创建集群</a></li>
+<li><a href="#%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E4%BF%A1%E6%81%AF">查看集群信息</a></li>
+<li><a href="#%E6%A3%80%E6%9F%A5%E9%9B%86%E7%BE%A4%E7%8A%B6%E6%80%81">检查集群状态</a></li>
+<li><a href="#%E5%9C%A8%E7%BA%BF%E8%BF%81%E7%A7%BBslot">在线迁移slot</a></li>
+<li><a href="#%E5%B9%B3%E8%A1%A1%E9%9B%86%E7%BE%A4%E8%8A%82%E7%82%B9slot%E6%95%B0%E9%87%8F">平衡集群节点slot数量</a></li>
+<li><a href="#%E6%B7%BB%E5%8A%A0%E6%96%B0%E8%8A%82%E7%82%B9">添加新节点</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4%E8%8A%82%E7%82%B9">删除节点</a></li>
+<li><a href="#%E4%BF%AE%E5%A4%8D%E9%9B%86%E7%BE%A4">修复集群</a></li>
+<li><a href="#%E8%AE%BE%E7%BD%AE%E8%8A%82%E7%82%B9%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4">设置节点超时时间</a></li>
+<li><a href="#%E5%9C%A8%E9%9B%86%E7%BE%A4%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4">在集群所有节点上执行命令</a></li>
+<li><a href="#%E5%B0%86%E5%A4%96%E9%83%A8redis%E6%95%B0%E6%8D%AE%E5%AF%BC%E5%85%A5%E9%9B%86%E7%BE%A4">将外部redis数据导入集群</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="redis系列八redis-tribrb命令详解">Redis系列（八）redis-trib.rb命令详解</span></h1><blockquote>
+<p><code>redis-trib.rb</code>是官方提供的Redis Cluster的管理工具，在src目录下，但该工具是用ruby开发的，所以需要准备相关的依赖环境。</p>
+<p>使用帮助：<strong>redis-trib.rb help</strong></p>
+</blockquote>
+<span id="more"></span>
+
+<h1><span id="redis-tribrb环境配置">redis-trib.rb环境配置</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 准备redis-trib.rb的运行环境</span></span><br><span class="line">wget https://cache.ruby-lang.org/pub/ruby/2.5/ruby-2.5.1.tar.gz</span><br><span class="line"></span><br><span class="line">yum -y install zlib-devel</span><br><span class="line">tar xvf ruby-2.5.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> ruby-2.5.1/</span><br><span class="line"></span><br><span class="line">./configure -prefix=/usr/<span class="built_in">local</span>/ruby</span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/ruby/</span><br><span class="line">cp bin/ruby /usr/<span class="built_in">local</span>/bin</span><br><span class="line">cp bin/gem /usr/<span class="built_in">local</span>/bin</span><br><span class="line">-------------------------------------</span><br><span class="line"><span class="comment"># 有的Linux版本，直接yum install ruby可一步到位</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装rubygem redis依赖</span></span><br><span class="line">wget http://rubygems.org/downloads/redis-3.3.0.gem</span><br><span class="line">gem install -l redis-3.3.0.gem</span><br></pre></td></tr></table></figure>
+
+<h1><span id="创建集群">创建集群</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb create --replicas 1 127.0.0.1:6379 127.0.0.1:6380 127.0.0.1:6381 127.0.0.1:6382 127.0.0.1:6383 127.0.0.1:6384</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：</strong><br>–replicas参数指定集群中每个主节点配备几个从节点，这里设置为1，即三主三从</p>
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&gt;&gt;&gt; Creating cluster</span><br><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line">&gt;&gt;&gt; Performing <span class="built_in">hash</span> slots allocation on 6 nodes...</span><br><span class="line">Using 3 masters:</span><br><span class="line">127.0.0.1:6379</span><br><span class="line">127.0.0.1:6380</span><br><span class="line">127.0.0.1:6381</span><br><span class="line">Adding replica 127.0.0.1:6383 to 127.0.0.1:6379</span><br><span class="line">Adding replica 127.0.0.1:6384 to 127.0.0.1:6380</span><br><span class="line">Adding replica 127.0.0.1:6382 to 127.0.0.1:6381</span><br><span class="line">&gt;&gt;&gt; Trying to optimize slaves allocation <span class="keyword">for</span> anti-affinity</span><br><span class="line">[WARNING] Some slaves are <span class="keyword">in</span> the same host as their master</span><br><span class="line">M: bc775f9c4dea40820b82c9451778b1fcd42f92bc 127.0.0.1:6379</span><br><span class="line">   slots:0-5460 (5461 slots) master</span><br><span class="line">M: 3b27d00d13706a032a92ff6b0a914af272dcaaf2 127.0.0.1:6380</span><br><span class="line">   slots:5461-10922 (5462 slots) master</span><br><span class="line">M: d874f003257f1fb036bbd856ca605172a1741232 127.0.0.1:6381</span><br><span class="line">   slots:10923-16383 (5461 slots) master</span><br><span class="line">S: 648eb314863b82aaa676380be7db2ec307f5547d 127.0.0.1:6382</span><br><span class="line">   replicates bc775f9c4dea40820b82c9451778b1fcd42f92bc</span><br><span class="line">S: 65a6efb441ac44c348f7da8c62e26b888cda7c48 127.0.0.1:6383</span><br><span class="line">   replicates 3b27d00d13706a032a92ff6b0a914af272dcaaf2</span><br><span class="line">S: 57bda956485109552547aef6c77fba43d2124abf 127.0.0.1:6384</span><br><span class="line">   replicates d874f003257f1fb036bbd856ca605172a1741232</span><br><span class="line">Can I <span class="built_in">set</span> the above configuration? (<span class="built_in">type</span> <span class="string">&#x27;yes&#x27;</span> to accept): yes</span><br><span class="line">&gt;&gt;&gt; Nodes configuration updated</span><br><span class="line">&gt;&gt;&gt; Assign a different config epoch to each node</span><br><span class="line">&gt;&gt;&gt; Sending CLUSTER MEET messages to join the cluster</span><br><span class="line">Waiting <span class="keyword">for</span> the cluster to join...</span><br><span class="line">&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:6379)</span><br><span class="line">M: bc775f9c4dea40820b82c9451778b1fcd42f92bc 127.0.0.1:6379</span><br><span class="line">   slots:0-5460 (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 648eb314863b82aaa676380be7db2ec307f5547d 127.0.0.1:6382</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates bc775f9c4dea40820b82c9451778b1fcd42f92bc</span><br><span class="line">M: 3b27d00d13706a032a92ff6b0a914af272dcaaf2 127.0.0.1:6380</span><br><span class="line">   slots:5461-10922 (5462 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 57bda956485109552547aef6c77fba43d2124abf 127.0.0.1:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates d874f003257f1fb036bbd856ca605172a1741232</span><br><span class="line">S: 65a6efb441ac44c348f7da8c62e26b888cda7c48 127.0.0.1:6383</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 3b27d00d13706a032a92ff6b0a914af272dcaaf2</span><br><span class="line">M: d874f003257f1fb036bbd856ca605172a1741232 127.0.0.1:6381</span><br><span class="line">   slots:10923-16383 (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line">&gt;&gt;&gt; Check <span class="keyword">for</span> open slots...</span><br><span class="line">&gt;&gt;&gt; Check slots coverage...</span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>16384个槽全部被分配，集群创建成功。<code>注意：给redis-trib.rb的节点地址必须是不包含任何槽/数据的节点，否则会拒绝创建集群</code></p>
+<h1><span id="查看集群信息">查看集群信息</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb info 127.0.0.1:6383</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line">127.0.0.1:6380 (3b27d00d...) -&gt; 0 keys | 5462 slots | 1 slaves.</span><br><span class="line">127.0.0.1:6381 (d874f003...) -&gt; 1 keys | 5461 slots | 1 slaves.</span><br><span class="line">127.0.0.1:6379 (bc775f9c...) -&gt; 0 keys | 5461 slots | 1 slaves.</span><br><span class="line">[OK] 1 keys <span class="keyword">in</span> 3 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br></pre></td></tr></table></figure>
+
+<h1><span id="检查集群状态">检查集群状态</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb check 127.0.0.1:6379</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:6379)</span><br><span class="line">M: bc775f9c4dea40820b82c9451778b1fcd42f92bc 127.0.0.1:6379</span><br><span class="line">   slots:0-5460 (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 648eb314863b82aaa676380be7db2ec307f5547d 127.0.0.1:6382</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates bc775f9c4dea40820b82c9451778b1fcd42f92bc</span><br><span class="line">M: 3b27d00d13706a032a92ff6b0a914af272dcaaf2 127.0.0.1:6380</span><br><span class="line">   slots:5461-10922 (5462 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 57bda956485109552547aef6c77fba43d2124abf 127.0.0.1:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates d874f003257f1fb036bbd856ca605172a1741232</span><br><span class="line">S: 65a6efb441ac44c348f7da8c62e26b888cda7c48 127.0.0.1:6383</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 3b27d00d13706a032a92ff6b0a914af272dcaaf2</span><br><span class="line">M: d874f003257f1fb036bbd856ca605172a1741232 127.0.0.1:6381</span><br><span class="line">   slots:10923-16383 (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line">&gt;&gt;&gt; Check <span class="keyword">for</span> open slots...</span><br><span class="line">&gt;&gt;&gt; Check slots coverage...</span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<h1><span id="在线迁移slot">在线迁移slot</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb reshard 127.0.0.1:6379</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">    ...</span><br><span class="line">How many slots <span class="keyword">do</span> you want to move (from 1 to 16384)? 200</span><br><span class="line">What is the receiving node ID? 3b27d00d13706a032a92ff6b0a914af272dcaaf2</span><br><span class="line">Please enter all the <span class="built_in">source</span> node IDs.</span><br><span class="line">  Type <span class="string">&#x27;all&#x27;</span> to use all the nodes as <span class="built_in">source</span> nodes <span class="keyword">for</span> the <span class="built_in">hash</span> slots.</span><br><span class="line">  Type <span class="string">&#x27;done&#x27;</span> once you entered all the <span class="built_in">source</span> nodes IDs.</span><br><span class="line">Source node <span class="comment">#1:bc775f9c4dea40820b82c9451778b1fcd42f92bc</span></span><br><span class="line">Source node <span class="comment">#2:done</span></span><br><span class="line"></span><br><span class="line">Ready to move 200 slots.</span><br><span class="line">    ...</span><br><span class="line">Do you want to proceed with the proposed reshard plan (yes/no)? yes</span><br><span class="line">Moving slot 3225 from 127.0.0.1:6379 to 127.0.0.1:6380: .</span><br><span class="line">Moving slot 3226 from 127.0.0.1:6379 to 127.0.0.1:6380:</span><br></pre></td></tr></table></figure>
+
+<p>注意以上的交互：</p>
+<ul>
+<li>首先会提示需要迁移多个槽，我这里写的是200</li>
+<li>接着提示需要将槽迁移到哪个节点，这里必须写节点ID</li>
+<li>提示槽从哪些节点中迁出，指定为all，则待迁移的槽在剩余节点中平均分配；指定节点中迁出时，必须指定源节点的节点ID，最后以done结束</li>
+</ul>
+<p>也可无交互迁移：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb reshard host:port --from &lt;arg&gt; --to &lt;arg&gt; --slots &lt;arg&gt; --yes --timeout &lt;arg&gt; --pipeline &lt;arg&gt;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="平衡集群节点slot数量">平衡集群节点slot数量</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb rebalance host:port --weight &lt;arg&gt; --auto-weights ……</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb rebalance --weight a8xx=3 --weight f41xx=2  --use-empty-masters  127.0.0.1:6379</span><br><span class="line"></span><br><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line">&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:6379)</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line">&gt;&gt;&gt; Check <span class="keyword">for</span> open slots...</span><br><span class="line">&gt;&gt;&gt; Check slots coverage...</span><br><span class="line">[OK] All 16384 slots covered.</span><br><span class="line">&gt;&gt;&gt; Rebalancing across 2 nodes. Total weight = 5.0</span><br><span class="line">Moving 3824 slots from 127.0.0.1:6380 to 127.0.0.1:6381</span><br></pre></td></tr></table></figure>
+
+<h1><span id="添加新节点">添加新节点</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb add-node new_host:new_port existing_host:existing_port --slave --master-id &lt;arg&gt;</span><br></pre></td></tr></table></figure>
+
+<p>其中：new_host:new_port是待添加的节点，existing_host:existing_port是集群中任意一个节点的地址</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加入的是主节点：</span></span><br><span class="line">redis-trib.rb add-node 127.0.0.1:6379 127.0.0.1:6384</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加入的是从节点(可不设置--master-id，此时会随机选择主节点)：</span></span><br><span class="line">redis-trib.rb add-node --slave --master-id f4xxx 127.0.0.1:6379 127.0.0.1:6384</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：</strong></p>
+<ul>
+<li><p>待添加的节点，必须确保其为空或不在其它集群中，否则抛错</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ERR] Node 127.0.0.1:6379 is not empty. Either the node already knows other nodes (check with CLUSTER NODES) or contains some key <span class="keyword">in</span> database 0.</span><br></pre></td></tr></table></figure></li>
+<li><p>cluster meet命令加入已经存在于其它集群的节点，不做校验，会造成丢失和错乱，不推荐用于生产环境</p>
+</li>
+<li><p>添加从节点时，–slave和–master-id必须写在前面。否则报错</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb add-node 127.0.0.1:6379 127.0.0.1:6384 --slave --master-id f41xx</span><br><span class="line">[ERR] Wrong number of arguments <span class="keyword">for</span> specified sub <span class="built_in">command</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1><span id="删除节点">删除节点</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb del-node host:port node_id</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb del-node 127.0.0.1:6379 8f7836a9a14fb6638530b42e04f5e58e28de0a6c</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; Removing node 8f7836a9a14fb6638530b42e04f5e58e28de0a6c from cluster 127.0.0.1:6379</span><br><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line">&gt;&gt;&gt; Sending CLUSTER FORGET messages to the cluster...</span><br><span class="line">&gt;&gt;&gt; SHUTDOWN the node.</span><br></pre></td></tr></table></figure>
+
+<p><strong>注：</strong></p>
+<ul>
+<li>在删除节点之前，其对应的槽必须为空。（使用redis-trib.rb reshard将其迁移出去）</li>
+</ul>
+<h1><span id="修复集群">修复集群</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb fix 127.0.0.1:6379</span><br></pre></td></tr></table></figure>
+
+<p>fix能修复两种异常：</p>
+<ul>
+<li>节点中存在处于迁移中（importing或migrating状态）的slot</li>
+<li>节点中存在未分配的slot</li>
+</ul>
+<h1><span id="设置节点超时时间">设置节点超时时间</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb set-timeout host:port milliseconds</span><br></pre></td></tr></table></figure>
+
+<p>作用：</p>
+<ul>
+<li>修改配置文件中的cluster-node-timeout参数</li>
+</ul>
+<h1><span id="在集群所有节点上执行命令">在集群所有节点上执行命令</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb call host:port <span class="built_in">command</span> arg arg … arg</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb call 127.0.0.1:6379 <span class="built_in">set</span> hello world</span><br><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; Calling SET hello world</span><br><span class="line">127.0.0.1:6379: MOVED 866 127.0.0.1:6381</span><br><span class="line">127.0.0.1:6383: MOVED 866 127.0.0.1:6381</span><br><span class="line">127.0.0.1:6381: OK</span><br><span class="line">127.0.0.1:6382: MOVED 866 127.0.0.1:6381</span><br><span class="line">127.0.0.1:6384: MOVED 866 127.0.0.1:6381</span><br><span class="line">127.0.0.1:6380: MOVED 866 127.0.0.1:6381</span><br></pre></td></tr></table></figure>
+
+<h1><span id="将外部redis数据导入集群">将外部redis数据导入集群</span></h1><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb import host:port --from --copy --replace</span><br></pre></td></tr></table></figure>
+
+<p>结果：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">redis-trib.rb import --from 127.0.0.1:6378 --replace  127.0.0.1:6379 </span><br><span class="line"></span><br><span class="line">&gt;&gt;&gt; Importing data from 127.0.0.1:6378 to cluster </span><br><span class="line">/usr/<span class="built_in">local</span>/ruby/lib/ruby/gems/2.5.0/gems/redis-3.3.0/lib/redis/client.rb:459: warning: constant ::Fixnum is deprecated</span><br><span class="line">&gt;&gt;&gt; Performing Cluster Check (using node 127.0.0.1:6379)</span><br><span class="line">S: d826c5fd98efa8a17a880e9a90a25f06c88e6ae9 127.0.0.1:6379</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates a8b3d0f9b12d63dab3b7337d602245d96dd55844</span><br><span class="line">S: 55c05d5b0dfea0d52f88548717ddf24975268de6 127.0.0.1:6383</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates a8b3d0f9b12d63dab3b7337d602245d96dd55844</span><br><span class="line">M: f413fb7e6460308b17cdb71442798e1341b56cbc 127.0.0.1:6381</span><br><span class="line">   slots:50-16383 (16334 slots) master</span><br><span class="line">   2 additional replica(s)</span><br><span class="line">S: beba753c5a63607fa66d9ec7427ed9a511ea136e 127.0.0.1:6382</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates f413fb7e6460308b17cdb71442798e1341b56cbc</span><br><span class="line">S: 83797d518e56c235272402611477f576973e9d34 127.0.0.1:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates f413fb7e6460308b17cdb71442798e1341b56cbc</span><br><span class="line">M: a8b3d0f9b12d63dab3b7337d602245d96dd55844 127.0.0.1:6380</span><br><span class="line">   slots:0-49 (50 slots) master</span><br><span class="line">   2 additional replica(s)</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line">&gt;&gt;&gt; Check <span class="keyword">for</span> open slots...</span><br><span class="line">&gt;&gt;&gt; Check slots coverage...</span><br><span class="line">[OK] All 16384 slots covered.</span><br><span class="line">&gt;&gt;&gt; Connecting to the <span class="built_in">source</span> Redis instance</span><br><span class="line">*** Importing 1 keys from DB 0</span><br><span class="line">Migrating key5 to 127.0.0.1:6381: OK</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/" rel="prev" title="Redis系列(七):缓存穿透、缓存击穿和缓存雪崩">
+      <i class="fa fa-chevron-left"></i> Redis系列(七):缓存穿透、缓存击穿和缓存雪崩
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/02/devops/version-control/git/git%E4%BD%BF%E7%94%A8%E8%A7%84%E8%8C%83/" rel="next" title="git使用规范">
+      git使用规范 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">Redis系列（八）redis-trib.rb命令详解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">redis-trib.rb环境配置</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">创建集群</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">查看集群信息</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">检查集群状态</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">在线迁移slot</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">平衡集群节点slot数量</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">8.</span> <span class="nav-text">添加新节点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">9.</span> <span class="nav-text">删除节点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">10.</span> <span class="nav-text">修复集群</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">11.</span> <span class="nav-text">设置节点超时时间</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">12.</span> <span class="nav-text">在集群所有节点上执行命令</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">13.</span> <span class="nav-text">将外部redis数据导入集群</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
