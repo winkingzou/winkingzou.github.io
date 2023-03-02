@@ -37,10 +37,10 @@
 <meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/774ccbf6adfe2aaefca46202779b5864-3904300.png">
 <meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209192258840-6516413.png">
 <meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/1a4e5210301a669f74bff8801e3d9e1d-6516620.png">
-<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/e12229272ac44b5aae514424528cca42-6762421.png">
+<meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/4ef5188f8ac34756a053a4a0b10fa61a-7753876.jpeg">
 <meta property="og:image" content="http://example.com/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/COLA应用架构的实践/ab0e4c8d4d8b441ea1bf798e1f22cc1b-6762454.png">
 <meta property="article:published_time" content="2021-07-17T09:57:45.000Z">
-<meta property="article:modified_time" content="2022-02-03T16:42:44.495Z">
+<meta property="article:modified_time" content="2023-03-02T10:45:02.882Z">
 <meta property="article:author" content="Winking">
 <meta property="article:tag" content="java">
 <meta property="article:tag" content="代码架构">
@@ -238,7 +238,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-02-04 00:42:44" itemprop="dateModified" datetime="2022-02-04T00:42:44+08:00">2022-02-04</time>
+                <time title="修改时间：2023-03-02 18:45:02" itemprop="dateModified" datetime="2023-03-02T18:45:02+08:00">2023-03-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -268,7 +268,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="COLA架构"><a href="#COLA架构" class="headerlink" title="COLA架构"></a>COLA架构</h1><h2 id="COLA-概述"><a href="#COLA-概述" class="headerlink" title="COLA 概述"></a>COLA 概述</h2><p><strong>COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。</strong></p>
+        <h1><span id="cola架构">COLA架构</span></h1><h2><span id="cola-概述">COLA 概述</span></h2><p><strong>COLA 是 Clean Object-Oriented and Layered Architecture的缩写，代表“整洁面向对象分层架构”。</strong></p>
 <p>COLA分为两个部分，COLA架构和COLA组件。</p>
 <p>源码地址：<a target="_blank" rel="noopener" href="https://github.com/alibaba/COLA">https://github.com/alibaba/COLA</a></p>
 <p><a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework?utm_source=alading&amp;utm_campaign=repo">https://gitee.com/mirrors/cola-framework?utm_source=alading&amp;utm_campaign=repo</a></p>
@@ -285,7 +285,7 @@
 <li>治理应用复杂度，降低系统熵值；</li>
 <li>从随心所欲的混乱状态，走向井井有条的有序状态。</li>
 </ul>
-<h2 id="包结构"><a href="#包结构" class="headerlink" title="包结构"></a>包结构</h2><p>分层是属于大粒度的职责划分，太粗，我们有必要往下再down一层，细化到包结构的粒度，才能更好的指导我们的工作。</p>
+<h2><span id="包结构">包结构</span></h2><p>分层是属于大粒度的职责划分，太粗，我们有必要往下再down一层，细化到包结构的粒度，才能更好的指导我们的工作。</p>
 <p>还是拿一堆玩具举例子，分层类似于拿来了一个架子，分包类似于在每一层架子上又放置了多个收纳盒。所谓的内聚，就是把功能类似的玩具放在一个盒子里，这样可以让应用结构清晰，极大的降低系统的认知成本和维护成本。</p>
 <p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182220206-6516172.png" alt="archWhy"></p>
 <p>COLA架构就是为此而生，其核心职责就是定义良好的应用结构，提供最佳应用架构的最佳实践。通过不断探索，我们发现良好的分层结构，良好的包结构定义，可以帮助我们治理混乱不堪的业务应用系统。</p>
@@ -293,7 +293,7 @@
 <p>那么，对于一个后端应用来说，应该需要哪些收纳盒呢？这一块的设计真可谓是费了老鼻子劲了，基本上每一次COLA的迭代都会涉及到包结构的调整，迭代到现在，才算基本稳定下来。</p>
 <p>下图是可靠的应用架构：COLA 4.0</p>
 <p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/20201209182934838-6516218.png" alt="cola"></p>
-<h2 id><a href="#" class="headerlink" title></a></h2><p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2450ba6358e9e68cb5b91f50ef3a7b0b-20220203235401271.png" alt="image.png"></p>
+<h2><span id></span></h2><p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/2450ba6358e9e68cb5b91f50ef3a7b0b-20220203235401271.png" alt="image.png"></p>
 <p>各个包结构的简要功能描述，如下表所示：</p>
 <table>
 <thead>
@@ -415,7 +415,7 @@
 <p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/9f42fc75bfb4f670c6f047b9907ff174-3904088.png" alt="image.png"></p>
 <p>例如，在我们刚刚上线的一个云店铺（cloudstore）项目中，按照COLA的分包策略，我们在每一个module下面首先按照领域做一个顶层划分，然后在领域内，再按照功能进行分包。</p>
 <p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/b7ffe4f6a931b46be6d095a503300aac-3904153.png" alt="image.png"></p>
-<h2 id="解耦"><a href="#解耦" class="headerlink" title="解耦"></a>解耦</h2><p>“高内聚，低耦合”这句话，你工作的越久，就越会觉得其有道理。</p>
+<h2><span id="解耦">解耦</span></h2><p>“高内聚，低耦合”这句话，你工作的越久，就越会觉得其有道理。</p>
 <p>所谓耦合就是联系的紧密程度，只要有依赖就会有耦合，不管是进程内的依赖，还是跨进程的RPC依赖，都会产生耦合。依赖不可消除，同样，耦合也不可避免。我们所能做的不是消除耦合，而是把耦合降低到可以接受的程度。在软件设计中，有大量的设计模式，设计原则都是为了解耦这一目的。</p>
 <p>在DDD中有一个很棒的解耦设计思想——防腐层（Anti-Corruption），简单说，就是应用不要直接依赖外域的信息，要把外域的信息转换成自己领域上下文（Context）的实体再去使用，从而实现本域和外部依赖的解耦。</p>
 <p>在COLA中，我们把AC这个概念进行了泛化，将数据库、搜索引擎等数据存储都列为外部依赖的范畴。利用依赖倒置，统一使用gateway来实现业务领域和外部依赖的解耦。</p>
@@ -426,7 +426,7 @@
 <p>然而，商品域吐出的是一个大而全的DTO（可能包含几十个字段），而在下单这个阶段，订单所需要的可能只是其中几个字段而已。更合适的做法，应该是在订单域中，使用gateway对商品域和库存域的依赖进行解耦。</p>
 <p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/774ccbf6adfe2aaefca46202779b5864-3904300.png" alt="image.png"></p>
 <p>这样做有两个好处，一个是降低了对外域信息依赖的耦合；另一个是通过上下文映射（Context mapping），确保本领域边界上下文（Bounded context）下领域知识的完整性，实现了统一语言（Ubiquitous language）。</p>
-<h2 id="COLA-Archetype"><a href="#COLA-Archetype" class="headerlink" title="COLA Archetype"></a>COLA Archetype</h2><p>见源码：<a target="_blank" rel="noopener" href="https://github.com/alibaba/COLA">https://github.com/alibaba/COLA</a></p>
+<h2><span id="cola-archetype">COLA Archetype</span></h2><p>见源码：<a target="_blank" rel="noopener" href="https://github.com/alibaba/COLA">https://github.com/alibaba/COLA</a></p>
 <p>好的应用架构，都遵循一些共同模式，不管是六边形架构、洋葱圈架构、整洁架构、还是COLA架构，<strong>都提倡以业务为核心，解耦外部依赖，分离业务复杂度和技术复杂度等</strong>。</p>
 <p>COLA架构区别于这些架构的地方，在于除了思想之外，我们还提供了可落地的工具和实践指导。</p>
 <p>为了能够快速创建满足COLA架构的应用，我们提供了两个<code>archetype</code>，位于<a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework/blob/master/cola-archetypes"><code>cola-archetypes</code>目录</a>下：</p>
@@ -434,7 +434,7 @@
 <li><code>cola-archetype-service</code>：用来创建纯后端服务的<code>archetype</code>。</li>
 <li><code>cola-archetype-web</code>：用来创建<code>adapter</code>和后端服务一体的<code>web</code>应用<code>archetype</code>。</li>
 </ol>
-<h1 id="COLA-Components"><a href="#COLA-Components" class="headerlink" title="COLA Components"></a>COLA Components</h1><p>此外，我们还提供了一些非常有用的通用组件，这些组件可以帮助我们提升研发效率。</p>
+<h1><span id="cola-components">COLA Components</span></h1><p>此外，我们还提供了一些非常有用的通用组件，这些组件可以帮助我们提升研发效率。</p>
 <p>这些功能组件被收拢在<a target="_blank" rel="noopener" href="https://gitee.com/mirrors/cola-framework/blob/master/cola-components"><code>cola-components</code>目录</a>下面。到目前为止，我们已经沉淀了以下组件：</p>
 <table>
 <thead>
@@ -488,11 +488,11 @@
 <td>无</td>
 </tr>
 </tbody></table>
-<h1 id="如何使用COLA"><a href="#如何使用COLA" class="headerlink" title="如何使用COLA"></a>如何使用COLA</h1><p>你可以按照以下步骤去使用COLA：</p>
+<h1><span id="如何使用cola">如何使用COLA</span></h1><p>你可以按照以下步骤去使用COLA：</p>
 <p>** 第一步：安装 cola archetype **<br>下载cola-archetypes下的源码到本地，然后本地运行mvn install安装。</p>
 <p>** 第二步：安装 cola components **<br>下载cola-components下的源码到本地，然后本地运行mvn install安装。</p>
 <p>** 第三步：创建应用 **<br>执行以下命令：</p>
-<h2 id="创建应用"><a href="#创建应用" class="headerlink" title="创建应用"></a>创建应用</h2><p>执行以下命令创建web服务：</p>
+<h2><span id="创建应用">创建应用</span></h2><p>执行以下命令创建web服务：</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mvn archetype:generate  \</span><br><span class="line">    -DgroupId=com.alibaba.cola.demo.web \</span><br><span class="line">    -DartifactId=demo-web \</span><br><span class="line">    -Dversion=1.0.0-SNAPSHOT \</span><br><span class="line">    -Dpackage=com.alibaba.demo \</span><br><span class="line">    -DarchetypeArtifactId=cola-framework-archetype-web \</span><br><span class="line">    -DarchetypeGroupId=com.alibaba.cola \</span><br><span class="line">    -DarchetypeVersion=4.0.1</span><br></pre></td></tr></table></figure>
 
 <p>指定自己的DgroupId、DartifactId、Dpackage等</p>
@@ -504,7 +504,7 @@
 <p>2）应用层（Application Layer）：主要负责获取输入，组装上下文，参数校验，调用领域层做业务处理，如果需要的话，发送消息通知等。层次是开放的，应用层也可以绕过领域层，直接访问基础实施层；</p>
 <p>3）领域层（Domain Layer）：主要是封装了核心业务逻辑，并通过领域服务（Domain Service）和领域对象（Domain Entity）的方法对App层提供业务实体和业务逻辑计算。领域是应用的核心，不依赖任何其他层次；</p>
 <p>4）基础实施层（Infrastructure Layer）：主要负责技术细节问题的处理，比如数据库的CRUD、搜索引擎、文件系统、分布式服务的RPC等。此外，领域防腐的重任也落在这里，外部依赖需要通过gateway的转义处理，才能被上面的App层和Domain层使用。</p>
-<h2 id="运行应用"><a href="#运行应用" class="headerlink" title="运行应用"></a>运行应用</h2><ul>
+<h2><span id="运行应用">运行应用</span></h2><ul>
 <li>在<code>项目</code>目录下运行<code>mvn install</code>（如果不想运行测试，可以加上<code>-DskipTests</code>参数）。</li>
 <li>进入<code>start</code>目录，执行<code>mvn spring-boot:run</code>。<br>运行成功的话，可以看到<code>SpringBoot</code>启动成功的界面。</li>
 <li>生成的应用中，已经实现了一个简单的<code>Rest</code>请求，可以在浏览器中输入 <a target="_blank" rel="noopener" href="http://localhost:8080/helloworld">http://localhost:8080/helloworld</a> 进行测试。</li>
@@ -514,7 +514,7 @@
 
 
 
-<h1 id="COLA-架构中建议的命名规范参考"><a href="#COLA-架构中建议的命名规范参考" class="headerlink" title="COLA 架构中建议的命名规范参考"></a>COLA 架构中建议的命名规范参考</h1><p>​    <img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/e12229272ac44b5aae514424528cca42-6762421.png" alt="COLA 架构中建议的命名规范"></p>
+<h1><span id="cola-架构中建议的命名规范参考">COLA 架构中建议的命名规范参考</span></h1><p><img src="/2021/07/17/Architecture/CodeLayer/COLA/COLA%E5%BA%94%E7%94%A8%E6%9E%B6%E6%9E%84%E7%9A%84%E5%AE%9E%E8%B7%B5/4ef5188f8ac34756a053a4a0b10fa61a-7753876.jpeg" alt="img"></p>
 <p>DB DAO &lt;–&gt; XXTunnel.java</p>
 <p>在COLA架构中，我们也能找到以前熟悉的VO，DTO等对象，只不过在COLA中后缀名变了：</p>
 <p>VO-&gt;CO，COLA中CO对象用于展示给前端。</p>
@@ -608,7 +608,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#COLA%E6%9E%B6%E6%9E%84"><span class="nav-number">1.</span> <span class="nav-text">COLA架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#COLA-%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">COLA 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8C%85%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">包结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.3.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E8%80%A6"><span class="nav-number">1.4.</span> <span class="nav-text">解耦</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#COLA-Archetype"><span class="nav-number">1.5.</span> <span class="nav-text">COLA Archetype</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#COLA-Components"><span class="nav-number">2.</span> <span class="nav-text">COLA Components</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8COLA"><span class="nav-number">3.</span> <span class="nav-text">如何使用COLA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%BA%94%E7%94%A8"><span class="nav-number">3.1.</span> <span class="nav-text">创建应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E5%BA%94%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">运行应用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#COLA-%E6%9E%B6%E6%9E%84%E4%B8%AD%E5%BB%BA%E8%AE%AE%E7%9A%84%E5%91%BD%E5%90%8D%E8%A7%84%E8%8C%83%E5%8F%82%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">COLA 架构中建议的命名规范参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">COLA架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.1.</span> <span class="nav-text">COLA 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.2.</span> <span class="nav-text">包结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.3.</span> <span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.4.</span> <span class="nav-text">解耦</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">1.5.</span> <span class="nav-text">COLA Archetype</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">COLA Components</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">如何使用COLA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.1.</span> <span class="nav-text">创建应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">3.2.</span> <span class="nav-text">运行应用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">COLA 架构中建议的命名规范参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -624,14 +624,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">66</span>
+          <span class="site-state-item-count">68</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">24</span>
+        <span class="site-state-item-count">25</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">

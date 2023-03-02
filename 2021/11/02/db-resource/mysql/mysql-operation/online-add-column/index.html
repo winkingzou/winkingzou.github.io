@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="说明 环境准备 直接添加字段 使用工具在线添加 A software update is available:    说明MySQL中给一张千万甚至更大量级的表添加字段一直是比较头疼的问题，遇到此情况通常该如果处理？本文通过常见的三种场景进行案例说明。   环境准备数据库版本： 5.7.25-28(Percona 分支) 服务器配置：  3台centos 7虚拟机，配置均为2CPU  2G内">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mysql生产环境表加字段">
+<meta property="og:url" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="说明 环境准备 直接添加字段 使用工具在线添加 A software update is available:    说明MySQL中给一张千万甚至更大量级的表添加字段一直是比较头疼的问题，遇到此情况通常该如果处理？本文通过常见的三种场景进行案例说明。   环境准备数据库版本： 5.7.25-28(Percona 分支) 服务器配置：  3台centos 7虚拟机，配置均为2CPU  2G内">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/87bdadbe424114d34db82937e41cfb5b.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/c6ff5a37fbc48c3153a35cf69351bef6.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/73682e6dab16b5c305a1fa91d49dcf06.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/f2e53cb8c2b6bc05f430b6128cd8dc24.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/d14d5d1d03b44171c30b1ed091ae61cd.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/678a403b58bdfb769ccef6b4a54c24e6.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/feaf73c449a899f46f11effcdda56749.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/8efdb583b44c92c70af4b93670b5acf0.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/9883cc60021b61f23c0c16d7d08ee3e1.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/108eedc707ece3d154b56326f0244fd1.png">
+<meta property="og:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/857091e5068ceead8a44e8acbc95824b.png">
+<meta property="article:published_time" content="2021-11-02T15:33:27.000Z">
+<meta property="article:modified_time" content="2023-03-02T10:30:24.776Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="mysql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/87bdadbe424114d34db82937e41cfb5b.png">
+
+<link rel="canonical" href="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>mysql生产环境表加字段 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql生产环境表加字段
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-11-02T23:33:27+08:00">2021-11-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-02 18:30:24" itemprop="dateModified" datetime="2023-03-02T18:30:24+08:00">2023-03-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E8%AF%B4%E6%98%8E">说明</a></li>
+<li><a href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">环境准备</a></li>
+<li><a href="#%E7%9B%B4%E6%8E%A5%E6%B7%BB%E5%8A%A0%E5%AD%97%E6%AE%B5">直接添加字段</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E5%9C%A8%E7%BA%BF%E6%B7%BB%E5%8A%A0">使用工具在线添加</a></li>
+<li><a href="#a-software-update-is-available">A software update is available:</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="说明">说明</span></h1><p>MySQL中给一张千万甚至更大量级的表添加字段一直是比较头疼的问题，遇到此情况通常该如果处理？本文通过常见的三种场景进行案例说明。</p>
+<!-- moer -->
+
+<h1><span id="环境准备">环境准备</span></h1><p>数据库版本： 5.7.25-28(Percona 分支)</p>
+<p>服务器配置：  3台centos 7虚拟机，配置均为2CPU  2G内存</p>
+<p>数据库架构： 1主2从的MHA架构(为了方便主从切换场景的演示，如开启GTID，则两节点即可)，关于MHA搭建可参考此文 MySQL高可用之MHA集群部署</p>
+<p>准备测试表：  创建一张2kw记录的表，快速创建的方法可以参考快速创建连续数</p>
+<p>本次对存储过程稍作修改，多添加几个字段，存储过程如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER $$<span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> `sp_createNum`(cnt <span class="type">INT</span>)<span class="keyword">BEGIN</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">DECLARE</span> i <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span>;<span class="keyword">DROP</span> <span class="keyword">TABLE</span> if existstb_add_columns;<span class="keyword">CREATE</span> <span class="keyword">TABLE</span> if <span class="keyword">not</span> <span class="keyword">exists</span> tb_add_columns(id <span class="type">int</span> <span class="keyword">primary</span> key,col1 <span class="type">int</span>,col2 <span class="type">varchar</span>(<span class="number">32</span>));<span class="keyword">INSERT</span> <span class="keyword">INTO</span> tb_add_columns(id,col1,col2) <span class="keyword">SELECT</span> i <span class="keyword">as</span> id ,i<span class="operator">%</span><span class="number">7</span> <span class="keyword">as</span> col1,md5(i) ascol2;WHILE i</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> tb_add_columns(id,col1,col2) <span class="keyword">SELECT</span> id <span class="operator">+</span> i <span class="keyword">as</span> id ,( id <span class="operator">+</span> i) <span class="operator">%</span><span class="number">7</span> <span class="keyword">as</span> col1,md5( id <span class="operator">+</span> i) <span class="keyword">as</span> col2 <span class="keyword">FROM</span> tb_add_columns <span class="keyword">WHERE</span> id <span class="operator">&lt;=</span>cnt <span class="operator">-</span>i ;<span class="keyword">SET</span> i <span class="operator">=</span> i<span class="operator">*</span><span class="number">2</span>;<span class="keyword">END</span>;<span class="keyword">END</span> WHILE;<span class="keyword">END</span>$$</span><br><span class="line"></span><br><span class="line">DELIMITER ;</span><br></pre></td></tr></table></figure>
+
+<p>调用存储过程，完成测试表及测试数据的创建。</p>
+<p>mysql&gt; call sp_createNum(20000000);</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/87bdadbe424114d34db82937e41cfb5b.png" alt="87bdadbe424114d34db82937e41cfb5b.png"></p>
+<h1><span id="直接添加字段">直接添加字段</span></h1><p>使用场景: 在系统不繁忙或者该表访问不多的情况下，如符合ONLINE DDL的情况下，可以直接添加。</p>
+<p>模拟场景： 创建一个测试脚本，每10s访问该表随机一条记录，然后给该表添加字段</p>
+<p>访问脚本如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># gjc</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..1000000000&#125;	 <span class="comment"># 访问次数1000000000，按需调整即可</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	id=<span class="variable">$RANDOM</span> <span class="comment">#生成随机数</span></span><br><span class="line">	mysql-uroot -p<span class="string">&#x27;123456&#x27;</span> --socket=/data/mysql3306/tmp/mysql.sock -e <span class="string">&quot;select a.*,now() from 		testdb.tb_add_columns a where id =&quot;</span><span class="variable">$id</span>	<span class="comment"># 访问数据</span></span><br><span class="line">	sleep 10	<span class="comment"># 暂停10s</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<p>运行脚本</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/c6ff5a37fbc48c3153a35cf69351bef6.png" alt="c6ff5a37fbc48c3153a35cf69351bef6.png"></p>
+<p>给表添加字段</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table testdb.tb_add_columns add col3 int;</span><br></pre></td></tr></table></figure>
+
+<p>此时，访问正常。</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/73682e6dab16b5c305a1fa91d49dcf06.png" alt="73682e6dab16b5c305a1fa91d49dcf06.png"></p>
+<p>附ONLINE DDL的场景如下，建议DBA必须弄清楚</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/f2e53cb8c2b6bc05f430b6128cd8dc24.png" alt="f2e53cb8c2b6bc05f430b6128cd8dc24.png"></p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/d14d5d1d03b44171c30b1ed091ae61cd.png" alt="d14d5d1d03b44171c30b1ed091ae61cd.png"></p>
+<h1><span id="使用工具在线添加">使用工具在线添加</span></h1><p>虽然Online DDL添加字段时，表依旧可以读写，但是生产环境使用场景中对大表操作使用最多的还是使用工具pt-osc或gh-ost添加。</p>
+<p>本文主要介绍 pt-osc(pt-online-schema-change) 来添加字段，该命令是Percona Toolkit工具中的使用频率最高的一种</p>
+<p>关于Percona Toolkit的安装及主要使用可以参考  五分钟学会Percona Toolkit 安装及使用</p>
+<p>添加字段</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@mha1 ~]<span class="comment"># pt-online-schema-change --alter &quot;ADD COLUMN col4 int&quot; h=localhost,P=3306,p=123456,u=root,D=testdb,t=tb_add_columns,S=/data/mysql3306/tmp/mysql.sock --charset=utf8mb4 --execute</span></span><br></pre></td></tr></table></figure>
+
+<p>主要过程如下：</p>
+<p>1&gt; Cannot connect to A=utf8mb4,P=3306,S=/data/mysql3306/tmp/mysql.sock,h=192.168.28.132,p=…,u=root1&gt; Cannot connect to A=utf8mb4,P=3306,S=/data/mysql3306/tmp/mysql.sock,h=192.168.28.131,p=…,u=root</p>
+<p>No slaves found. See–recursion-method ifhost mha1 has slaves. # 因为使用的是socket方式连接数据库 且未配置root远程连接账号，所以会有此提示</p>
+<h1><span id="a-software-update-is-available">A software update is available:</span></h1><p>Operation, tries,wait:</p>
+<p>analyze_table,10, 1copy_rows,10, 0.25create_triggers,10, 1drop_triggers,10, 1swap_tables,10, 1update_foreign_keys,10, 1Altering <code>testdb</code>.<code>tb_add_columns</code>…</p>
+<p>Creating new table… # 创建中间表，表名为”_原表名_new”</p>
+<p>Created new table testdb._tb_add_columns_new OK.</p>
+<p>Altering new table… # 修改表，也就是在新表上添加字段，因新表无数据，因此很快加完</p>
+<p>Altered <code>testdb</code>.<code>_tb_add_columns_new</code> OK.2020-06-20T12:23:43Creating triggers… # 创建触发器，用于在原表拷贝到新表的过程中原表有数据的变动(新增、修改、删除)时，也会自动同步至新表中2020-06-20T12:23:43Created triggers OK.2020-06-20T12:23:43 Copying approximately 19920500rows… # 拷贝数据，数据库量是统计信息里的，不准确</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:11% 03:50remain # 分批拷贝数据(根据表的size切分每批拷贝多少数据)，拷贝过程中可以用show processlist看到对应的sql</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:22% 03:22remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:32% 03:10remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:42% 02:45remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:51% 02:21remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:62% 01:48remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:72% 01:21remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:81% 00:53remain</p>
+<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:91% 00:24remain2020-06-20T12:28:40Copied rows OK. # 拷贝数据完成2020-06-20T12:28:40Analyzing new table… # 优化新表2020-06-20T12:28:40Swapping tables… # 交换表名，将原表改为”_原表名_old”,然后把新表表名改为原表名2020-06-20T12:28:41Swapped original and new tables OK.2020-06-20T12:28:41Dropping old table… # 删除旧表(也可以添加参数不删除旧表)2020-06-20T12:28:41Dropped old table <code>testdb</code>.<code>_tb_add_columns_old</code> OK.2020-06-20T12:28:41Dropping triggers… # 删除触发器2020-06-20T12:28:41Dropped triggers OK.</p>
+<p>Successfully altered <code>testdb</code>.<code>tb_add_columns</code>. # 完成</p>
+<p>修改过程中，读写均不受影响，大家可以写个程序包含读写的</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/678a403b58bdfb769ccef6b4a54c24e6.png" alt="678a403b58bdfb769ccef6b4a54c24e6.png"></p>
+<p>注： 无论是直接添加字段还是用pt-osc添加字段，首先都得拿到该表的元数据锁，然后才能添加(包括pt-osc在创建触发器和最后交换表名时都涉及)，因此，如果一张表是热表，读写特别频繁或者添加时被其他会话占用，则无法添加。</p>
+<p>例如： 锁住一条记录</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/feaf73c449a899f46f11effcdda56749.png" alt="feaf73c449a899f46f11effcdda56749.png"></p>
+<p>用pt-osc添加字段，会发现一直卡在创建触发器那一步</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/8efdb583b44c92c70af4b93670b5acf0.png" alt="8efdb583b44c92c70af4b93670b5acf0.png"></p>
+<p>此时查看对应的SQL正在等待获取元数据锁</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/9883cc60021b61f23c0c16d7d08ee3e1.png" alt="9883cc60021b61f23c0c16d7d08ee3e1.png"></p>
+<p>换成直接添加也一样，例如</p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/108eedc707ece3d154b56326f0244fd1.png" alt="108eedc707ece3d154b56326f0244fd1.png"></p>
+<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/857091e5068ceead8a44e8acbc95824b.png" alt="857091e5068ceead8a44e8acbc95824b.png"></p>
+<p>当达到锁等待后将会报错放弃添加字段</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line"></span><br><span class="line">ERROR1205 (HY000): Lock <span class="built_in">wait</span> timeout exceeded; try restarting transaction</span><br></pre></td></tr></table></figure>
+
+<p>对于此情况，需等待系统不繁忙情况下添加，或者使用后续的在从库创建再进行主从切换</p>
+<p>先在从库修改，再进行主从切换</p>
+<p>使用场景： 如果遇到上例中一张表数据量大且是热表(读写特别频繁)，则可以考虑先在从库添加，再进行主从切换，切换后再将其他几个节点上添加字段。</p>
+<p>先在从库添加(本文在备选节点添加)</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line">Query OK,0 rows affected (1 min 1.91sec)</span><br><span class="line">Records:0 Duplicates: 0 Warnings: 0</span><br></pre></td></tr></table></figure>
+
+<p>进行主从切换</p>
+<p>使用MHA脚本进行在线切换</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterha_master_switch --conf=/etc/masterha/app1.conf --master_state=alive --orig_master_is_new_slave --new_master_host=192.168.28.131 --new_master_port=3306</span><br></pre></td></tr></table></figure>
+
+<p>切换完成后再对其他节点添加字段</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/*原主库上添加192.168.28.128*/</span><br><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line">Query OK,0 rows affected (1 min 8.36sec)</span><br><span class="line">Records:0 Duplicates: 0 Warnings: 0</span><br><span class="line"></span><br><span class="line">/*另一个从库上添加192.168.28.132*/</span><br><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line">Query OK,0 rows affected (1 min 8.64sec)</span><br><span class="line">Records:0 Duplicates: 0 Warnings: 0</span><br></pre></td></tr></table></figure>
+
+<p>这样就完成了字段添加。</p>
+<ol start="5">
+<li> 小结</li>
+</ol>
+<p>生产环境MySQL添加或修改字段主要通过如下三种方式进行，实际使用中还有很多注意事项，大家要多多总结。</p>
+<p>直接添加</p>
+<p>如果该表读写不频繁，数据量较小(通常1G以内或百万以内)，直接添加即可(可以了解一下online ddl的知识)</p>
+<p>使用pt_osc添加</p>
+<p>如果表较大 但是读写不是太大，且想尽量不影响原表的读写，可以用percona tools进行添加，相当于新建一张添加了字段的新表，再降原表的数据复制到新表中，复制历史数据期间的数据也会同步至新表，最后删除原表，将新表重命名为原表表名，实现字段添加</p>
+<p>先在从库添加 再进行主从切换</p>
+<p>如果一张表数据量大且是热表(读写特别频繁)，则可以考虑先在从库添加，再进行主从切换，切换后再将其他几个节点上添加字段</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/mysql/" rel="tag"># mysql</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/10/11/devops/build/k8s-jekins-gitlab-harbor-build/" rel="prev" title="k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署">
+      <i class="fa fa-chevron-left"></i> k8s线上安装jenkins并结合jenkinsfile实现helm自动化部署
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/" rel="next" title="Shardingsphere-proxy使用">
+      Shardingsphere-proxy使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">直接添加字段</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">使用工具在线添加</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">A software update is available:</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
