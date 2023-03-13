@@ -408,6 +408,229 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/25/java/spring/springframework/aspect-filter-interceptor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/25/java/spring/springframework/aspect-filter-interceptor/" class="post-title-link" itemprop="url">spring过滤器、拦截器、AOP</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-25 17:17:36" itemprop="dateCreated datePublished" datetime="2022-03-25T17:17:36+08:00">2022-03-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-12 01:46:35" itemprop="dateModified" datetime="2023-03-12T01:46:35+08:00">2023-03-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springframework/" itemprop="url" rel="index"><span itemprop="name">springframework</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#filter">Filter</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="filter">Filter</span></h1><p>springboot拦截器的注册方式有两种：</p>
+<ul>
+<li>Component注解方式</li>
+<li>在配置类中注册</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">* 使用Component注册拦截器</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TimeFilter</span> <span class="keyword">implements</span> <span class="title">Filter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;time filter init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;time filter start&quot;</span>);</span><br><span class="line">        <span class="keyword">long</span> start = <span class="keyword">new</span> Date().getTime();</span><br><span class="line">        chain.doFilter(request, response);</span><br><span class="line">        System.out.println(<span class="string">&quot;time filter 耗时 :&quot;</span> + (<span class="keyword">new</span> Date().getTime() - start));</span><br><span class="line">        System.out.println(<span class="string">&quot;time filter finish&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;time filter destroy&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置类注册到springboot</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebConfig</span> <span class="keyword">implements</span> <span class="title">WebMvcConfigurer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将无Componment注解的过滤器注册进来，第三方的没有声明为Spring容器的bean注册到Filter中</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FilterRegistrationBean <span class="title">timeFilter</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        FilterRegistrationBean registrationBean = <span class="keyword">new</span> FilterRegistrationBean();</span><br><span class="line"></span><br><span class="line">        TimeFilter timeFilter = <span class="keyword">new</span> TimeFilter();</span><br><span class="line">        registrationBean.setFilter(timeFilter);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 这种方式的好处是可以指定需要拦截的路径</span></span><br><span class="line">        List&lt;String&gt; urls = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        urls.add(<span class="string">&quot;/*&quot;</span>);</span><br><span class="line">        registrationBean.setUrlPatterns(urls);</span><br><span class="line">        <span class="keyword">return</span> registrationBean;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/23/java/spring/springframework/spring-skills/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/23/java/spring/springframework/spring-skills/" class="post-title-link" itemprop="url">spring使用技巧</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-23 17:17:36" itemprop="dateCreated datePublished" datetime="2022-03-23T17:17:36+08:00">2022-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-12 00:45:42" itemprop="dateModified" datetime="2023-03-12T00:45:42+08:00">2023-03-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springframework/" itemprop="url" rel="index"><span itemprop="name">springframework</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8">自定义拦截器</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96spring%E5%AE%B9%E5%99%A8%E5%AF%B9%E8%B1%A1">获取Spring容器对象</a><ul>
+<li><a href="#beanfactoryaware%E6%8E%A5%E5%8F%A3">BeanFactoryAware接口</a></li>
+<li><a href="#applicationcontextaware%E6%8E%A5%E5%8F%A3">ApplicationContextAware接口</a></li>
+<li><a href="#applicationlistener%E6%8E%A5%E5%8F%A3">ApplicationListener接口</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">全局异常处理</a></li>
+<li><a href="#%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%99%A8">类型转换器</a></li>
+<li><a href="#%E5%AF%BC%E5%85%A5%E9%85%8D%E7%BD%AE">导入配置</a><ul>
+<li><a href="#%E6%99%AE%E9%80%9A%E7%B1%BB">普通类</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E7%B1%BB">配置类</a></li>
+<li><a href="#importselector">ImportSelector</a></li>
+<li><a href="#importbeandefinitionregistrar">ImportBeanDefinitionRegistrar</a></li>
+</ul>
+</li>
+<li><a href="#%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8%E6%97%B6">项目启动时</a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9beandefinition">修改BeanDefinition</a></li>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96bean%E5%89%8D%E5%90%8E">初始化Bean前后</a></li>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E6%B3%95">初始化方法</a><ul>
+<li><a href="#%E4%BD%BF%E7%94%A8postconstruct%E6%B3%A8%E8%A7%A3">使用@PostConstruct注解</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0initializingbean%E6%8E%A5%E5%8F%A3">实现InitializingBean接口</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%B3%E9%97%AD%E5%AE%B9%E5%99%A8%E5%89%8D">关闭容器前</a></li>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BD%9C%E7%94%A8%E5%9F%9F">自定义作用域</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96spring%E5%AE%B9%E5%99%A8%E5%AF%B9%E8%B1%A1">获取spring容器对象</a><ul>
+<li><a href="#%E5%AE%9E%E7%8E%B0beanfactoryaware%E6%8E%A5%E5%8F%A3">实现BeanFactoryAware接口</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0applicationcontextaware%E6%8E%A5%E5%8F%A3">实现ApplicationContextAware接口</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0applicationlistener%E6%8E%A5%E5%8F%A3">实现ApplicationListener接口</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96bean">初始化bean</a><ul>
+<li><a href="#%E4%BD%BF%E7%94%A8postconstruct%E6%B3%A8%E8%A7%A3-1">使用@PostConstruct注解</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0initializingbean%E6%8E%A5%E5%8F%A3-1">实现InitializingBean接口</a></li>
+</ul>
+</li>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E8%87%AA%E5%B7%B1%E7%9A%84scope">自定义自己的Scope</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="自定义拦截器"><a href="#自定义拦截器" class="headerlink" title="自定义拦截器"></a>自定义拦截器</h1><p>spring mvc拦截器根spring拦截器相比，它里面能够获取<code>HttpServletRequest</code>和<code>HttpServletResponse</code>等web对象实例。</p>
+<p>spring mvc拦截器的顶层接口是：<code>HandlerInterceptor</code>，包含三个方法：</p>
+<ul>
+<li>preHandle 目标方法执行前执行</li>
+<li>postHandle 目标方法执行后执行</li>
+<li>afterCompletion 请求完成时执行</li>
+</ul>
+<p>为了方便我们一般情况会用<code>HandlerInterceptor</code>接口的实现类<code>HandlerInterceptorAdapter</code>类。</p>
+<p>假如有权限认证、日志、统计的场景，可以使用该拦截器。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/23/java/spring/springframework/spring-skills/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/17/devops/tools/SonarQube/idea-use-sonarqube/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -939,177 +1162,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/19/cloud-native/ServerMash/istio/istio-install/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/19/cloud-native/ServerMash/istio/istio-install/" class="post-title-link" itemprop="url">基于Kubernetes安装Istio</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-12-19 09:35:48" itemprop="dateCreated datePublished" datetime="2021-12-19T09:35:48+08:00">2021-12-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-02-08 03:07:58" itemprop="dateModified" datetime="2022-02-08T03:07:58+08:00">2022-02-08</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/istio/" itemprop="url" rel="index"><span itemprop="name">istio</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="基于Kubernetes安装Istio"><a href="#基于Kubernetes安装Istio" class="headerlink" title="基于Kubernetes安装Istio"></a>基于Kubernetes安装Istio</h1><h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><p>操作系统: centos7</p>
-<p>k8s: v1.22.x</p>
-<p>istio: v1.12.2</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/19/cloud-native/ServerMash/istio/istio-install/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/" class="post-title-link" itemprop="url">EFK环境搭建</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-12-18 09:35:48" itemprop="dateCreated datePublished" datetime="2021-12-18T09:35:48+08:00">2021-12-18</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-12-31 01:14:02" itemprop="dateModified" datetime="2021-12-31T01:14:02+08:00">2021-12-31</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/kubernetes/" itemprop="url" rel="index"><span itemprop="name">kubernetes</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="EFK环境搭建"><a href="#EFK环境搭建" class="headerlink" title="EFK环境搭建"></a>EFK环境搭建</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Kubernetes中比较流行的日志收集解决方案是Elasticsearch、Fluentd和 Kibana（EFK）技术栈，也是目前官方比较推荐的一种方案。</p>
-<p><code>Elasticsearch</code> 是一个实时的、分布式的可扩展的搜索引擎，允许进行全文、结构化搜索，它通常用于索引和搜索大量日志数据，也可用于搜索许多不同类型的文档。</p>
-<p>Elasticsearch 通常与 <code>Kibana</code> 一起部署，Kibana 是 Elasticsearch 的一个功能强大的数据可视化 Dashboard，Kibana 允许你通过 web 界面来浏览 Elasticsearch 日志数据。</p>
-<p><code>Fluentd</code>是一个流行的开源数据收集器，我们将在 Kubernetes 集群节点上安装 Fluentd，通过获取容器日志文件、过滤和转换日志数据，然后将数据传递到 Elasticsearch 集群，在该集群中对其进行索引和存储。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1177,20 +1233,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">68</span>
+          <span class="site-state-item-count">71</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">25</span>
+        <span class="site-state-item-count">27</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">36</span>
+        <span class="site-state-item-count">37</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

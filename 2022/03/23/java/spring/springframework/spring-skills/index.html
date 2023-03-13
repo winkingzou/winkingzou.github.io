@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=EB Garamond:300,300italic,400,400italic,700,700italic|Roboto Slab:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.json"};
+  </script>
+
+  <meta name="description" content="自定义拦截器 获取Spring容器对象 BeanFactoryAware接口 ApplicationContextAware接口 ApplicationListener接口   全局异常处理 类型转换器 导入配置 普通类 配置类 ImportSelector ImportBeanDefinitionRegistrar   项目启动时 修改BeanDefinition 初始化Bean前后 初始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spring使用技巧">
+<meta property="og:url" content="http://example.com/2022/03/23/java/spring/springframework/spring-skills/index.html">
+<meta property="og:site_name" content="Winking&#39;s blog">
+<meta property="og:description" content="自定义拦截器 获取Spring容器对象 BeanFactoryAware接口 ApplicationContextAware接口 ApplicationListener接口   全局异常处理 类型转换器 导入配置 普通类 配置类 ImportSelector ImportBeanDefinitionRegistrar   项目启动时 修改BeanDefinition 初始化Bean前后 初始">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2022/03/23/java/spring/springframework/spring-skills/03bc199b-10fd-491f-94f6-116828963201.png">
+<meta property="og:image" content="http://example.com/2022/03/23/java/spring/springframework/spring-skills/image-20230312003729029.png">
+<meta property="og:image" content="http://example.com/2022/03/23/java/spring/springframework/spring-skills/image-20230312004134873.png">
+<meta property="og:image" content="http://example.com/2022/03/23/java/spring/springframework/spring-skills/image-20230312004201809.png">
+<meta property="article:published_time" content="2022-03-23T09:17:36.000Z">
+<meta property="article:modified_time" content="2023-03-11T16:45:42.704Z">
+<meta property="article:author" content="Winking">
+<meta property="article:tag" content="java">
+<meta property="article:tag" content="spring">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2022/03/23/java/spring/springframework/spring-skills/03bc199b-10fd-491f-94f6-116828963201.png">
+
+<link rel="canonical" href="http://example.com/2022/03/23/java/spring/springframework/spring-skills/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>spring使用技巧 | Winking's blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Winking's blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/23/java/spring/springframework/spring-skills/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          spring使用技巧
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-23 17:17:36" itemprop="dateCreated datePublished" datetime="2022-03-23T17:17:36+08:00">2022-03-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-12 00:45:42" itemprop="dateModified" datetime="2023-03-12T00:45:42+08:00">2023-03-12</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springframework/" itemprop="url" rel="index"><span itemprop="name">springframework</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <!-- toc -->
+
+<ul>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8B%A6%E6%88%AA%E5%99%A8">自定义拦截器</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96spring%E5%AE%B9%E5%99%A8%E5%AF%B9%E8%B1%A1">获取Spring容器对象</a><ul>
+<li><a href="#beanfactoryaware%E6%8E%A5%E5%8F%A3">BeanFactoryAware接口</a></li>
+<li><a href="#applicationcontextaware%E6%8E%A5%E5%8F%A3">ApplicationContextAware接口</a></li>
+<li><a href="#applicationlistener%E6%8E%A5%E5%8F%A3">ApplicationListener接口</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">全局异常处理</a></li>
+<li><a href="#%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%99%A8">类型转换器</a></li>
+<li><a href="#%E5%AF%BC%E5%85%A5%E9%85%8D%E7%BD%AE">导入配置</a><ul>
+<li><a href="#%E6%99%AE%E9%80%9A%E7%B1%BB">普通类</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E7%B1%BB">配置类</a></li>
+<li><a href="#importselector">ImportSelector</a></li>
+<li><a href="#importbeandefinitionregistrar">ImportBeanDefinitionRegistrar</a></li>
+</ul>
+</li>
+<li><a href="#%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8%E6%97%B6">项目启动时</a></li>
+<li><a href="#%E4%BF%AE%E6%94%B9beandefinition">修改BeanDefinition</a></li>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96bean%E5%89%8D%E5%90%8E">初始化Bean前后</a></li>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E6%B3%95">初始化方法</a><ul>
+<li><a href="#%E4%BD%BF%E7%94%A8postconstruct%E6%B3%A8%E8%A7%A3">使用@PostConstruct注解</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0initializingbean%E6%8E%A5%E5%8F%A3">实现InitializingBean接口</a></li>
+</ul>
+</li>
+<li><a href="#%E5%85%B3%E9%97%AD%E5%AE%B9%E5%99%A8%E5%89%8D">关闭容器前</a></li>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BD%9C%E7%94%A8%E5%9F%9F">自定义作用域</a></li>
+<li><a href="#%E8%8E%B7%E5%8F%96spring%E5%AE%B9%E5%99%A8%E5%AF%B9%E8%B1%A1">获取spring容器对象</a><ul>
+<li><a href="#%E5%AE%9E%E7%8E%B0beanfactoryaware%E6%8E%A5%E5%8F%A3">实现BeanFactoryAware接口</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0applicationcontextaware%E6%8E%A5%E5%8F%A3">实现ApplicationContextAware接口</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0applicationlistener%E6%8E%A5%E5%8F%A3">实现ApplicationListener接口</a></li>
+</ul>
+</li>
+<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96bean">初始化bean</a><ul>
+<li><a href="#%E4%BD%BF%E7%94%A8postconstruct%E6%B3%A8%E8%A7%A3-1">使用@PostConstruct注解</a></li>
+<li><a href="#%E5%AE%9E%E7%8E%B0initializingbean%E6%8E%A5%E5%8F%A3-1">实现InitializingBean接口</a></li>
+</ul>
+</li>
+<li><a href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E8%87%AA%E5%B7%B1%E7%9A%84scope">自定义自己的Scope</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="自定义拦截器">自定义拦截器</span></h1><p>spring mvc拦截器根spring拦截器相比，它里面能够获取<code>HttpServletRequest</code>和<code>HttpServletResponse</code>等web对象实例。</p>
+<p>spring mvc拦截器的顶层接口是：<code>HandlerInterceptor</code>，包含三个方法：</p>
+<ul>
+<li>preHandle 目标方法执行前执行</li>
+<li>postHandle 目标方法执行后执行</li>
+<li>afterCompletion 请求完成时执行</li>
+</ul>
+<p>为了方便我们一般情况会用<code>HandlerInterceptor</code>接口的实现类<code>HandlerInterceptorAdapter</code>类。</p>
+<p>假如有权限认证、日志、统计的场景，可以使用该拦截器。</p>
+<span id="more"></span>
+
+<p>第一步，继承<code>HandlerInterceptorAdapter</code>类定义拦截器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthInterceptor</span> <span class="keyword">extends</span> <span class="title">HandlerInterceptorAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">preHandle</span><span class="params">(HttpServletRequest request, HttpServletResponse response, Object handler)</span></span></span><br><span class="line"><span class="function">            <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        String requestUrl = request.getRequestURI();</span><br><span class="line">        <span class="keyword">if</span> (checkAuth(requestUrl)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">checkAuth</span><span class="params">(String requestUrl)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;===权限校验===&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步，将该拦截器注册到spring容器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebAuthConfig</span> <span class="keyword">extends</span> <span class="title">WebMvcConfigurerAdapter</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuthInterceptor <span class="title">getAuthInterceptor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> AuthInterceptor();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addInterceptors</span><span class="params">(InterceptorRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addInterceptor(<span class="keyword">new</span> AuthInterceptor());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第三步，在请求接口时spring mvc通过该拦截器，能够自动拦截该接口，并且校验权限。</p>
+<h1><span id="获取spring容器对象">获取Spring容器对象</span></h1><p>在我们日常开发中，经常需要从Spring容器中获取Bean，但你知道如何获取Spring容器对象吗？</p>
+<h2><span id="beanfactoryaware接口">BeanFactoryAware接口</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService</span> <span class="keyword">implements</span> <span class="title">BeanFactoryAware</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> BeanFactory beanFactory;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setBeanFactory</span><span class="params">(BeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.beanFactory = beanFactory;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Person person = (Person) beanFactory.getBean(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现<code>BeanFactoryAware</code>接口，然后重写<code>setBeanFactory</code>方法，就能从该方法中获取到spring容器对象。</p>
+<h2><span id="applicationcontextaware接口">ApplicationContextAware接口</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService2</span> <span class="keyword">implements</span> <span class="title">ApplicationContextAware</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setApplicationContext</span><span class="params">(ApplicationContext applicationContext)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.applicationContext = applicationContext;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Person person = (Person) applicationContext.getBean(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现<code>ApplicationContextAware</code>接口，然后重写<code>setApplicationContext</code>方法，也能从该方法中获取到spring容器对象。</p>
+<h2><span id="applicationlistener接口">ApplicationListener接口</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService3</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ContextRefreshedEvent</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextRefreshedEvent event)</span> </span>&#123;</span><br><span class="line">        applicationContext = event.getApplicationContext();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Person person = (Person) applicationContext.getBean(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="全局异常处理">全局异常处理</span></h1><p>以前我们在开发接口时，如果出现异常，为了给用户一个更友好的提示，例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/test&quot;)</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/add&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">10</span> / <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;成功&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果不做任何处理请求add接口结果直接报错：</p>
+<p>在接口中捕获异常：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/add&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    String result = <span class="string">&quot;成功&quot;</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">int</span> a = <span class="number">10</span> / <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        result = <span class="string">&quot;数据异常&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>接口改造后，出现异常时会提示：“数据异常”，对用户来说更友好。</p>
+<p>看起来挺不错的，但是有问题。。。</p>
+<p>如果只是一个接口还好，但是如果项目中有成百上千个接口，都要加上异常捕获代码吗？</p>
+<p>答案是否定的，这时全局异常处理就派上用场了：<code>RestControllerAdvice</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestControllerAdvice</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GlobalExceptionHandler</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@ExceptionHandler(Exception.class)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">handleException</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (e <span class="keyword">instanceof</span> ArithmeticException) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;数据异常&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e <span class="keyword">instanceof</span> Exception) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;服务器内部异常&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        retur nnull;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>只需在<code>handleException</code>方法中处理异常情况，业务接口中可以放心使用，不再需要捕获异常（有人统一处理了）。真是爽歪歪。</p>
+<h1><span id="类型转换器">类型转换器</span></h1><p>spring目前支持3中类型转换器：</p>
+<ul>
+<li>Converter&lt;S,T&gt;：将 S 类型对象转为 T 类型对象</li>
+<li>ConverterFactory&lt;S, R&gt;：将 S 类型对象转为 R 类型及子类对象</li>
+<li>GenericConverter：它支持多个source和目标类型的转化，同时还提供了source和目标类型的上下文，这个上下文能让你实现基于属性上的注解或信息来进行类型转换。</li>
+</ul>
+<p>这3种类型转换器使用的场景不一样，我们以<code>Converter&lt;S,T&gt;为</code>例。假如：接口中接收参数的实体对象中，有个字段的类型是Date，但是实际传参的是字符串类型：2021-01-03 10:20:15，要如何处理呢？</p>
+<p>第一步，定义一个实体User：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Date registerDate;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步，实现<code>Converter</code>接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DateConverter</span> <span class="keyword">implements</span> <span class="title">Converter</span>&lt;<span class="title">String</span>, <span class="title">Date</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> SimpleDateFormat simpleDateFormat = <span class="keyword">new</span> SimpleDateFormat(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Date <span class="title">convert</span><span class="params">(String source)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (source != <span class="keyword">null</span> &amp;&amp; !<span class="string">&quot;&quot;</span>.equals(source)) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                simpleDateFormat.parse(source);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ParseException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第三步，将新定义的类型转换器注入到spring容器中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WebConfig</span> <span class="keyword">extends</span> <span class="title">WebMvcConfigurerAdapter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addFormatters</span><span class="params">(FormatterRegistry registry)</span> </span>&#123;</span><br><span class="line">        registry.addConverter(<span class="keyword">new</span> DateConverter());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第四步，调用接口</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&quot;/save&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">save</span><span class="params">(<span class="meta">@RequestBody</span> User user)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;success&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请求接口时User对象中registerDate字段会被自动转换成Date类型。</p>
+<h1><span id="导入配置">导入配置</span></h1><p>有时我们需要在某个配置类中引入另外一些类，被引入的类也加到spring容器中。这时可以使用<code>@Import</code>注解完成这个功能。</p>
+<p>如果你看过它的源码会发现，引入的类支持三种不同类型。</p>
+<p>但是我认为最好将普通类和@Configuration注解的配置类分开讲解，所以列了四种不同类型：</p>
+<p><img src="/2022/03/23/java/spring/springframework/spring-skills/03bc199b-10fd-491f-94f6-116828963201.png" alt="img"></p>
+<h2><span id="普通类">普通类</span></h2><p>这种引入方式是最简单的，被引入的类会被实例化bean对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Import(A.class)</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConfiguration</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过<code>@Import</code>注解引入A类，spring就能自动实例化A对象，然后在需要使用的地方通过<code>@Autowired</code>注解注入即可：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> A a;</span><br></pre></td></tr></table></figure>
+
+<p>是不是挺让人意外的？不用加<code>@Bean</code>注解也能实例化bean。</p>
+<h2><span id="配置类">配置类</span></h2><p>这种引入方式是最复杂的，因为<code>@Configuration</code>注解还支持多种组合注解，比如：</p>
+<ul>
+<li>@Import</li>
+<li>@ImportResource</li>
+<li>@PropertySource等。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">A</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">B</span> </span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Import(B.class)</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AConfiguration</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> A <span class="title">a</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> A();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Import(AConfiguration.class)</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConfiguration</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过@Import注解引入@Configuration注解的配置类，会把该配置类相关<code>@Import</code>、<code>@ImportResource</code>、<code>@PropertySource</code>等注解引入的类进行递归，一次性全部引入。</p>
+<h2><span id="importselector">ImportSelector</span></h2><p>这种引入方式需要实现<code>ImportSelector</code>接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AImportSelector</span> <span class="keyword">implements</span> <span class="title">ImportSelector</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CLASS_NAME = <span class="string">&quot;com.sue.cache.service.test13.A&quot;</span>;</span><br><span class="line">    </span><br><span class="line"> <span class="keyword">public</span> String[] selectImports(AnnotationMetadata importingClassMetadata) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String[]&#123;CLASS_NAME&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Import(AImportSelector.class)</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConfiguration</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式的好处是<code>selectImports</code>方法返回的是数组，意味着可以同时引入多个类，还是非常方便的。</p>
+<h2><span id="importbeandefinitionregistrar">ImportBeanDefinitionRegistrar</span></h2><p>这种引入方式需要实现<code>ImportBeanDefinitionRegistrar</code>接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AImportBeanDefinitionRegistrar</span> <span class="keyword">implements</span> <span class="title">ImportBeanDefinitionRegistrar</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> </span>&#123;</span><br><span class="line">        RootBeanDefinition rootBeanDefinition = <span class="keyword">new</span> RootBeanDefinition(A.class);</span><br><span class="line">        registry.registerBeanDefinition(<span class="string">&quot;a&quot;</span>, rootBeanDefinition);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Import(AImportBeanDefinitionRegistrar.class)</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestConfiguration</span> </span>&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这种方式是最灵活的，能在<code>registerBeanDefinitions</code>方法中获取到<code>BeanDefinitionRegistry</code>容器注册对象，可以手动控制BeanDefinition的创建和注册。</p>
+<h1><span id="项目启动时">项目启动时</span></h1><p>有时候我们需要在项目启动时定制化一些附加功能，比如：加载一些系统参数、完成初始化、预热本地缓存等，该怎么办呢？</p>
+<p>好消息是springboot提供了：</p>
+<ul>
+<li>CommandLineRunner</li>
+<li>ApplicationRunner</li>
+</ul>
+<p>这两个接口帮助我们实现以上需求。</p>
+<p>它们的用法还是挺简单的，以<code>ApplicationRunner</code>接口为例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TestRunner</span> <span class="keyword">implements</span> <span class="title">ApplicationRunner</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> LoadDataService loadDataService;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">(ApplicationArguments args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        loadDataService.load();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现<code>ApplicationRunner</code>接口，重写<code>run</code>方法，在该方法中实现自己定制化需求。</p>
+<p>如果项目中有多个类实现了ApplicationRunner接口，他们的执行顺序要怎么指定呢？</p>
+<p>答案是使用<code>@Order(n)</code>注解，n的值越小越先执行。当然也可以通过<code>@Priority</code>注解指定顺序。</p>
+<h1><span id="修改beandefinition">修改BeanDefinition</span></h1><p>Spring IOC在实例化Bean对象之前，需要先读取Bean的相关属性，保存到<code>BeanDefinition</code>对象中，然后通过BeanDefinition对象，实例化Bean对象。</p>
+<p>如果想修改BeanDefinition对象中的属性，该怎么办呢？</p>
+<p>答：我们可以实现<code>BeanFactoryPostProcessor</code>接口。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBeanFactoryPostProcessor</span> <span class="keyword">implements</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory configurableListableBeanFactory)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        DefaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) configurableListableBeanFactory;</span><br><span class="line">        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(User.class);</span><br><span class="line">        beanDefinitionBuilder.addPropertyValue(<span class="string">&quot;id&quot;</span>, <span class="number">123</span>);</span><br><span class="line">        beanDefinitionBuilder.addPropertyValue(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;苏三说技术&quot;</span>);</span><br><span class="line">        defaultListableBeanFactory.registerBeanDefinition(<span class="string">&quot;user&quot;</span>, beanDefinitionBuilder.getBeanDefinition());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在postProcessBeanFactory方法中，可以获取BeanDefinition的相关对象，并且修改该对象的属性。</p>
+<h1><span id="初始化bean前后">初始化Bean前后</span></h1><p>有时，你想在初始化Bean前后，实现一些自己的逻辑。</p>
+<p>这时可以实现：<code>BeanPostProcessor</code>接口。</p>
+<p>该接口目前有两个方法：</p>
+<ul>
+<li>postProcessBeforeInitialization 该在初始化方法之前调用。</li>
+<li>postProcessAfterInitialization 该方法再初始化方法之后调用。</li>
+</ul>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyBeanPostProcessor</span> <span class="keyword">implements</span> <span class="title">BeanPostProcessor</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">postProcessAfterInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (bean <span class="keyword">instanceof</span> User) &#123;</span><br><span class="line">            ((User) bean).setUserName(<span class="string">&quot;苏三说技术&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bean;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果spring中存在User对象，则将它的userName设置成：苏三说技术。</p>
+<p>其实，我们经常使用的注解，比如：@Autowired、@Value、@Resource、@PostConstruct等，是通过AutowiredAnnotationBeanPostProcessor和CommonAnnotationBeanPostProcessor实现的。</p>
+<h1><span id="初始化方法">初始化方法</span></h1><p>目前spring中使用比较多的初始化bean的方法有：</p>
+<ol>
+<li>使用@PostConstruct注解</li>
+<li>实现InitializingBean接口</li>
+</ol>
+<h2><span id="使用postconstruct注解">使用@PostConstruct注解</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AService</span> </span>&#123;</span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;===初始化===&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在需要初始化的方法上增加<code>@PostConstruct</code>注解，这样就有初始化的能力。</p>
+<h2><span id="实现initializingbean接口">实现InitializingBean接口</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BService</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;===初始化===&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实现<code>InitializingBean</code>接口，重写<code>afterPropertiesSet</code>方法，该方法中可以完成初始化功能。</p>
+<h1><span id="关闭容器前">关闭容器前</span></h1><p>有时候，我们需要在关闭spring容器前，做一些额外的工作，比如：关闭资源文件等。</p>
+<p>这时可以实现<code>DisposableBean</code>接口，并且重写它的<code>destroy</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DService</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span>, <span class="title">DisposableBean</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destroy</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;DisposableBean destroy&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;InitializingBean afterPropertiesSet&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样spring容器销毁前，会调用该destroy方法，做一些额外的工作。</p>
+<p>通常情况下，我们会同时实现InitializingBean和DisposableBean接口，重写初始化方法和销毁方法。</p>
+<h1><span id="自定义作用域">自定义作用域</span></h1><p>我们都知道spring默认支持的<code>Scope</code>只有两种：</p>
+<ul>
+<li>singleton 单例，每次从spring容器中获取到的bean都是同一个对象。</li>
+<li>prototype 多例，每次从spring容器中获取到的bean都是不同的对象。</li>
+</ul>
+<p>spring web又对Scope进行了扩展，增加了：</p>
+<ul>
+<li>RequestScope 同一次请求从spring容器中获取到的bean都是同一个对象。</li>
+<li>SessionScope 同一个会话从spring容器中获取到的bean都是同一个对象。</li>
+</ul>
+<p>即便如此，有些场景还是无法满足我们的要求。</p>
+<p>比如，我们想在同一个线程中从spring容器获取到的bean都是同一个对象，该怎么办？</p>
+<p>这就需要自定义Scope了。</p>
+<p>第一步实现Scope接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalScope</span> <span class="keyword">implements</span> <span class="title">Scope</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal THREAD_LOCAL_SCOPE = <span class="keyword">new</span> ThreadLocal();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">get</span><span class="params">(String name, ObjectFactory&lt;?&gt; objectFactory)</span> </span>&#123;</span><br><span class="line">        Object value = THREAD_LOCAL_SCOPE.get();</span><br><span class="line">        <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> value;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Object object = objectFactory.getObject();</span><br><span class="line">        THREAD_LOCAL_SCOPE.set(object);</span><br><span class="line">        <span class="keyword">return</span> object;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">remove</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        THREAD_LOCAL_SCOPE.remove();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerDestructionCallback</span><span class="params">(String name, Runnable callback)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">resolveContextualObject</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getConversationId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步将新定义的Scope注入到spring容器中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalBeanFactoryPostProcessor</span> <span class="keyword">implements</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        beanFactory.registerScope(<span class="string">&quot;threadLocalScope&quot;</span>, <span class="keyword">new</span> ThreadLocalScope());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第三步使用新定义的Scope：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scope(&quot;threadLocalScope&quot;)</span></span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="获取spring容器对象">获取spring容器对象</span></h1><h2><span id="实现beanfactoryaware接口">实现BeanFactoryAware接口</span></h2><p>实现<code>BeanFactoryAware</code>接口，然后重写<code>setBeanFactory</code>方法，就能从该方法中获取到spring容器对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService</span> <span class="keyword">implements</span> <span class="title">BeanFactoryAware</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> BeanFactory beanFactory;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setBeanFactory</span><span class="params">(BeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.beanFactory = beanFactory;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Person person = (Person) beanFactory.getBean(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2><span id="实现applicationcontextaware接口">实现ApplicationContextAware接口</span></h2><p>实现<code>ApplicationContextAware</code>接口，然后重写<code>setApplicationContext</code>方法，也能从该方法中获取到spring容器对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService2</span> <span class="keyword">implements</span> <span class="title">ApplicationContextAware</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setApplicationContext</span><span class="params">(ApplicationContext applicationContext)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.applicationContext = applicationContext;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Person person = (Person) applicationContext.getBean(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2><span id="实现applicationlistener接口">实现ApplicationListener接口</span></h2><p>实现<code>ApplicationListener</code>接口，需要注意的是该接口接收的泛型是<code>ContextRefreshedEvent</code>类，然后重写<code>onApplicationEvent</code>方法，也能从该方法中获取到spring容器对象。</p>
+<p>此外，不得不提一下<code>Aware</code>接口，它其实是一个空接口，里面不包含任何方法。</p>
+<p><strong>它表示已感知的意思，通过这类接口可以获取指定对象，比如：</strong></p>
+<ul>
+<li>通过BeanFactoryAware获取BeanFactory</li>
+<li>通过ApplicationContextAware获取ApplicationContext</li>
+<li>通过BeanNameAware获取BeanName等</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">PersonService3</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ContextRefreshedEvent</span>&gt; </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> ApplicationContext applicationContext;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextRefreshedEvent event)</span> </span>&#123;</span><br><span class="line">        applicationContext = event.getApplicationContext();</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Person person = (Person) applicationContext.getBean(<span class="string">&quot;person&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Aware接口是很常用的功能，目前包含如下功能：</strong></p>
+<img src="/2022/03/23/java/spring/springframework/spring-skills/image-20230312003729029.png" alt="image-20230312003729029" style="zoom: 50%;">
+
+<h1><span id="初始化bean">初始化bean</span></h1><p><strong>spring中支持3种初始化bean的方法：</strong></p>
+<ul>
+<li>xml中指定init-method方法</li>
+<li>使用@PostConstruct注解</li>
+<li>实现InitializingBean接口</li>
+</ul>
+<p>第一种方法太古老了，现在用的人不多，具体用法就不介绍了。</p>
+<h2><span id="使用postconstruct注解">使用@PostConstruct注解</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AService</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;===初始化===&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在需要初始化的方法上增加<code>@PostConstruct</code>注解，这样就有初始化的能力。</p>
+<h2><span id="实现initializingbean接口">实现InitializingBean接口</span></h2><p>实现<code>InitializingBean</code>接口，重写<code>afterPropertiesSet</code>方法，该方法中可以完成初始化功能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BService</span> <span class="keyword">implements</span> <span class="title">InitializingBean</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterPropertiesSet</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;===初始化===&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>这里顺便抛出一个有趣的问题：</strong><code>init-method</code>、<code>PostConstruct</code> 和 <code>InitializingBean</code> 的执行顺序是什么样的？</p>
+<p>决定他们调用顺序的关键代码在<code>AbstractAutowireCapableBeanFactory</code>类的<code>initializeBean</code>方法中。</p>
+<p><img src="/2022/03/23/java/spring/springframework/spring-skills/image-20230312004134873.png" alt="image-20230312004134873"></p>
+<p>这段代码中会先调用<code>BeanPostProcessor</code>的<code>postProcessBeforeInitialization</code>方法，而<code>PostConstruct</code>是通过<code>InitDestroyAnnotationBeanPostProcessor</code>实现的，它就是一个<code>BeanPostProcessor</code>，所以<code>PostConstruct</code>先执行。</p>
+<p>而<code>invokeInitMethods</code>方法中的代码：</p>
+<p><img src="/2022/03/23/java/spring/springframework/spring-skills/image-20230312004201809.png" alt="image-20230312004201809"></p>
+<p>决定了先调用<code>InitializingBean</code>，再调用<code>init-method</code>。</p>
+<p><strong>所以得出结论，他们的调用顺序是：</strong></p>
+<p>PostConstruct–&gt;InitiallizingBean–&gt;init-method</p>
+<h1><span id="自定义自己的scope">自定义自己的Scope</span></h1><p><code>spring</code>默认支持的<code>Scope</code><strong>只有两种：</strong></p>
+<ul>
+<li>singleton 单例，每次从spring容器中获取到的bean都是同一个对象。</li>
+<li>prototype 多例，每次从spring容器中获取到的bean都是不同的对象。</li>
+</ul>
+<p><code>spring web</code>又对<code>Scope</code>进行了扩展，<strong>增加了：</strong></p>
+<ul>
+<li>RequestScope 同一次请求从spring容器中获取到的bean都是同一个对象。</li>
+<li>SessionScope 同一个会话从spring容器中获取到的bean都是同一个对象。</li>
+</ul>
+<p>即便如此，有些场景还是无法满足我们的要求。</p>
+<p>比如，我们想在同一个线程中从spring容器获取到的bean都是同一个对象，该怎么办？</p>
+<p>这就需要自定义<code>Scope</code>了。</p>
+<p><strong>第一步实现Scope接口：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalScope</span> <span class="keyword">implements</span> <span class="title">Scope</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal THREAD_LOCAL_SCOPE = <span class="keyword">new</span> ThreadLocal();</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">get</span><span class="params">(String name, ObjectFactory&lt;?&gt; objectFactory)</span> </span>&#123;</span><br><span class="line">        Object value = THREAD_LOCAL_SCOPE.get();</span><br><span class="line">        <span class="keyword">if</span> (value != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> value;</span><br><span class="line">        &#125;</span><br><span class="line"> </span><br><span class="line">        Object object = objectFactory.getObject();</span><br><span class="line">        THREAD_LOCAL_SCOPE.set(object);</span><br><span class="line">        <span class="keyword">return</span> object;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">remove</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        THREAD_LOCAL_SCOPE.remove();</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerDestructionCallback</span><span class="params">(String name, Runnable callback)</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">resolveContextualObject</span><span class="params">(String key)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getConversationId</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第二步将新定义的<code>Scope</code><strong>注入到spring容器中：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadLocalBeanFactoryPostProcessor</span> <span class="keyword">implements</span> <span class="title">BeanFactoryPostProcessor</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">postProcessBeanFactory</span><span class="params">(ConfigurableListableBeanFactory beanFactory)</span> <span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">        beanFactory.registerScope(<span class="string">&quot;threadLocalScope&quot;</span>, <span class="keyword">new</span> ThreadLocalScope());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>第三步使用新定义的<code>Scope</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Scope(&quot;threadLocalScope&quot;)</span></span><br><span class="line"><span class="meta">@Servicepublic</span> <span class="class"><span class="keyword">class</span> <span class="title">CService</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">add</span><span class="params">()</span> </span>&#123;   </span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/java/" rel="tag"># java</a>
+              <a href="/tags/spring/" rel="tag"># spring</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/17/devops/tools/SonarQube/idea-use-sonarqube/" rel="prev" title="IDEA使用SonarQube">
+      <i class="fa fa-chevron-left"></i> IDEA使用SonarQube
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/03/25/java/spring/springframework/aspect-filter-interceptor/" rel="next" title="spring过滤器、拦截器、AOP">
+      spring过滤器、拦截器、AOP <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">1.</span> <span class="nav-text">自定义拦截器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">2.</span> <span class="nav-text">获取Spring容器对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.1.</span> <span class="nav-text">BeanFactoryAware接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.2.</span> <span class="nav-text">ApplicationContextAware接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">2.3.</span> <span class="nav-text">ApplicationListener接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">3.</span> <span class="nav-text">全局异常处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">4.</span> <span class="nav-text">类型转换器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">5.</span> <span class="nav-text">导入配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.1.</span> <span class="nav-text">普通类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.2.</span> <span class="nav-text">配置类</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.3.</span> <span class="nav-text">ImportSelector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">5.4.</span> <span class="nav-text">ImportBeanDefinitionRegistrar</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">6.</span> <span class="nav-text">项目启动时</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">7.</span> <span class="nav-text">修改BeanDefinition</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">8.</span> <span class="nav-text">初始化Bean前后</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">9.</span> <span class="nav-text">初始化方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">9.1.</span> <span class="nav-text">使用@PostConstruct注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">9.2.</span> <span class="nav-text">实现InitializingBean接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">10.</span> <span class="nav-text">关闭容器前</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">11.</span> <span class="nav-text">自定义作用域</span></a></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">12.</span> <span class="nav-text">获取spring容器对象</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">12.1.</span> <span class="nav-text">实现BeanFactoryAware接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">12.2.</span> <span class="nav-text">实现ApplicationContextAware接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">12.3.</span> <span class="nav-text">实现ApplicationListener接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">13.</span> <span class="nav-text">初始化bean</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">13.1.</span> <span class="nav-text">使用@PostConstruct注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-number">13.2.</span> <span class="nav-text">实现InitializingBean接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link"><span class="nav-number">14.</span> <span class="nav-text">自定义自己的Scope</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Winking"
+      src="/images/timg.jpeg">
+  <p class="site-author-name" itemprop="name">Winking</p>
+  <div class="site-description" itemprop="description">记录工作生活</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Winking</span>
+</div>
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+-->
+<div class="powered-by">
+备案：
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
