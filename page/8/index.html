@@ -190,7 +190,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/0201/03/26/java/mybatis/PageHelper/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/17/os/Mac/Mac-DS_Store/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/timg.jpeg">
@@ -204,7 +204,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/0201/03/26/java/mybatis/PageHelper/" class="post-title-link" itemprop="url">PageHelper的使用</a>
+            <a href="/2021/02/17/os/Mac/Mac-DS_Store/" class="post-title-link" itemprop="url">Mac系统中的.DS_Store</a>
         </h2>
 
         <div class="post-meta">
@@ -214,14 +214,103 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：0201-03-26 17:16:53" itemprop="dateCreated datePublished" datetime="0201-03-26T17:16:53+08:00">0201-03-26</time>
+              <time title="创建时间：2021-02-17 09:35:48" itemprop="dateCreated datePublished" datetime="2021-02-17T09:35:48+08:00">2021-02-17</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-03-13 23:19:07" itemprop="dateModified" datetime="2023-03-13T23:19:07+08:00">2023-03-13</time>
+                <time title="修改时间：2022-06-24 23:24:05" itemprop="dateModified" datetime="2022-06-24T23:24:05+08:00">2022-06-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#ds_store%E6%98%AF%E4%BB%80%E4%B9%88">.DS_Store是什么？</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4%E6%96%87%E4%BB%B6">删除文件：</a></li>
+<li><a href="#%E7%A6%81%E6%AD%A2%E7%94%9F%E6%88%90">禁止生成：</a></li>
+<li><a href="#%E6%81%A2%E5%A4%8D%E7%94%9F%E6%88%90">恢复生成：</a></li>
+</ul>
+<!-- tocstop -->
+
+<h2><span id="ds_store是什么">.DS_Store是什么？</span></h2><p>.DS_Store是Mac系统中产生的一个隐藏文件，记录文件或目录的一些自定义属性，如果我们有什么特殊的定制，完全是没用的。</p>
+<h2><span id="删除文件">删除文件：</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -name <span class="string">&#x27;*.DS_Store&#x27;</span> -<span class="built_in">type</span> f -delete</span><br></pre></td></tr></table></figure>
+
+<h2><span id="禁止生成">禁止生成：</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool TRUE</span><br></pre></td></tr></table></figure>
+
+<h2><span id="恢复生成">恢复生成：</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">defaults delete com.apple.desktopservices DSDontWriteNetworkStores</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/0201/03/26/java/mybatis/springboot-mybatis-xml/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/0201/03/26/java/mybatis/springboot-mybatis-xml/" class="post-title-link" itemprop="url">SpringBoot集成Mybatis-xml方式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：0201-03-26 17:19:53" itemprop="dateCreated datePublished" datetime="0201-03-26T17:19:53+08:00">0201-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-14 01:06:07" itemprop="dateModified" datetime="2023-03-14T01:06:07+08:00">2023-03-14</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -248,47 +337,289 @@
 
 <ul>
 <li><a href="#%E7%AE%80%E4%BB%8B">简介</a></li>
-<li><a href="#pagehelper%E5%9C%A8springboot%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8">PageHelper在SpringBoot中的使用</a></li>
+<li><a href="#%E6%B7%BB%E5%8A%A0mybatis%E7%9B%B8%E5%85%B3%E4%BE%9D%E8%B5%96">添加Mybatis相关依赖</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
 </ul>
 <!-- tocstop -->
 
-<h1><span id="简介">简介</span></h1><p>开源地址：<a target="_blank" rel="noopener" href="https://github.com/pagehelper/Mybatis-PageHelper">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
-<p>pagehelper是mybatis的一个插件，其作用是更加方便地进行分页查询</p>
+<h1><span id="简介">简介</span></h1><p>版本：3.0.1</p>
+<p>官网文档：<a target="_blank" rel="noopener" href="http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/index.html">http://mybatis.org/spring-boot-starter/mybatis-spring-boot-autoconfigure/index.html</a></p>
+<p>源码：<a target="_blank" rel="noopener" href="https://github.com/mybatis/spring-boot-starter">https://github.com/mybatis/spring-boot-starter</a></p>
+<h1><span id="添加mybatis相关依赖">添加Mybatis相关依赖</span></h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 <!-- moer -->
 
-<p><strong>分页查询的实现有两种方式</strong></p>
-<p><strong>1：直接在sql中使用 limit子句 进行分页查询</strong></p>
-<p>limit关键字的用法是：LIMIT [offset,] rows</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from tableA limit 5,5;</span><br></pre></td></tr></table></figure>
+<p>The MyBatis-Spring-Boot-Starter requires following versions:</p>
+<table>
+<thead>
+<tr>
+<th align="left">MyBatis-Spring-Boot-Starter</th>
+<th align="left">MyBatis-Spring</th>
+<th align="left">Spring Boot</th>
+<th align="left">Java</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>3.0</strong></td>
+<td align="left">3.0</td>
+<td align="left">3.0</td>
+<td align="left">17 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>2.3</strong></td>
+<td align="left">2.1</td>
+<td align="left">2.5 - 2.7</td>
+<td align="left">8 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>2.2</strong></td>
+<td align="left">2.0 (need 2.0.6+ for enable all features)</td>
+<td align="left">2.5 - 2.7</td>
+<td align="left">8 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>2.1</strong></td>
+<td align="left">2.0 (need 2.0.6+ for enable all features)</td>
+<td align="left">2.1 - 2.4</td>
+<td align="left">8 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>2.0 (EOL)</strong></td>
+<td align="left">2.0</td>
+<td align="left">2.0 or 2.1</td>
+<td align="left">8 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>1.3 (EOL)</strong></td>
+<td align="left">1.3</td>
+<td align="left">1.5</td>
+<td align="left">6 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>1.2 (EOL)</strong></td>
+<td align="left">1.3</td>
+<td align="left">1.4</td>
+<td align="left">6 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>1.1 (EOL)</strong></td>
+<td align="left">1.3</td>
+<td align="left">1.3</td>
+<td align="left">6 or higher</td>
+</tr>
+<tr>
+<td align="left"><strong>1.0 (EOL)</strong></td>
+<td align="left">1.2</td>
+<td align="left">1.3</td>
+<td align="left">6 or higher</td>
+</tr>
+</tbody></table>
+<p>简单回顾一下MyBatis<br>核心对象包括以下三个：</p>
+<ul>
+<li><p>SqlSessionFactoryBulider</p>
+</li>
+<li><p>SqlSessionFactory</p>
+</li>
+<li><p>SqlSession</p>
+</li>
+</ul>
+<p>SqlSessionFactoryBuilder –&gt; SqlSessionFactory –&gt; SqlSession</p>
+<h1><span id="配置">配置</span></h1><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#整合mybatis</span></span><br><span class="line"><span class="comment">#给pojo实体类起别名</span></span><br><span class="line"><span class="meta">mybatis.type-aliases-package</span>=<span class="string">com.kuang.pojo  </span></span><br><span class="line"><span class="comment">#接口的配置文件的位置 我这里接口配置文件是UserMapper.xml 如下图所示</span></span><br><span class="line"><span class="meta">mybatis.mapper-locations</span>=<span class="string">classpath:mybatis/mapper/*.xml</span></span><br></pre></td></tr></table></figure>
 
-<p>Ps1：offset是相对于首行的偏移量(首行是0)，rows是返回条数</p>
-<p>Ps2：mapper中可以传变量，即在实际使用的时候 “offset与rows”可以用变量替代</p>
-<p><strong>2：使用第三方库进行分页查询，如mybatis的插件pagehelper</strong></p>
-<p>使用PageHelper的好处是在实际项目开发中更方便</p>
-<p>原因是：在项目中我们执行一个分页查询时，很多时候还会需要知道该查询的其他信息，如总数、每页数量、当前页数、上一页或下一页等等，这些信息如果每次都自己写的话就太麻烦了，而pagehelper能够帮助我们更方便地获取这些信息，大大方便了我们的开发效率。</p>
-<h1><span id="pagehelper在springboot中的使用">PageHelper在SpringBoot中的使用</span></h1><p>1：pom.xml中导入依赖</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">            &lt;groupId&gt;com.github.pagehelper&lt;/groupId&gt;</span><br><span class="line">            &lt;artifactId&gt;pagehelper-spring-boot-starter&lt;/artifactId&gt;</span><br><span class="line">            &lt;version&gt;1.3.0&lt;/version&gt;</span><br><span class="line">        &lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+<p>编写pojo包下的实体类<code>User</code></p>
+<p>编写接口UserMapper</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*加了这个注解 就表示了 这是一个Mybatis的mapper类</span></span><br><span class="line"><span class="comment">就相当于之前使用的spring整合mybatis接口 也可以使用@MapperScan(&quot;com.kuang.mapper&quot;)*/</span></span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="comment">/**<span class="doctag">@Component</span> 也可以用这个 万能的*/</span></span><br><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserMapper</span> </span>&#123;</span><br><span class="line">    <span class="function">List&lt;User&gt; <span class="title">queryUserList</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">User <span class="title">queryUserById</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">addUser</span><span class="params">(User user)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">updateUser</span><span class="params">(User user)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">deleteUser</span><span class="params">(<span class="keyword">int</span> id)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p><em>注意导入的依赖是spring版本的而不是其独立版本，否则pagehelper将不起作用</em></p>
-<p>2：在springboot配置文件（applicable.yml）中声明插件</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#pagehelper分页插件配置</span><br><span class="line">pagehelper:</span><br><span class="line">  helperDialect: mysql</span><br><span class="line">  reasonable: true</span><br><span class="line">  supportMethodsArguments: true</span><br><span class="line">  params: count=countSql</span><br></pre></td></tr></table></figure>
+<p>编写接口实现配置文件<code>UserMapper.xml</code>,位于resources下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.kuang.mapper.UserMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;queryUserList&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;User&quot;</span>&gt;</span></span><br><span class="line">        select * from mybatis.user</span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;queryUserById&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;User&quot;</span>&gt;</span></span><br><span class="line">        select *</span><br><span class="line">        from mybatis.user</span><br><span class="line">        where id=#&#123;id&#125;;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">&quot;addUser&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;User&quot;</span>&gt;</span></span><br><span class="line">    insert into mybatis.user(id,name,pwd)</span><br><span class="line">    values(#&#123;id&#125;,#&#123;name&#125;,#&#123;pwd&#125;);</span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">update</span> <span class="attr">id</span>=<span class="string">&quot;updateUser&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;User&quot;</span>&gt;</span></span><br><span class="line">        update mybatis.user</span><br><span class="line">        set name=#&#123;name&#125;,pwd=#&#123;pwd&#125;</span><br><span class="line">        where id=#&#123;id&#125;;</span><br><span class="line">    <span class="tag">&lt;/<span class="name">update</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">delete</span> <span class="attr">id</span>=<span class="string">&quot;deleteUser&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;int&quot;</span>&gt;</span></span><br><span class="line">     delete</span><br><span class="line">     from mybatis.user</span><br><span class="line">     where id=#&#123;id&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">delete</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
 
-<p>3：UserMapper</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Repository</span></span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserMapper</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">selectAll</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>4：UserMapper.xml</p>
-<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">mapper</span> <span class="meta-keyword">PUBLIC</span> <span class="meta-string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span> <span class="meta-string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.springboot.springboot_mybatis.mapper.UserMapper&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectAll&quot;</span> <span class="attr">resultType</span>=<span class="string">&quot;User&quot;</span>&gt;</span></span><br><span class="line">        select * from user</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+      
+    </div>
 
-<p><em>优点：不需要使用limit</em></p>
-<p>5：实体类</p>
-<p>6：service层</p>
-<p>7：service实现类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">QueryUser2</span> <span class="keyword">implements</span> <span class="title">Query2</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    UserMapper userMapper;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">selectAll</span><span class="params">(<span class="keyword">int</span> pageNum,<span class="keyword">int</span> pageSize)</span> </span>&#123;</span><br><span class="line">        PageHelper.startPage(pageNum,pageSize);</span><br><span class="line">        List&lt;User&gt; users = userMapper.selectAll();</span><br><span class="line">        PageInfo&lt;User&gt; pageInfo = <span class="keyword">new</span> PageInfo&lt;&gt;(users);</span><br><span class="line">        <span class="keyword">return</span> pageInfo.getList();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
 
-<p><em>注意：只有紧跟着PageHelper.startPage(pageNum,pageSize)的sql语句才被pagehelper起作用</em></p>
-<p>6：control类</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">controller3</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    Query2 query2;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/selectAll&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> List&lt;User&gt; <span class="title">selectAll</span><span class="params">(<span class="meta">@Param(&quot;pageNum&quot;)</span> <span class="keyword">int</span> pageNum, <span class="meta">@Param(&quot;pageSize&quot;)</span> <span class="keyword">int</span> pageSize)</span></span>&#123;</span><br><span class="line">        List&lt;User&gt; users = query2.selectAll(pageNum,pageSize);</span><br><span class="line">        <span class="keyword">return</span> users;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/0201/03/26/java/spring/springmvc/exception-process/">
 
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/0201/03/26/java/spring/springmvc/exception-process/" class="post-title-link" itemprop="url">SpringMvc全局异常处理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：0201-03-26 17:19:53" itemprop="dateCreated datePublished" datetime="0201-03-26T17:19:53+08:00">0201-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-14 01:45:58" itemprop="dateModified" datetime="2023-03-14T01:45:58+08:00">2023-03-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springmvc/" itemprop="url" rel="index"><span itemprop="name">springmvc</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#springmvc%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">SpringMvc全局异常处理</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="SpringMvc全局异常处理"><a href="#SpringMvc全局异常处理" class="headerlink" title="SpringMvc全局异常处理"></a>SpringMvc全局异常处理</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/0201/03/26/java/spring/springmvc/exception-process/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/0201/03/26/java/mybatis/springboot-mybatis-annotation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/0201/03/26/java/mybatis/springboot-mybatis-annotation/" class="post-title-link" itemprop="url">SpringBoot集成Mybatis-注解方式</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：0201-03-26 17:16:53" itemprop="dateCreated datePublished" datetime="0201-03-26T17:16:53+08:00">0201-03-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-14 00:09:28" itemprop="dateModified" datetime="2023-03-14T00:09:28+08:00">2023-03-14</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mybatis/" itemprop="url" rel="index"><span itemprop="name">mybatis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E7%AE%80%E4%BB%8B">简介</a></li>
+<li><a href="#%E6%B7%BB%E5%8A%A0mybatis%E7%9B%B8%E5%85%B3%E4%BE%9D%E8%B5%96">添加Mybatis相关依赖</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E6%BA%90">配置数据源</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA%E5%AE%9E%E4%BD%93%E7%B1%BB">创建实体类</a></li>
+<li><a href="#%E5%88%9B%E5%BB%BA%E5%92%8C%E6%95%B0%E6%8D%AE%E5%BA%93%E4%BA%A4%E4%BA%92%E8%81%94%E7%B3%BB%E7%9A%84%E6%98%A0%E5%B0%84%E5%85%B3%E7%B3%BB%E7%B1%BB">创建和数据库交互联系的映射关系类</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="简介">简介</span></h1><p>版本：2.1.4</p>
+<h1><span id="添加mybatis相关依赖">添加Mybatis相关依赖</span></h1><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<!-- moer -->
+
+<h1><span id="配置数据源">配置数据源</span></h1><p>在application.properties中配置数据库连接的相关信息</p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">spring.datasource.driver-class-name</span>=<span class="string">com.mysql.cj.jdbc.Driver</span></span><br><span class="line"><span class="meta">spring.datasource.url</span>=<span class="string">jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;useJDBCCompliantTimezoneShift=true&amp;useLegacyDatetimeCode=false&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai</span></span><br><span class="line"><span class="meta">spring.datasource.username</span>=<span class="string">root</span></span><br><span class="line"><span class="meta">spring.datasource.password</span>=<span class="string">root</span></span><br></pre></td></tr></table></figure>
+
+<h1><span id="创建实体类">创建实体类</span></h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Order</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> String description;</span><br><span class="line">  	...getter and setter</span><br><span class="line">&#125;  </span><br></pre></td></tr></table></figure>
+
+<h1><span id="创建和数据库交互联系的映射关系类">创建和数据库交互联系的映射关系类</span></h1><p>这个类主要是和数据进行交互联系的，需要配置好实体类和数据库字段的映射关系。由于SpringBoot已经做了大量的工作，我们只需要做好相关注解就可以使用了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="comment">//@Repository</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OrderMapper</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Select(&quot;select * from t_order where id=#&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function">Order <span class="title">getOrderById</span><span class="params">(Integer id)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Insert(&quot;insert into t_order(id,name,description) values(#&#123;id&#125;, #&#123;name&#125;, #&#123;description&#125;)&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">insert</span><span class="params">(Order order)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Update(&quot;update t_order set name=#&#123;name&#125; where id=#&#123;id&#125;&quot;)</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">update</span><span class="params">(Order order)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Select(&quot;select * from t_order&quot;)</span></span><br><span class="line">    <span class="function">List&lt;Order&gt; <span class="title">getAll</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>@Mapper表明该类是一个Mapper接口，使用@Select、@Insert等注解我们可以直接在类中书写sql语句来实现我们的目的。</p>
+<p>其它service,controller略。</p>
 
       
     </div>
@@ -375,20 +706,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">71</span>
+          <span class="site-state-item-count">74</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-count">28</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">37</span>
+        <span class="site-state-item-count">38</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
