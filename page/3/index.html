@@ -190,6 +190,395 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/23/db-resource/redis/Redis-6-HA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/23/db-resource/redis/Redis-6-HA/" class="post-title-link" itemprop="url">Redis系列(六):发布订阅模式、主从复制、哨兵模式和集群</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-11-23T16:23:28+08:00">2021-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-06 05:10:30" itemprop="dateModified" datetime="2022-12-06T05:10:30+08:00">2022-12-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#redis%E7%B3%BB%E5%88%97%E5%85%AD%E5%8F%91%E5%B8%83%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F%E5%92%8C%E9%9B%86%E7%BE%A4">Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群</a></li>
+<li><a href="#redis-%E8%AE%A2%E9%98%85%E5%8F%91%E5%B8%83">Redis 订阅发布</a></li>
+<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a><ul>
+<li><a href="#%E6%A6%82%E5%BF%B5">概念</a></li>
+<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BD%9C%E7%94%A8">主从复制的作用</a></li>
+<li><a href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE">环境配置</a></li>
+<li><a href="#%E4%B8%80%E4%B8%BB%E4%BA%8C%E4%BB%8E">一主二从</a></li>
+<li><a href="#%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86">复制原理</a></li>
+<li><a href="#%E7%AC%AC%E4%BA%8C%E7%A7%8D%E6%A8%A1%E5%BC%8F">第二种模式</a></li>
+</ul>
+</li>
+<li><a href="#%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F">哨兵模式</a><ul>
+<li><a href="#%E6%A6%82%E8%BF%B0">概述</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E4%B8%80%E4%B8%BB%E4%BA%8C%E4%BB%8E%E7%9A%84%E5%93%A8%E5%85%B5%E6%A8%A1%E5%BC%8F">配置一主二从的哨兵模式</a></li>
+</ul>
+</li>
+<li><a href="#%E9%9B%86%E7%BE%A4">集群</a><ul>
+<li><a href="#%E6%A6%82%E8%BF%B0-1">概述</a></li>
+<li><a href="#redis%E9%9B%86%E7%BE%A4%E7%9A%84%E4%BC%98%E7%82%B9">Redis集群的优点</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E9%80%9A%E4%BF%A1meet">集群通信：MEET</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E4%B8%AD%E7%9A%84%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">集群中的主从复制</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E6%98%AF%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E6%9C%89%E6%9F%90%E4%B8%AA%E8%8A%82%E7%82%B9%E6%8C%82%E6%8E%89">集群是如何判断是否有某个节点挂掉</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E6%8C%82%E6%8E%89%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D">集群挂掉怎么恢复</a></li>
+<li><a href="#%E6%96%B0%E5%A2%9E%E4%B8%80%E4%B8%AA%E4%B8%BB%E8%8A%82%E7%82%B9">新增一个主节点</a></li>
+<li><a href="#%E5%88%A0%E9%99%A4%E4%B8%80%E4%B8%AA%E4%B8%BB%E8%8A%82%E7%82%B9">删除一个主节点</a></li>
+<li><a href="#redis%E9%9B%86%E7%BE%A4%E6%A7%BD%E4%BD%8D%E6%A6%82%E5%BF%B5">redis集群槽位概念</a></li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E8%BF%81%E7%A7%BB">数据迁移</a></li>
+<li><a href="#%E6%95%85%E9%9A%9C%E8%BD%AC%E7%A7%BB">故障转移</a></li>
+<li><a href="#%E9%9B%86%E7%BE%A4%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%9C%BA%E5%88%B6">集群健康检查机制</a></li>
+<li><a href="#%E6%90%AD%E5%BB%BA">搭建</a></li>
+<li><a href="#%E5%85%B3%E4%BA%8E%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%99%BB%E5%BD%95%E9%9B%86%E7%BE%A4%E5%90%8E%E8%B7%9Fcluster%E7%9B%B8%E5%85%B3%E7%9A%84%E5%91%BD%E4%BB%A4">关于客户端登录集群后，跟CLUSTER相关的命令：</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群"><a href="#Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群" class="headerlink" title="Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群"></a>Redis系列（六）发布订阅模式、主从复制、哨兵模式和集群</h1><h1 id="Redis-订阅发布"><a href="#Redis-订阅发布" class="headerlink" title="Redis 订阅发布"></a>Redis 订阅发布</h1><p>Redis 发布订阅（pub/sub）是一种消息通信模式：发送者发（pub）送消息，订阅者(sub)接收消息。</p>
+<p>Redis 客户端可以订阅任意数量的频道。</p>
+<p>订阅 / 发布消息图：</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/23/db-resource/redis/Redis-6-HA/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/23/db-resource/redis/Redis-5-config-persistence/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/23/db-resource/redis/Redis-5-config-persistence/" class="post-title-link" itemprop="url">Redis系列(五):Redis配置文件和持久化</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-11-23T16:23:28+08:00">2021-11-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-12-02 01:02:18" itemprop="dateModified" datetime="2022-12-02T01:02:18+08:00">2022-12-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Redis系列-五-Redis配置文件和持久化"><a href="#Redis系列-五-Redis配置文件和持久化" class="headerlink" title="Redis系列(五):Redis配置文件和持久化"></a>Redis系列(五):Redis配置文件和持久化</h1><h1 id="Redis-conf-详解"><a href="#Redis-conf-详解" class="headerlink" title="Redis.conf 详解"></a>Redis.conf 详解</h1><p>找到启动时指定的配置文件：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@itzhouc ~]<span class="comment"># cd /usr/local/bin</span></span><br><span class="line">[root@itzhouc bin]<span class="comment"># ls</span></span><br><span class="line">dump.rdb         jemalloc.sh  kconfig           luajit        mcrypt    redis-benchmark  redis-check-rdb  redis-sentinel</span><br><span class="line">jemalloc-config  jeprof       libmcrypt-config  luajit-2.0.4  mdecrypt  redis-check-aof  redis-cli        redis-server</span><br><span class="line">[root@itzhouc bin]<span class="comment"># cd kconfig/</span></span><br><span class="line">[root@itzhouc kconfig]<span class="comment"># vim redis.conf</span></span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/23/db-resource/redis/Redis-5-config-persistence/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/21/db-resource/mysql/mysql-ha/mysql-master-master-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/21/db-resource/mysql/mysql-ha/mysql-master-master-1/" class="post-title-link" itemprop="url">MySQL双主复制</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-21 16:58:23" itemprop="dateCreated datePublished" datetime="2021-11-21T16:58:23+08:00">2021-11-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-01 18:06:12" itemprop="dateModified" datetime="2022-11-01T18:06:12+08:00">2022-11-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">准备工作：</a></li>
+<li><a href="#%E9%83%A8%E7%BD%B2-mysql-%E5%8F%8C%E4%B8%BB%E5%A4%8D%E5%88%B6">部署 MySQL 双主复制</a><ul>
+<li><a href="#%E9%85%8D%E7%BD%AE%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5">配置时间同步</a></li>
+</ul>
+</li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E5%8F%8C%E4%B8%BB%E5%A4%8D%E5%88%B6">配置双主复制</a><ul>
+<li><a href="#%E5%BB%BA%E7%AB%8B%E5%8F%8C%E4%B8%BB%E5%A4%8D%E5%88%B6">建立双主复制</a></li>
+</ul>
+</li>
+<li><a href="#%E9%83%A8%E7%BD%B2-lvskeepalived-%E5%AE%9E%E7%8E%B0-mysql-%E5%8F%8C%E4%B8%BB%E5%A4%8D%E5%88%B6%E9%AB%98%E5%8F%AF%E7%94%A8">部署 LVS+Keepalived 实现 MySQL 双主复制高可用</a><ul>
+<li><a href="#%E9%85%8D%E7%BD%AE%E4%B8%BB%E8%B0%83%E5%BA%A6%E5%99%A8">配置主调度器</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E5%A4%87%E8%B0%83%E5%BA%A6%E5%99%A8">配置备调度器</a></li>
+<li><a href="#%E7%BC%96%E5%86%99-lvs-%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC">编写 LVS 启动脚本</a></li>
+</ul>
+</li>
+<li><a href="#%E9%AA%8C%E8%AF%81">验证</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>mysql双主复制搭建高可用。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/21/db-resource/mysql/mysql-ha/mysql-master-master-1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/20/devops/maven/maven-define-archetype/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/20/devops/maven/maven-define-archetype/" class="post-title-link" itemprop="url">Maven自定义脚手架</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-20 13:53:16" itemprop="dateCreated datePublished" datetime="2021-11-20T13:53:16+08:00">2021-11-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-24 02:30:10" itemprop="dateModified" datetime="2023-03-24T02:30:10+08:00">2023-03-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/devops/" itemprop="url" rel="index"><span itemprop="name">devops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Maven自定义脚手架"><a href="#Maven自定义脚手架" class="headerlink" title="Maven自定义脚手架"></a>Maven自定义脚手架</h1><p>在实际开发中，例如银行项目，大部分都是ssm架构，我们完全可以抽取出一个公共的模板，方便后续项目的构建，再比如分布式开发中我们通常会构建多个子模块，这样的构建是很耗时的，我们也完全可以将搭建好的项目构建成为自己的脚手架，方便后续有类似的项目开发。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/20/devops/maven/maven-define-archetype/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/02/db-resource/mysql/mysql-base/shardingsphere-proxy/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -906,373 +1295,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/loadbalance/kong/kong-build/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/21/technology-stack/loadbalance/kong/kong-build/" class="post-title-link" itemprop="url">kong接入层网关设计及实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-21 16:58:23" itemprop="dateCreated datePublished" datetime="2021-09-21T16:58:23+08:00">2021-09-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-01 21:03:25" itemprop="dateModified" datetime="2022-11-01T21:03:25+08:00">2022-11-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/loadbalance/" itemprop="url" rel="index"><span itemprop="name">loadbalance</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
-<li><a href="#kong%E7%89%B9%E6%80%A7">kong特性</a></li>
-<li><a href="#kong-%E7%9A%84%E6%9E%B6%E6%9E%84">Kong 的架构</a></li>
-<li><a href="#kong%E9%83%A8%E7%BD%B2">Kong部署</a></li>
-<li><a href="#kong-%E7%9A%84%E7%AE%A1%E7%90%86%E6%96%B9%E5%BC%8F">Kong 的管理方式</a></li>
-<li><a href="#%E9%AB%98%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%E7%9A%84%E8%83%8C%E5%90%8E%E6%8F%92%E4%BB%B6%E6%9C%BA%E5%88%B6">高可扩展性的背后—插件机制</a></li>
-<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Kong（<a target="_blank" rel="noopener" href="https://github.com/Kong/kong%EF%BC%89%E6%98%AF%E4%B8%80%E4%B8%AA%E4%BA%91%E5%8E%9F%E7%94%9F%EF%BC%8C%E9%AB%98%E6%95%88%EF%BC%8C%E5%8F%AF%E6%89%A9%E5%B1%95%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F">https://github.com/Kong/kong）是一个云原生，高效，可扩展的分布式</a> API 网关。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/21/technology-stack/loadbalance/kong/kong-build/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/" class="post-title-link" itemprop="url">OpenResty接入层网关设计及实现</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-21 15:58:23" itemprop="dateCreated datePublished" datetime="2021-09-21T15:58:23+08:00">2021-09-21</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-01 21:03:13" itemprop="dateModified" datetime="2022-11-01T21:03:13+08:00">2022-11-01</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/loadbalance/" itemprop="url" rel="index"><span itemprop="name">loadbalance</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
-<li><a href="#%E6%8E%A5%E5%85%A5%E5%B1%82%E7%BD%91%E5%85%B3%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0">接入层网关架构设计与实现</a></li>
-<li><a href="#openresty-%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90">OpenResty 原理剖析</a></li>
-<li><a href="#openresty-%E8%AF%B7%E6%B1%82%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">OpenResty 请求生命周期</a></li>
-<li><a href="#worker-%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE%E5%88%A9%E5%99%A8-shared-dict">worker 间共享数据利器: shared dict</a></li>
-<li><a href="#%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E6%8F%92%E4%BB%B6%E5%8C%96%E5%AE%9E%E7%8E%B0">路由策略插件化实现</a></li>
-<li><a href="#%E5%90%8E%E7%AB%AF%E9%9B%86%E7%BE%A4%E7%9A%84%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE">后端集群的动态配置</a></li>
-<li><a href="#%E7%BD%91%E5%85%B3%E6%9C%80%E7%BB%88%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%9B%BE">网关最终架构设计图</a></li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关。OpenResty® 的目标是让你的Web服务直接跑在 Nginx 服务内部，充分利用 Nginx 的非阻塞 I/O 模型，不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如 MySQL、PostgreSQL、Memcached 以及 Redis 等都进行一致的高性能响应。OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关。OpenResty® 的目标是让你的Web服务直接跑在 Nginx 服务内部，充分利用 Nginx 的非阻塞 I/O 模型，不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如 MySQL、PostgreSQL、Memcached 以及 Redis 等都进行一致的高性能响应。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/" class="post-title-link" itemprop="url">Flowable基本操作</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-19 09:25:48" itemprop="dateCreated datePublished" datetime="2021-09-19T09:25:48+08:00">2021-09-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-04-20 17:43:46" itemprop="dateModified" datetime="2022-04-20T17:43:46+08:00">2022-04-20</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/java-tec-stack/" itemprop="url" rel="index"><span itemprop="name">java-tec-stack</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Flowable基本操作"><a href="#Flowable基本操作" class="headerlink" title="Flowable基本操作"></a>Flowable基本操作</h1><h1 id="创建ProcessEngine"><a href="#创建ProcessEngine" class="headerlink" title="创建ProcessEngine"></a>创建ProcessEngine</h1><p>  创建一个基本的maven工程，可以是Eclipse也可以是其他IDEA。然后添加两个依赖</p>
-<ul>
-<li>Flowable流程引擎。使我们可以创建一个ProcessEngine流程引擎对象，并访问Flowable API。</li>
-<li>一个是MySQL的数据库驱动</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/17/tools/net-tools/httpie/install-useage/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/17/tools/net-tools/httpie/install-useage/" class="post-title-link" itemprop="url">httpie安装使用</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-17 23:03:14" itemprop="dateCreated datePublished" datetime="2021-09-17T23:03:14+08:00">2021-09-17</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-10-03 00:35:05" itemprop="dateModified" datetime="2022-10-03T00:35:05+08:00">2022-10-03</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#httpie%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3">HTTPie使用详解</a><ul>
-<li><a href="#%E6%A6%82%E8%BF%B0">概述</a></li>
-<li><a href="#%E5%AE%89%E8%A3%85httpie">安装httpie</a></li>
-<li><a href="#%E4%BD%BF%E7%94%A8httpie">使用httpie</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="HTTPie使用详解"><a href="#HTTPie使用详解" class="headerlink" title="HTTPie使用详解"></a>HTTPie使用详解</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>httpie是一个命令行形式的http客户端，它提供了简单的http命令，返回带代码高亮的结果信息，可以很方便的在http交互场景下进行测试、调试等。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/17/tools/net-tools/httpie/install-useage/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1344,20 +1366,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">29</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

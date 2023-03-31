@@ -190,6 +190,373 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/loadbalance/kong/kong-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/21/technology-stack/loadbalance/kong/kong-build/" class="post-title-link" itemprop="url">kong接入层网关设计及实现</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-21 16:58:23" itemprop="dateCreated datePublished" datetime="2021-09-21T16:58:23+08:00">2021-09-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-01 21:03:25" itemprop="dateModified" datetime="2022-11-01T21:03:25+08:00">2022-11-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/loadbalance/" itemprop="url" rel="index"><span itemprop="name">loadbalance</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
+<li><a href="#kong%E7%89%B9%E6%80%A7">kong特性</a></li>
+<li><a href="#kong-%E7%9A%84%E6%9E%B6%E6%9E%84">Kong 的架构</a></li>
+<li><a href="#kong%E9%83%A8%E7%BD%B2">Kong部署</a></li>
+<li><a href="#kong-%E7%9A%84%E7%AE%A1%E7%90%86%E6%96%B9%E5%BC%8F">Kong 的管理方式</a></li>
+<li><a href="#%E9%AB%98%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%E7%9A%84%E8%83%8C%E5%90%8E%E6%8F%92%E4%BB%B6%E6%9C%BA%E5%88%B6">高可扩展性的背后—插件机制</a></li>
+<li><a href="#%E6%80%BB%E7%BB%93">总结</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Kong（<a target="_blank" rel="noopener" href="https://github.com/Kong/kong%EF%BC%89%E6%98%AF%E4%B8%80%E4%B8%AA%E4%BA%91%E5%8E%9F%E7%94%9F%EF%BC%8C%E9%AB%98%E6%95%88%EF%BC%8C%E5%8F%AF%E6%89%A9%E5%B1%95%E7%9A%84%E5%88%86%E5%B8%83%E5%BC%8F">https://github.com/Kong/kong）是一个云原生，高效，可扩展的分布式</a> API 网关。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/21/technology-stack/loadbalance/kong/kong-build/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/" class="post-title-link" itemprop="url">OpenResty接入层网关设计及实现</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-21 15:58:23" itemprop="dateCreated datePublished" datetime="2021-09-21T15:58:23+08:00">2021-09-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-01 21:03:13" itemprop="dateModified" datetime="2022-11-01T21:03:13+08:00">2022-11-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/loadbalance/" itemprop="url" rel="index"><span itemprop="name">loadbalance</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E5%89%8D%E8%A8%80">前言</a></li>
+<li><a href="#%E6%8E%A5%E5%85%A5%E5%B1%82%E7%BD%91%E5%85%B3%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%AE%9E%E7%8E%B0">接入层网关架构设计与实现</a></li>
+<li><a href="#openresty-%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90">OpenResty 原理剖析</a></li>
+<li><a href="#openresty-%E8%AF%B7%E6%B1%82%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">OpenResty 请求生命周期</a></li>
+<li><a href="#worker-%E9%97%B4%E5%85%B1%E4%BA%AB%E6%95%B0%E6%8D%AE%E5%88%A9%E5%99%A8-shared-dict">worker 间共享数据利器: shared dict</a></li>
+<li><a href="#%E8%B7%AF%E7%94%B1%E7%AD%96%E7%95%A5%E6%8F%92%E4%BB%B6%E5%8C%96%E5%AE%9E%E7%8E%B0">路由策略插件化实现</a></li>
+<li><a href="#%E5%90%8E%E7%AB%AF%E9%9B%86%E7%BE%A4%E7%9A%84%E5%8A%A8%E6%80%81%E9%85%8D%E7%BD%AE">后端集群的动态配置</a></li>
+<li><a href="#%E7%BD%91%E5%85%B3%E6%9C%80%E7%BB%88%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%9B%BE">网关最终架构设计图</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关。OpenResty® 的目标是让你的Web服务直接跑在 Nginx 服务内部，充分利用 Nginx 的非阻塞 I/O 模型，不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如 MySQL、PostgreSQL、Memcached 以及 Redis 等都进行一致的高性能响应。OpenResty® 是一个基于 Nginx 与 Lua 的高性能 Web 平台，其内部集成了大量精良的 Lua 库、第三方模块以及大多数的依赖项。用于方便地搭建能够处理超高并发、扩展性极高的动态 Web 应用、Web 服务和动态网关。OpenResty® 的目标是让你的Web服务直接跑在 Nginx 服务内部，充分利用 Nginx 的非阻塞 I/O 模型，不仅仅对 HTTP 客户端请求,甚至于对远程后端诸如 MySQL、PostgreSQL、Memcached 以及 Redis 等都进行一致的高性能响应。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/21/technology-stack/loadbalance/OpenResty/OpenResty-build/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/" class="post-title-link" itemprop="url">Flowable基本操作</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-19 09:25:48" itemprop="dateCreated datePublished" datetime="2021-09-19T09:25:48+08:00">2021-09-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-04-20 17:43:46" itemprop="dateModified" datetime="2022-04-20T17:43:46+08:00">2022-04-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java-tec-stack/" itemprop="url" rel="index"><span itemprop="name">java-tec-stack</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Flowable基本操作"><a href="#Flowable基本操作" class="headerlink" title="Flowable基本操作"></a>Flowable基本操作</h1><h1 id="创建ProcessEngine"><a href="#创建ProcessEngine" class="headerlink" title="创建ProcessEngine"></a>创建ProcessEngine</h1><p>  创建一个基本的maven工程，可以是Eclipse也可以是其他IDEA。然后添加两个依赖</p>
+<ul>
+<li>Flowable流程引擎。使我们可以创建一个ProcessEngine流程引擎对象，并访问Flowable API。</li>
+<li>一个是MySQL的数据库驱动</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/19/java/java-tec-stack/WorkerFlow/Flowable/Flowable-guide/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/17/tools/net-tools/httpie/install-useage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/17/tools/net-tools/httpie/install-useage/" class="post-title-link" itemprop="url">httpie安装使用</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-17 23:03:14" itemprop="dateCreated datePublished" datetime="2021-09-17T23:03:14+08:00">2021-09-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-10-03 00:35:05" itemprop="dateModified" datetime="2022-10-03T00:35:05+08:00">2022-10-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/tools/" itemprop="url" rel="index"><span itemprop="name">tools</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#httpie%E4%BD%BF%E7%94%A8%E8%AF%A6%E8%A7%A3">HTTPie使用详解</a><ul>
+<li><a href="#%E6%A6%82%E8%BF%B0">概述</a></li>
+<li><a href="#%E5%AE%89%E8%A3%85httpie">安装httpie</a></li>
+<li><a href="#%E4%BD%BF%E7%94%A8httpie">使用httpie</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="HTTPie使用详解"><a href="#HTTPie使用详解" class="headerlink" title="HTTPie使用详解"></a>HTTPie使用详解</h1><h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>httpie是一个命令行形式的http客户端，它提供了简单的http命令，返回带代码高亮的结果信息，可以很方便的在http交互场景下进行测试、调试等。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/17/tools/net-tools/httpie/install-useage/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/15/tools/LDAP-build/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -553,7 +920,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-08-16 01:56:20" itemprop="dateModified" datetime="2022-08-16T01:56:20+08:00">2022-08-16</time>
+                <time title="修改时间：2023-04-01 03:01:37" itemprop="dateModified" datetime="2023-04-01T03:01:37+08:00">2023-04-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -584,6 +951,13 @@
 <li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%89%E8%A3%85">初始化安装</a></li>
 <li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
 <li><a href="#%E5%90%AF%E5%8A%A8-%E6%8E%88%E6%9D%83">启动、授权</a></li>
+</ul>
+</li>
+<li><a href="#mysql8x-docker%E5%AE%89%E8%A3%85">Mysql8.x Docker安装</a><ul>
+<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">准备工作</a></li>
+<li><a href="#%E5%90%AF%E5%8A%A8%E9%95%9C%E5%83%8F">启动镜像</a></li>
+<li><a href="#%E8%A7%A3%E5%86%B3%E6%97%A0%E6%B3%95%E7%99%BB%E5%BD%95%E9%97%AE%E9%A2%98%E7%99%BB%E5%BD%95mysql">解决无法登录问题；登录mysql</a></li>
+<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
 </ul>
 </li>
 </ul>
@@ -710,419 +1084,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/" class="post-title-link" itemprop="url">Redis系列(四):Redis性能及优化</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-23 16:23:28" itemprop="dateCreated datePublished" datetime="2021-08-23T16:23:28+08:00">2021-08-23</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-12-02 01:02:21" itemprop="dateModified" datetime="2022-12-02T01:02:21+08:00">2022-12-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/redis/" itemprop="url" rel="index"><span itemprop="name">redis</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Redis系列-四-Redis性能及优化"><a href="#Redis系列-四-Redis性能及优化" class="headerlink" title="Redis系列(四): Redis性能及优化"></a>Redis系列(四): Redis性能及优化</h1><h1 id="Redis6多线程配置"><a href="#Redis6多线程配置" class="headerlink" title="Redis6多线程配置"></a>Redis6多线程配置</h1><p>redis开启多线程io<br>配置参数<br>io-threads-do-redis yes(改为yes开启多线程io模式)<br>io-thread 2 (开启多线程个数，具体个数根据cpu核数具体配置，推荐线程大小小于等于核数，例如4核建议最大开启3个最小开启2个，8核则建议开启6个，具体可进行压测进行评估，看io的大小，最大为最优个数)</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/23/db-resource/redis/Redis-4-%E6%80%A7%E8%83%BD%E5%8F%8A%E4%BC%98%E5%8C%96/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/11/python/base/install-upgrade/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/11/python/base/install-upgrade/" class="post-title-link" itemprop="url">python2.7升级到python3.7</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-11 09:35:48" itemprop="dateCreated datePublished" datetime="2021-08-11T09:35:48+08:00">2021-08-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-12-11 23:37:02" itemprop="dateModified" datetime="2022-12-11T23:37:02+08:00">2022-12-11</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/python-base/" itemprop="url" rel="index"><span itemprop="name">python-base</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E5%AE%89%E8%A3%85">安装</a></li>
-<li><a href="#python27%E5%8D%87%E7%BA%A7%E5%88%B0python37">python2.7升级到python3.7</a><ul>
-<li><a href="#%E4%B8%8B%E8%BD%BD%E6%BA%90%E7%A0%81%E5%8C%85">下载源码包</a></li>
-<li><a href="#%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96">安装依赖</a></li>
-<li><a href="#%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85">编译安装</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83">配置环境</a></li>
-<li><a href="#%E8%A7%A3%E5%86%B3yum%E5%92%8C%E9%98%B2%E7%81%AB%E5%A2%99%E9%97%AE%E9%A2%98">解决yum和防火墙问题</a></li>
-<li><a href="#%E4%BF%AE%E6%94%B9pip%E6%BA%90%E4%B8%BA%E9%98%BF%E9%87%8C%E4%BA%91">修改pip源为阿里云</a></li>
-<li><a href="#%E6%A0%A1%E9%AA%8C-%E5%88%A0%E9%99%A4">校验、删除</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/11/python/base/install-upgrade/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/07/db-resource/mysql/mysql-ha/mysql-master-slave-02/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/07/db-resource/mysql/mysql-ha/mysql-master-slave-02/" class="post-title-link" itemprop="url">MySQLGTID主从复制</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-07 23:33:27" itemprop="dateCreated datePublished" datetime="2021-08-07T23:33:27+08:00">2021-08-07</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-11-07 23:23:49" itemprop="dateModified" datetime="2022-11-07T23:23:49+08:00">2022-11-07</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#gtid%E4%BB%8B%E7%BB%8D">GTID介绍</a><ul>
-<li><a href="#gtid%E6%98%AF%E4%BB%80%E4%B9%88">GTID是什么</a></li>
-<li><a href="#gtid-replication%E4%BB%8B%E7%BB%8D">GTID Replication介绍</a></li>
-<li><a href="#gtid%E7%9A%84%E7%BB%84%E6%88%90">GTID的组成</a></li>
-<li><a href="#gtid%E7%9A%84%E4%BD%9C%E7%94%A8">GTID的作用</a></li>
-<li><a href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E7%94%A8gtid">为什么要用GTID</a></li>
-<li><a href="#gtid%E6%AF%94%E4%BC%A0%E7%BB%9F%E5%A4%8D%E5%88%B6%E7%9A%84%E4%BC%98%E5%8A%BF">GTID比传统复制的优势</a></li>
-<li><a href="#gtid%E5%A4%8D%E5%88%B6%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86">GTID复制实现的工作原理</a></li>
-</ul>
-</li>
-<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a><ul>
-<li><a href="#%E4%B8%80%E4%B8%BB%E4%B8%80%E4%BB%8E">一主一从</a><ul>
-<li><a href="#%E9%83%A8%E7%BD%B2%E6%95%B0%E6%8D%AE%E5%BA%93%E5%8F%AF%E6%9F%A5%E7%9C%8B-mysql%E4%B8%BB%E4%BB%8E">部署数据库可查看 &lt;MYSQL主从&gt;</a></li>
-<li><a href="#%E6%8E%88%E6%9D%83%E4%B8%80%E4%B8%AA%E7%94%A8%E6%88%B7%E7%94%A8%E4%BA%8E%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">授权一个用户，用于主从复制</a></li>
-<li><a href="#%E4%BF%AE%E6%94%B9master%E4%B8%BB%E9%85%8D%E6%96%87%E4%BB%B6">修改master主配文件</a></li>
-<li><a href="#slave%E4%B8%BB%E9%85%8D%E6%96%87%E4%BB%B6">slave主配文件</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AEslave%E4%B8%BB%E6%9C%BA%E6%8E%88%E6%9D%83%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93">配置slave主机，授权从数据库</a></li>
-<li><a href="#%E9%AA%8C%E8%AF%81%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">验证主从复制</a></li>
-</ul>
-</li>
-<li><a href="#%E4%B8%80%E4%B8%BB%E5%A4%9A%E4%BB%8E">一主多从</a><ul>
-<li><a href="#%E7%AC%AC%E4%BA%8C%E5%8F%B0%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93slave%E4%B8%BB%E9%85%8D%E6%96%87%E4%BB%B6">第二台从数据库slave主配文件</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AE%E7%AC%AC%E4%BA%8C%E5%8F%B0slave%E4%B8%BB%E6%9C%BA">配置第二台slave主机</a></li>
-</ul>
-</li>
-<li><a href="#%E5%A4%9A%E4%B8%BB%E4%B8%80%E4%BB%8E">多主一从</a><ul>
-<li><a href="#%E4%B8%A4%E5%8F%B0%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE%E5%92%8C%E4%B8%8A%E8%BF%B0%E4%B8%BB%E6%95%B0%E6%8D%AE%E5%BA%93%E7%9B%B8%E5%90%8C%E4%BB%8E%E6%95%B0%E6%8D%AE%E5%BA%93%E9%85%8D%E7%BD%AE%E4%B9%9F%E7%9B%B8%E5%90%8C">两台主数据库配置和上述主数据库相同，从数据库配置也相同</a></li>
-<li><a href="#%E6%9F%A5%E7%9C%8B%E4%B8%BB%E5%BA%93%E4%BF%A1%E6%81%AF">查看主库信息</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AEslave%E4%B8%BB%E6%9C%BA">配置slave主机</a></li>
-<li><a href="#%E5%9C%A8%E4%BB%8E%E5%BA%93%E4%B8%8A%E9%85%8D%E7%BD%AE%E4%B8%BB%E5%BA%93%E4%BF%A1%E6%81%AF">在从库上配置主库信息</a></li>
-<li><a href="#%E9%AA%8C%E8%AF%81%E6%B5%8B%E8%AF%95">验证测试</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="GTID介绍"><a href="#GTID介绍" class="headerlink" title="GTID介绍"></a>GTID介绍</h1><h2 id="GTID是什么"><a href="#GTID是什么" class="headerlink" title="GTID是什么"></a>GTID是什么</h2><p>GTID(Global Transaction ID)是对于一个已提交事务的编号，并且是一个全局唯一的编号。GTID实际上是由UUID+TID组成的。其中UUID是一个MySQL实例的唯一标识，保存在mysql数据目录下的auto.cnf文件里。TID代表了该实例上已经提交的事务数量，并且随着事务提交单调递增。下面是一个GTID的具体形式：3E11FA47-71CA-11E1-9E33-C80AA9429562:23。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/07/db-resource/mysql/mysql-ha/mysql-master-slave-02/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/04/db-resource/mysql/mysql-ha/mysql-master-slave-01/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/04/db-resource/mysql/mysql-ha/mysql-master-slave-01/" class="post-title-link" itemprop="url">MySQL主从复制、读写分离理、实践</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-04 23:33:27" itemprop="dateCreated datePublished" datetime="2021-08-04T23:33:27+08:00">2021-08-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-25 01:52:43" itemprop="dateModified" datetime="2022-09-25T01:52:43+08:00">2022-09-25</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">主从复制</a><ul>
-<li><a href="#%E5%8E%9F%E7%90%86">原理</a></li>
-<li><a href="#%E6%94%AF%E6%8C%81%E7%9A%84%E5%A4%8D%E5%88%B6%E7%B1%BB%E5%9E%8B">支持的复制类型</a></li>
-<li><a href="#%E5%A4%8D%E5%88%B6%E7%9A%84%E5%B7%A5%E4%BD%9C%E8%BF%87%E7%A8%8B">复制的工作过程</a></li>
-<li><a href="#mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%BB%B6%E8%BF%9F">MySQL主从复制延迟</a></li>
-</ul>
-</li>
-<li><a href="#%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB">读写分离</a><ul>
-<li><a href="#%E5%8E%9F%E7%90%86-1">原理</a></li>
-<li><a href="#%E5%AE%9E%E7%8E%B0%E6%96%B9%E5%BC%8F">实现方式</a><ul>
-<li><a href="#%E5%9F%BA%E4%BA%8E%E7%A8%8B%E5%BA%8F%E4%BB%A3%E7%A0%81%E5%86%85%E9%83%A8%E5%AE%9E%E7%8E%B0">基于程序代码内部实现</a></li>
-<li><a href="#%E5%9F%BA%E4%BA%8E%E4%B8%AD%E9%97%B4%E4%BB%A3%E7%90%86%E5%B1%82%E5%AE%9E%E7%8E%B0">基于中间代理层实现</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#mysql-%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E6%9E%B6%E6%9E%84%E6%90%AD%E5%BB%BA">MySQL 主从复制架构搭建</a><ul>
-<li><a href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE">服务器配置</a></li>
-<li><a href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">环境准备</a></li>
-<li><a href="#mysql-%E4%B8%BB%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%97%B6%E9%97%B4%E5%90%8C%E6%AD%A5">mysql 主从服务器时间同步</a></li>
-<li><a href="#%E4%B8%BB%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84-mysql-%E9%85%8D%E7%BD%AE">主服务器的 mysql 配置</a></li>
-<li><a href="#%E4%BB%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84-mysql-%E9%85%8D%E7%BD%AE">从服务器的 mysql 配置</a></li>
-</ul>
-</li>
-<li><a href="#mysql-%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E6%9E%B6%E6%9E%84%E6%90%AD%E5%BB%BA">MySQL 读写分离架构搭建</a></li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="主从复制"><a href="#主从复制" class="headerlink" title="主从复制"></a>主从复制</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>MySQL 的主从复制和 MySQL 的读写分离两者有着紧密联系，首先要部署主从复制，只有主从复制完成了，才能在此基础上进行数据的读写分离。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/04/db-resource/mysql/mysql-ha/mysql-master-slave-01/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1194,20 +1155,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">29</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

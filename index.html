@@ -190,6 +190,240 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/03/16/streaming-media/srs-build-server/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2023/03/16/streaming-media/srs-build-server/" class="post-title-link" itemprop="url">SRS搭建音视频服务器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-03-16 13:20:36" itemprop="dateCreated datePublished" datetime="2023-03-16T13:20:36+08:00">2023-03-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-29 00:09:54" itemprop="dateModified" datetime="2023-03-29T00:09:54+08:00">2023-03-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B5%81%E5%AA%92%E4%BD%93/" itemprop="url" rel="index"><span itemprop="name">流媒体</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+
+
+<!-- tocstop -->
+
+<p>官网文档：<a target="_blank" rel="noopener" href="http://www.ossrs.net/lts/zh-cn/docs/v4/doc/getting-started">http://www.ossrs.net/lts/zh-cn/docs/v4/doc/getting-started</a></p>
+<!-- moer -->
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/" class="post-title-link" itemprop="url">Prometheus监控Mysql和Redis</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-11-20 13:53:22" itemprop="dateCreated datePublished" datetime="2022-11-20T13:53:22+08:00">2022-11-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-26 23:28:48" itemprop="dateModified" datetime="2023-03-26T23:28:48+08:00">2023-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/devops/" itemprop="url" rel="index"><span itemprop="name">devops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E7%9B%91%E6%8E%A7mysql">监控MySQL</a><ul>
+<li><a href="#%E4%B8%8B%E8%BD%BD%E7%9B%91%E6%8E%A7mysql%E7%9A%84mysqld_exporter">下载监控MySQL的mysqld_exporter</a></li>
+<li><a href="#%E7%9B%91%E6%8E%A7%E8%B4%A6%E5%8F%B7%E5%8F%8A%E4%BF%AE%E6%94%B9%E6%96%87%E4%BB%B6%E9%85%8D%E7%BD%AE">监控账号及修改文件配置</a></li>
+</ul>
+</li>
+<li><a href="#%E7%9B%91%E6%8E%A7redis">监控redis</a><ul>
+<li><a href="#%E4%B8%8B%E8%BD%BDredis_exporter">下载redis_exporter</a></li>
+<li><a href="#%E5%90%AF%E5%8A%A8redis_exporter">启动redis_exporter</a></li>
+</ul>
+</li>
+<li><a href="#%E9%85%8D%E7%BD%AEprometheus%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">配置prometheus配置文件</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E5%90%84%E7%9B%91%E6%8E%A7%E4%BB%AA%E8%A1%A8%E7%9B%98">配置各监控仪表盘</a><ul>
+<li><a href="#%E4%B8%8B%E8%BD%BD%E5%90%84%E7%9B%91%E6%8E%A7%E4%BB%AA%E8%A1%A8%E7%9B%98">下载各监控仪表盘</a></li>
+<li><a href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E6%BA%90">配置数据源</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AF%BC%E5%85%A5%E4%BB%AA%E8%A1%A8%E7%9B%98">导入仪表盘</a><ul>
+<li><a href="#%E9%85%8D%E7%BD%AE%E5%AE%8C%E6%88%90%E5%90%8E%E5%8D%B3%E5%8F%AF%E6%9F%A5%E7%9C%8B%E5%90%84%E7%9B%91%E6%8E%A7%E6%83%85%E5%86%B5">配置完成后即可查看各监控情况</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1><span id="监控mysql">监控MySQL</span></h1><h2><span id="下载监控mysql的mysqld_exporter">下载监控MySQL的mysqld_exporter</span></h2><!-- moer -->
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载</span></span><br><span class="line">wget  https://github.com/prometheus/mysqld_exporter/releases/download/v0.12.1/mysqld_exporter-0.12.1.linux-amd64.tar.gz</span><br><span class="line"><span class="comment"># 解压</span></span><br><span class="line">tar -zxvf  mysqld_exporter-0.12.1.linux-amd64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h2><span id="监控账号及修改文件配置">监控账号及修改文件配置</span></h2><p>在MySQL里配置MySQL监控账号</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建账号</span></span><br><span class="line">mysql&gt; CREATE USER <span class="string">&#x27;mysql_monitor&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span> identified by <span class="string">&#x27;mysql_monitor&#x27;</span>; </span><br><span class="line"><span class="comment"># 授权</span></span><br><span class="line">mysql&gt; GRANT REPLICATION CLIENT, PROCESS ON *.* TO <span class="string">&#x27;mysql_monitor&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span>; </span><br><span class="line">mysql&gt; GRANT SELECT ON performance_schema.* TO <span class="string">&#x27;mysql_monitor&#x27;</span>@<span class="string">&#x27;localhost&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意,不用版本对权限要求不一致，启动时注意查看日志，如权限不足则继续授权或创建对应的账号 </p>
+</blockquote>
+<p>配置文件修改</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">vim .my.cnf </span><br><span class="line"><span class="comment"># 添加如下配置 </span></span><br><span class="line">[client]</span><br><span class="line">port=3306</span><br><span class="line">user=mysql_monitor</span><br><span class="line">password=mysql_monitor</span><br></pre></td></tr></table></figure>
+
+<p>启动监控脚本</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup   ./mysqld_exporter --config.my-cnf=.my.cnf  &amp;</span><br></pre></td></tr></table></figure>
+
+<h1><span id="监控redis">监控redis</span></h1><h2><span id="下载redis_exporter">下载redis_exporter</span></h2><p>官网上没有redis_exporter, 可以从github上获取，另外redis插件无需放在redis机器上也可以</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下载  </span></span><br><span class="line">wget https://github.com/oliver006/redis_exporter/releases/download/v0.30.0/redis_exporter-v0.30.0.linux-amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解压  </span></span><br><span class="line">tar -zxvf  redis_exporter-v0.30.0.linux-amd64.tar.gz</span><br></pre></td></tr></table></figure>
+
+<h2><span id="启动redis_exporter">启动redis_exporter</span></h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># redis无密码</span></span><br><span class="line">nohup  ./redis_exporter -redis.addr=192.168.56.118:6379 -web.listen-address 0.0.0.0:9121  &amp;</span><br><span class="line"><span class="comment"># redis有密码</span></span><br><span class="line">nohup  ./redis_exporter -redis.addr=192.168.56.118:6479 -redis.password 123456   -web.listen-address 0.0.0.0:9122 &amp;</span><br><span class="line"> </span><br><span class="line"><span class="comment"># -web.listen-address  可以自定义监控端口</span></span><br></pre></td></tr></table></figure>
+
+<h1><span id="配置prometheus配置文件">配置prometheus配置文件</span></h1><p><strong>添加各监控项</strong></p>
+<p>配置文件可以有多种配置方式，可以根据不同的分类和习惯配置。可参考如下方式配置</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># my global config</span></span><br><span class="line">global:</span><br><span class="line">  scrape_interval:     15s <span class="comment"># Set the scrape interval to every 15 seconds. Default is every 1 minute.</span></span><br><span class="line">  evaluation_interval: 15s <span class="comment"># Evaluate rules every 15 seconds. The default is every 1 minute.</span></span><br><span class="line">  <span class="comment"># scrape_timeout is set to the global default (10s).</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Alertmanager configuration</span></span><br><span class="line">alerting:</span><br><span class="line">  alertmanagers:</span><br><span class="line">  - static_configs:</span><br><span class="line">    - targets:</span><br><span class="line">      <span class="comment"># - alertmanager:9093</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># Load rules once and periodically evaluate them according to the global &#x27;evaluation_interval&#x27;.</span></span><br><span class="line">rule_files:</span><br><span class="line">  <span class="comment"># - &quot;first_rules.yml&quot;</span></span><br><span class="line">  <span class="comment"># - &quot;second_rules.yml&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># A scrape configuration containing exactly one endpoint to scrape:</span></span><br><span class="line"><span class="comment"># Here it&#x27;s Prometheus itself.</span></span><br><span class="line">scrape_configs:</span><br><span class="line">  <span class="comment"># The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.</span></span><br><span class="line">  - job_name: <span class="string">&#x27;prometheus&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># metrics_path defaults to &#x27;/metrics&#x27;</span></span><br><span class="line">    <span class="comment"># scheme defaults to &#x27;http&#x27;.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [<span class="string">&#x27;localhost:9090&#x27;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  - job_name: <span class="string">&#x27;OS&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># metrics_path defaults to &#x27;/metrics&#x27;</span></span><br><span class="line">    <span class="comment"># scheme defaults to &#x27;http&#x27;.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.114:9100&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.114&#x27;</span></span><br><span class="line">          </span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.116:9100&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.116&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.117:9100&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.117&#x27;</span></span><br><span class="line"><span class="comment">##  上述job单独做主机监控，每台主机的instance不同</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  - job_name: <span class="string">&#x27;mysql&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># metrics_path defaults to &#x27;/metrics&#x27;</span></span><br><span class="line">    <span class="comment"># scheme defaults to &#x27;http&#x27;.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.116:9104&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.116&#x27;</span></span><br><span class="line">    </span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.117:9104&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.117&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">## 以上是监控mysql的，instance和主机的instance的相同</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  - job_name: <span class="string">&#x27;redis&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment"># metrics_path defaults to &#x27;/metrics&#x27;</span></span><br><span class="line">    <span class="comment"># scheme defaults to &#x27;http&#x27;.</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    static_configs:</span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.118:9121&#x27;</span>,<span class="string">&#x27;192.168.56.118:9122&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.118&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    - targets: [<span class="string">&#x27;192.168.56.118:9100&#x27;</span>]</span><br><span class="line">      labels:</span><br><span class="line">          instance: <span class="string">&#x27;192.168.56.118&#x27;</span></span><br><span class="line"><span class="comment">#   可以类似上述这种，redis的主机及各redis监控项组合在一起，instance使用相同的</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>4.2 启动或热加载prometheus</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动</span></span><br><span class="line">nohup ./prometheus --config.file=prometheus.yml --web.enable-lifecycle --storage.tsdb.retention.time=60d   &amp;</span><br><span class="line"></span><br><span class="line"><span class="comment"># -- storage.tsdb.retention.time 数据默认保存时间为15天，启动时加上此参数可以控制数据保存时间</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 热加载</span></span><br><span class="line">curl -X POST http://ip:9090/-/reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 热加载的前提是启动时加了--web.enable-lifecycle</span></span><br></pre></td></tr></table></figure>
+
+<h1><span id="配置各监控仪表盘">配置各监控仪表盘</span></h1><h2><span id="下载各监控仪表盘">下载各监控仪表盘</span></h2><p>以上模板grafana官方网站均有，可以根据自己的需要下载对应的模板，对应地址为<br><a target="_blank" rel="noopener" href="https://grafana.com/grafana/dashboards">https://grafana.com/grafana/dashboards</a></p>
+<p>找到对应的仪表盘模板后进入下载</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/e2430f4e2cb94661854ea3fa540ff67b.png" alt="img"></p>
+<h2><span id="配置数据源">配置数据源</span></h2><p>本次使用的均为prometheus数据源，因此配置一个prometheus的数据源</p>
+<p>如果之前在grafana上没有配置过数据源 登录后会提示创建</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/4aa721bb493f4ccfb6f8299c1e203631.png" alt="img"></p>
+<p>选择prometheus</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/8865bffc33724ef1affc05ec5b7ba738.png" alt="img"></p>
+<p>配置prometheus地址</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/fb13fbb6e98343618cea6bc509619d9b.png" alt="img"></p>
+<p>最终save &amp; Test即可</p>
+<h1><span id="导入仪表盘">导入仪表盘</span></h1><p>将上面下载的模板导入</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/d494bf428ebe421a9e3cc647ed4fb7d9.jpeg" alt="img"></p>
+<p>导入</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/7ea1e2216e0e43709242de301f7bbf21.png" alt="img"></p>
+<p>修改名称及数据源</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/6065326bb9074216b17b0745971dde7a.png" alt="img"></p>
+<p>import即可</p>
+<h2><span id="配置完成后即可查看各监控情况">配置完成后即可查看各监控情况</span></h2><p>现在可以看一下炫酷的结果了。</p>
+<p>主机监控如下</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/bee2197b066f4b43a0d82c3f99460c9f.jpeg" alt="img"></p>
+<p>MySQL</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/fd52ac7f0bc0416d8574327c3e12944e.png" alt="img"></p>
+<p>Redis</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/89db0b5df697498d97d626271c357096.jpeg" alt="img"></p>
+<p>其他如果需要其他监控项也可以自定义添加</p>
+<p><img src="/2022/11/20/devops/monitor/prometheus/monitor-mysql-redis/d60d05e461084559bc8fcd559de9bbe3.png" alt="img"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/07/11/Architecture/DesignLayer/payment-system/payment-system-01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -296,6 +530,93 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2022/07/11/Architecture/DesignLayer/payment-system/payment-system-01/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/06/21/open-project/java-open-project/open-project-list/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/06/21/open-project/java-open-project/open-project-list/" class="post-title-link" itemprop="url">java开源产品集合</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-06-21 16:58:23" itemprop="dateCreated datePublished" datetime="2022-06-21T16:58:23+08:00">2022-06-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-19 00:39:30" itemprop="dateModified" datetime="2023-03-19T00:39:30+08:00">2023-03-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%BC%80%E6%BA%90%E4%BA%A7%E5%93%81/" itemprop="url" rel="index"><span itemprop="name">开源产品</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+
+
+<!-- tocstop -->
+
+<p>java开源产品集</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/06/21/open-project/java-open-project/open-project-list/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -640,6 +961,94 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/21/java/spring/springmvc/exception-process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/21/java/spring/springmvc/exception-process/" class="post-title-link" itemprop="url">SpringMvc全局异常处理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-21 17:20:36" itemprop="dateCreated datePublished" datetime="2022-03-21T17:20:36+08:00">2022-03-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-28 19:30:44" itemprop="dateModified" datetime="2023-03-28T19:30:44+08:00">2023-03-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/springmvc/" itemprop="url" rel="index"><span itemprop="name">springmvc</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#springmvc%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">SpringMvc全局异常处理</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="SpringMvc全局异常处理"><a href="#SpringMvc全局异常处理" class="headerlink" title="SpringMvc全局异常处理"></a>SpringMvc全局异常处理</h1>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/21/java/spring/springmvc/exception-process/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/17/devops/tools/SonarQube/idea-use-sonarqube/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -819,358 +1228,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/03/15/Ai/deep-learning-framework/common/introduction/" class="post-title-link" itemprop="url">深度学习框架介绍</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-03-15 23:03:14" itemprop="dateCreated datePublished" datetime="2022-03-15T23:03:14+08:00">2022-03-15</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-10-02 18:56:31" itemprop="dateModified" datetime="2022-10-02T18:56:31+08:00">2022-10-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/AI/" itemprop="url" rel="index"><span itemprop="name">AI</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%A1%86%E6%9E%B6">深度学习框架</a><ul>
-<li><a href="#caffe">Caffe</a></li>
-<li><a href="#tensorflow">Tensorflow</a></li>
-<li><a href="#keras">Keras</a></li>
-<li><a href="#pytorch">pytorch</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="深度学习框架"><a href="#深度学习框架" class="headerlink" title="深度学习框架"></a>深度学习框架</h1><p><strong>列举常见的深度学习框架</strong></p>
-<p>机器学习框架和深度学习框架之间也是有区别的。本质上，机器学习框架涵盖用于分类，回归，聚类，异常检测和数据准备的各种学习方法，也可以包括神经网络方法。深度学习或深度神经网络（DNN）框架涵盖具有许多隐藏层的各种神经网络拓扑，包括模式识别的多步骤过程。网络中的层越多，可以提取用于聚类和分类的特征越复杂。常见的Caffe，CNTK，DeepLearning4j，Keras，MXNet和TensorFlow是深度学习框架。 而Scikit-learning和Spark MLlib是机器学习框架。 Theano则跨越了这两个类别。</p>
-<p>深度学习框架比较</p>
-<p>神经网络一般包括：训练，测试两大阶段。训练就是把训练数据和神经网络模型（AlexNet、RNN等神经网络训练框架Caffe等）用CPU或GPU提炼出模型参数的过程。测试就是把测试数据用训练好的模型（神经网络模型+模型参数）运行后查看结果。而caffe，keras，tensorflow就是把训练过程所涉及的环节数据统一抽象，形成可使用框架。</p>
-<p>接下来的篇幅将会重点介绍深度学习的三个框架caffe、tensorflow和keras，如果只是需要使用传统的机器学习基础算法使用scikit-learning和spark MLlib则更为合适。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/03/15/Ai/deep-learning-framework/common/introduction/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/06/os/Linux/centos/general-script/server-check-script/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/03/06/os/Linux/centos/general-script/server-check-script/" class="post-title-link" itemprop="url">CentOS7巡检脚本</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-03-06 11:33:27" itemprop="dateCreated datePublished" datetime="2022-03-06T11:33:27+08:00">2022-03-06</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-13 18:34:32" itemprop="dateModified" datetime="2022-09-13T18:34:32+08:00">2022-09-13</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="能一键运行的实用巡检脚本（-tmp-check-sh）："><a href="#能一键运行的实用巡检脚本（-tmp-check-sh）：" class="headerlink" title="能一键运行的实用巡检脚本（/tmp/check.sh）："></a>能一键运行的实用巡检脚本（/tmp/check.sh）：</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/03/06/os/Linux/centos/general-script/server-check-script/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/05/os/Linux/common/Linux-Recycle-Bin/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/03/05/os/Linux/common/Linux-Recycle-Bin/" class="post-title-link" itemprop="url">Linux删除文件实现回收站功能</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-03-05 11:33:27" itemprop="dateCreated datePublished" datetime="2022-03-05T11:33:27+08:00">2022-03-05</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-06-24 22:38:08" itemprop="dateModified" datetime="2022-06-24T22:38:08+08:00">2022-06-24</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/os/" itemprop="url" rel="index"><span itemprop="name">os</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E5%9C%A8%E5%AE%B6%E7%9B%AE%E5%BD%95%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E6%96%87%E4%BB%B6%E5%A4%B9%E7%94%A8%E6%9D%A5%E4%BF%9D%E5%AD%98%E5%88%A0%E9%99%A4%E7%9A%84%E6%96%87%E4%BB%B6">在家目录创建一个文件夹用来保存删除的文件</a></li>
-<li><a href="#%E4%BF%AE%E6%94%B9bashrc%E6%96%87%E4%BB%B6">修改.bashrc文件</a></li>
-<li><a href="#%E5%9C%A8bashrc%E6%96%87%E4%BB%B6%E5%90%8E%E9%9D%A2%E6%B7%BB%E5%8A%A0%E4%B8%8B%E9%9D%A2%E8%BF%99%E4%BA%9B">在.bashrc文件后面添加下面这些</a></li>
-<li><a href="#%E6%89%A7%E8%A1%8Csource%E5%91%BD%E4%BB%A4%E7%94%9F%E6%95%88">执行source命令生效</a></li>
-<li><a href="#%E4%BD%BF%E7%94%A8">使用</a></li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="在家目录创建一个文件夹用来保存删除的文件"><a href="#在家目录创建一个文件夹用来保存删除的文件" class="headerlink" title="在家目录创建一个文件夹用来保存删除的文件"></a>在家目录创建一个文件夹用来保存删除的文件</h1><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p ~/.Deanrash</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/03/05/os/Linux/common/Linux-Recycle-Bin/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/" class="post-title-link" itemprop="url">mysql基础监控</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-03-02 11:33:27" itemprop="dateCreated datePublished" datetime="2022-03-02T11:33:27+08:00">2022-03-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2022-09-06 02:28:47" itemprop="dateModified" datetime="2022-09-06T02:28:47+08:00">2022-09-06</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>    本次文章完全使用mysql自带的show命令实现获取，从connects、buffercache、lock、SQL、statement、Database throughputs、serverconfig7大方面全面获取监控数据。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/03/02/db-resource/mysql/mysql-base/mysql-base-monitor/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1242,20 +1299,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">74</span>
+          <span class="site-state-item-count">80</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">28</span>
+        <span class="site-state-item-count">29</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">38</span>
+        <span class="site-state-item-count">41</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
