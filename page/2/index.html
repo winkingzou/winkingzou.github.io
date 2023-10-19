@@ -190,6 +190,95 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/17/devops/tools/SonarQube/docker-install-sonarqube/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/03/17/devops/tools/SonarQube/docker-install-sonarqube/" class="post-title-link" itemprop="url">Docker-compose安装SonarQube</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-03-17 09:35:48" itemprop="dateCreated datePublished" datetime="2022-03-17T09:35:48+08:00">2022-03-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-04-02 16:23:23" itemprop="dateModified" datetime="2023-04-02T16:23:23+08:00">2023-04-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Devops/" itemprop="url" rel="index"><span itemprop="name">Devops</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#docker-compose%E5%AE%89%E8%A3%85sonarqube">Docker-compose安装SonarQube</a></li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="Docker-compose安装SonarQube"><a href="#Docker-compose安装SonarQube" class="headerlink" title="Docker-compose安装SonarQube"></a>Docker-compose安装SonarQube</h1><p>创建存储卷</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$&gt; docker volume create --name sonarqube_data</span><br><span class="line">$&gt; docker volume create --name sonarqube_logs</span><br><span class="line">$&gt; docker volume create --name sonarqube_extensions</span><br><span class="line">$&gt; docker volume create --name portainer_data</span><br><span class="line">$&gt; docker volume create --name postgresql</span><br><span class="line">$&gt; docker volume create --name postgresql_data</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/03/17/devops/tools/SonarQube/docker-install-sonarqube/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2022/03/15/Ai/deep-learning-framework/common/introduction/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -973,91 +1062,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/" class="post-title-link" itemprop="url">Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-11-24 16:13:28" itemprop="dateCreated datePublished" datetime="2021-11-24T16:13:28+08:00">2021-11-24</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-02 16:22:30" itemprop="dateModified" datetime="2023-04-02T16:22:30+08:00">2023-04-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Redis/" itemprop="url" rel="index"><span itemprop="name">Redis</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Redis系列-七-缓存穿透、缓存击穿和缓存雪崩"><a href="#Redis系列-七-缓存穿透、缓存击穿和缓存雪崩" class="headerlink" title="Redis系列(七):缓存穿透、缓存击穿和缓存雪崩"></a>Redis系列(七):缓存穿透、缓存击穿和缓存雪崩</h1><h1 id="缓存穿透（查不到数据导致）"><a href="#缓存穿透（查不到数据导致）" class="headerlink" title="缓存穿透（查不到数据导致）"></a>缓存穿透（查不到数据导致）</h1><p>缓存穿透的概念简单，用户想要查询一个数据，发现 Redis 内存数据库没有，也就是缓存没有命中。于是向持久层数据库查询。发现也没有，于是本次查询失败。当用户很多的时候，缓存都没有命中，于是都去请求了持久层数据库。这给持久层数据库造成很大的压力，这时候就相当于出现了缓存穿透。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/11/24/db-resource/redis/Redis-7-cache-penetration-breakdown-avalanche/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1125,7 +1133,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">80</span>
+          <span class="site-state-item-count">81</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
