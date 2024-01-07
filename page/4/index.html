@@ -190,6 +190,137 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/" class="post-title-link" itemprop="url">IDM身份管理系统-方案一</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-26 17:58:23" itemprop="dateCreated datePublished" datetime="2021-09-26T17:58:23+08:00">2021-09-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2022-11-07 21:52:27" itemprop="dateModified" datetime="2022-11-07T21:52:27+08:00">2022-11-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">系统设计</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <!-- toc -->
+
+<ul>
+<li><a href="#%E8%AF%B4%E6%98%8E">说明</a></li>
+<li><a href="#%E6%95%B4%E4%BD%93%E4%BB%8B%E7%BB%8D">整体介绍</a><ul>
+<li><a href="#%E4%BA%A7%E5%93%81%E4%BD%93%E7%B3%BB">产品体系</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E7%AE%80%E4%BB%8B">产品简介</a></li>
+<li><a href="#%E7%BB%9F%E4%B8%80%E6%9D%83%E9%99%90">统一权限</a></li>
+</ul>
+</li>
+<li><a href="#%E6%A0%87%E5%87%86%E8%A7%92%E8%89%B2">标准角色</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E5%AE%9E%E9%99%85%E8%A7%92%E8%89%B2">实际角色</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-1">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-1">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-1">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%B5%84%E6%BA%90">功能资源</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-2">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-2">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-2">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%95%B0%E6%8D%AE%E8%B5%84%E6%BA%90">数据资源</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-3">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-3">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-3">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%8E%A5%E5%8F%A3%E8%B5%84%E6%BA%90">接口资源</a><ul>
+<li><a href="#%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E-4">功能说明</a></li>
+<li><a href="#%E5%8A%9F%E8%83%BD%E5%B1%95%E7%8E%B0-4">功能展现</a></li>
+<li><a href="#%E5%9C%BA%E6%99%AF%E8%AF%B4%E6%98%8E-4">场景说明</a></li>
+</ul>
+</li>
+<li><a href="#%E6%80%BB%E7%BB%93%E6%A6%82%E8%BF%B0">总结概述</a><ul>
+<li><a href="#%E6%80%BB%E7%BB%93%E8%AF%B4%E6%98%8E">总结说明</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E7%90%86%E8%A7%A3">产品理解</a></li>
+<li><a href="#%E4%BA%A7%E5%93%81%E5%8F%91%E5%B1%95">产品发展</a></li>
+</ul>
+</li>
+</ul>
+<!-- tocstop -->
+
+<h1 id="说明"><a href="#说明" class="headerlink" title="说明"></a>说明</h1><p>IDM身份管理系统，是一款为解决企业内部多系统之间的用户信息不一致的问题，也是满足企业在5A功能上的需求而开发的产品，包括Account<strong>账号管理</strong>、Authentication<strong>认证管理</strong>、Authorization<strong>授权管理</strong>、Audit<strong>审计管理</strong>、App Control<strong>应用管控</strong>五个方面的实际需求，进而规范用户身份信息，保证系统安全，提高工作效率。</p>
+<p>目前IDM统一权限的权限资源信息，是先通过认证接口获取，再通过Oauth认证成功后获取人员信息，同时会把该人员的权限资源信息给到业务系统。但在实际项目中业务系统的标准产品是不能改动的，因此项目实施人员只能在产品外面进行扩展开发，然后适配标准产品进行登录认证，在这个过程中权限信息也要初始化到业务系统中，这时就会影响到登录认证的性能。本次开发需要<strong>复用现有的生成任务形式</strong>，通过任务把权限信息下发给业务系统，进而解决以往会出现的问题。现将在本次开发中积累的学习经验和心得体会总结如下。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/26/SystemDesign/Enterprise-Application-Integration/IDM/idm-1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/26/SystemDesign/Enterprise-Application-Integration/plan1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1012,107 +1143,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">mysql安装配置</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-09-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-09-02T23:33:27+08:00">2021-09-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-02 16:20:16" itemprop="dateModified" datetime="2023-04-02T16:20:16+08:00">2023-04-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#mysql8x%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE">Mysql8.x二进制安装配置</a><ul>
-<li><a href="#%E4%B8%8B%E8%BD%BD%E8%A7%A3%E5%8E%8B">下载解压</a></li>
-<li><a href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E5%AE%89%E8%A3%85">初始化安装</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AE">配置</a></li>
-<li><a href="#%E5%90%AF%E5%8A%A8-%E6%8E%88%E6%9D%83">启动、授权</a></li>
-</ul>
-</li>
-<li><a href="#mysql8x-docker%E5%AE%89%E8%A3%85">Mysql8.x Docker安装</a><ul>
-<li><a href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C">准备工作</a></li>
-<li><a href="#%E5%90%AF%E5%8A%A8%E9%95%9C%E5%83%8F">启动镜像</a></li>
-<li><a href="#%E8%A7%A3%E5%86%B3%E6%97%A0%E6%B3%95%E7%99%BB%E5%BD%95%E9%97%AE%E9%A2%98%E7%99%BB%E5%BD%95mysql">解决无法登录问题；登录mysql</a></li>
-<li><a href="#%E9%97%AE%E9%A2%98">问题</a></li>
-</ul>
-</li>
-</ul>
-<!-- tocstop -->
-
-<h1 id="Mysql8-x二进制安装配置"><a href="#Mysql8-x二进制安装配置" class="headerlink" title="Mysql8.x二进制安装配置"></a>Mysql8.x二进制安装配置</h1>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/09/02/db-resource/mysql/mysql-base/mysql%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1184,7 +1214,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">81</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1224,7 +1254,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2023</span>
+  <span itemprop="copyrightYear">2024</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
