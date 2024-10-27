@@ -395,7 +395,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-02 16:26:16" itemprop="dateModified" datetime="2023-04-02T16:26:16+08:00">2023-04-02</time>
+                <time title="修改时间：2024-10-27 20:50:56" itemprop="dateModified" datetime="2024-10-27T20:50:56+08:00">2024-10-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -418,48 +418,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1><span id="java-内存溢出-jstackjvm内存溢出问题">java 内存溢出 jstack,JVM内存溢出问题</span></h1><h2><span id="通过linux的top命令查看cpu占比">通过Linux的top命令查看cpu占比</span></h2><p>首先通过top命令查看，发现某个java程序占用了较高内存</p>
+          <h1 id="java-内存溢出-jstack-JVM内存溢出问题"><a href="#java-内存溢出-jstack-JVM内存溢出问题" class="headerlink" title="java 内存溢出 jstack,JVM内存溢出问题"></a>java 内存溢出 jstack,JVM内存溢出问题</h1><h2 id="通过Linux的top命令查看cpu占比"><a href="#通过Linux的top命令查看cpu占比" class="headerlink" title="通过Linux的top命令查看cpu占比"></a>通过Linux的top命令查看cpu占比</h2><p>首先通过top命令查看，发现某个java程序占用了较高内存</p>
 <p><img src="/2021/07/19/java/jvm/jvm-oom-view/729f6d2c5bdc5e08504ce87111c98987.png" alt="729f6d2c5bdc5e08504ce87111c98987.png"></p>
-<h2><span id="jps命令确定是哪个java程序">jps命令确定是哪个java程序</span></h2><p>然后通过jps -l 与上面的PID列(2848)比较，确定是 picasso-java-v1.jar 这个java程序占用cpu过高：</p>
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/5c478987da213b738527755478ee18d7.png" alt="5c478987da213b738527755478ee18d7.png"></p>
-<h2><span id="通过ps-查看具体哪个jvm线程">通过ps 查看具体哪个JVM线程</span></h2><p>当时想的是可能应用内某个线程导致死循环，使用如下命令查看2848进程的各个线程小号cpu时间//ps -mp [线程号] -o THREAD,tid,time</p>
-<p>ps -mp 2848 -o THREAD,tid,time</p>
-<p>下图 %CPU列 为 cpu的百分比，TID列 为线程id</p>
-<p><strong>也可以使用top -Hp pid</strong></p>
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/b451f61304455332b8b023b222912fa7.png" alt="b451f61304455332b8b023b222912fa7.png"></p>
-<p>找到消耗cpu最大的线程(当时线上出现时某个线程消耗cpu90%多)，这里为了演示，所以取2858这个线程。</p>
-<h2><span id="通过jstack查看java中的具体线程栈信息">通过jstack查看java中的具体线程栈信息</span></h2><p>然后把上面线程id转化为16进制，在shell中使用printf “%x\n” tid即可，结果为b2a:</p>
-<p>然后使用jstack输出这个线程的调用栈：//jstack [进程id] | grep [线程的16进制id] -A行数</p>
-<p>jstack 2848 | grep b2a -A30</p>
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/9477ef59f33d14a6272566e9426320e4.png" alt="9477ef59f33d14a6272566e9426320e4.png"></p>
-<p>发现为GC线程，原来是jvm内存回收导致的cpu过高！</p>
-<p>通过jstat查看内存回收情况</p>
-<p>使用jstat -gcutil 线程数 间隔秒数 次数命令查看：</p>
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/070a664359b943e10e375b76168559ea.png" alt="070a664359b943e10e375b76168559ea.png"></p>
-<p>如图上面的FGC列Full GC次数为几百，而FGCT的Full GC秒数达到了几千，通过设置更多的监控次数观察，每次Full GC过后，O列的老年代还是99%，可见是内存不足导致的一直不停Full GC !</p>
-<p>重启程序，使用-Xmx -Xms设置更大堆内存</p>
-<p>通过重启程序，-Xmx2048m -Xms2048m设置了更大的内存参数.</p>
-<h2><span id="使用jmap生成堆转储文件">使用jmap生成堆转储文件</span></h2><p>通过jmap 生成了镜像jmap -dump:format=b,file=dumpfile.dat [pid]</p>
-<h2><span id="使用eclipse-memory-analyzer分析原因">使用Eclipse Memory Analyzer分析原因</span></h2><p>在Eclipse Memory Analyzer中生成Leak Suspects报告：</p>
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/7ef8dd3f8a66903d42061c656fd8fd8a.png" alt="7ef8dd3f8a66903d42061c656fd8fd8a.png"></p>
-<p>发现是 PoolingHttpClientConnectionManager 这个类导致的。再点击上图中的Details,查看详细信息：</p>
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/7f17e83ddae942e04ab89677a7dfb9ce.png" alt="7f17e83ddae942e04ab89677a7dfb9ce.png"></p>
-<p>这下清晰了，是阿里的oss类库导致的，结合程序中的如下代码：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">OSSClient ossClient = <span class="keyword">new</span> OSSClient(<span class="string">&quot;&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">PutObjectResult putObjectResult = ossClient.putObject(<span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>这个方法在程序中没有使用单例模式而且没有关闭，每调用一次就生成了一个PoolingHttpClientConnectionManager，而且是不可回收的。通过源码查看到IdleConnectionReaper.size()这个类会生成PoolingHttpClientConnectionManager的总数量。</p>
-<p>验证猜测</p>
-<p>使用 -Xms20m -Xmx20m 运行以下程序，发现size一直变大，最后导致OOM (java.lang.OutOfMemoryError)</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">60000</span>; i++) &#123;undefined</span><br><span class="line"></span><br><span class="line">OSSClient ossClient = <span class="keyword">new</span> OSSClient(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">ossClient.putObject(<span class="string">&quot;&quot;</span>, <span class="string">&quot;test1234&quot;</span> + UUID.randomUUID(), <span class="keyword">new</span> File(<span class="string">&quot;d:/file.txt&quot;</span>));</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;size=&quot;</span>+IdleConnectionReaper.size());</span><br><span class="line"></span><br><span class="line">Thread.sleep(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><img src="/2021/07/19/java/jvm/jvm-oom-view/4901bfddda621275523f855a6b449ba2.png" alt="4901bfddda621275523f855a6b449ba2.png"></p>
-<p>查看api，得知使用shutdown方法即可关闭OSSClient：</p>
-<p>1ossClient.shutdown();</p>
-<p>再运行以下程序，size一直为0，一切正常：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">60000</span>; i++) &#123;undefined</span><br><span class="line"></span><br><span class="line">OSSClient ossClient = <span class="keyword">new</span> OSSClient(endpoint, accessKeyId, accessKeySecret);</span><br><span class="line"></span><br><span class="line">ossClient.putObject(<span class="string">&quot;&quot;</span>, <span class="string">&quot;test1234&quot;</span> + UUID.randomUUID(), <span class="keyword">new</span> File(<span class="string">&quot;d:/file.txt&quot;</span>));</span><br><span class="line"></span><br><span class="line">ossClient.shutdown();</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;size=&quot;</span>+IdleConnectionReaper.size());</span><br><span class="line"></span><br><span class="line">Thread.sleep(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>至此，终于找到了导致cpu过高和OutOfMemoryError的真凶！</p>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/07/19/java/jvm/jvm-oom-view/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
