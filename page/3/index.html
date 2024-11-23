@@ -190,6 +190,90 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/" class="post-title-link" itemprop="url">EFK环境搭建</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-18 09:35:48" itemprop="dateCreated datePublished" datetime="2021-12-18T09:35:48+08:00">2021-12-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-04-02 16:18:46" itemprop="dateModified" datetime="2023-04-02T16:18:46+08:00">2023-04-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Kubernetes/" itemprop="url" rel="index"><span itemprop="name">Kubernetes</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="EFK环境搭建"><a href="#EFK环境搭建" class="headerlink" title="EFK环境搭建"></a>EFK环境搭建</h1><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Kubernetes中比较流行的日志收集解决方案是Elasticsearch、Fluentd和 Kibana（EFK）技术栈，也是目前官方比较推荐的一种方案。</p>
+<p><code>Elasticsearch</code> 是一个实时的、分布式的可扩展的搜索引擎，允许进行全文、结构化搜索，它通常用于索引和搜索大量日志数据，也可用于搜索许多不同类型的文档。</p>
+<p>Elasticsearch 通常与 <code>Kibana</code> 一起部署，Kibana 是 Elasticsearch 的一个功能强大的数据可视化 Dashboard，Kibana 允许你通过 web 界面来浏览 Elasticsearch 日志数据。</p>
+<p><code>Fluentd</code>是一个流行的开源数据收集器，我们将在 Kubernetes 集群节点上安装 Fluentd，通过获取容器日志文件、过滤和转换日志数据，然后将数据传递到 Elasticsearch 集群，在该集群中对其进行索引和存储。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/12/18/cloud-native/kubernetes/kubernetes-app/log-collect/EFK/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/17/cloud-native/kubernetes/kubernetes-base/kubernetes1.23/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1024,182 +1108,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/" class="post-title-link" itemprop="url">mysql生产环境表加字段</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-11-02 23:33:27" itemprop="dateCreated datePublished" datetime="2021-11-02T23:33:27+08:00">2021-11-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-02 16:21:29" itemprop="dateModified" datetime="2023-04-02T16:21:29+08:00">2023-04-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E8%AF%B4%E6%98%8E">说明</a></li>
-<li><a href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87">环境准备</a></li>
-<li><a href="#%E7%9B%B4%E6%8E%A5%E6%B7%BB%E5%8A%A0%E5%AD%97%E6%AE%B5">直接添加字段</a></li>
-<li><a href="#%E4%BD%BF%E7%94%A8%E5%B7%A5%E5%85%B7%E5%9C%A8%E7%BA%BF%E6%B7%BB%E5%8A%A0">使用工具在线添加</a></li>
-<li><a href="#a-software-update-is-available">A software update is available:</a></li>
-</ul>
-<!-- tocstop -->
-
-<h1><span id="说明">说明</span></h1><p>MySQL中给一张千万甚至更大量级的表添加字段一直是比较头疼的问题，遇到此情况通常该如果处理？本文通过常见的三种场景进行案例说明。</p>
-<!-- moer -->
-
-<h1><span id="环境准备">环境准备</span></h1><p>数据库版本： 5.7.25-28(Percona 分支)</p>
-<p>服务器配置：  3台centos 7虚拟机，配置均为2CPU  2G内存</p>
-<p>数据库架构： 1主2从的MHA架构(为了方便主从切换场景的演示，如开启GTID，则两节点即可)，关于MHA搭建可参考此文 MySQL高可用之MHA集群部署</p>
-<p>准备测试表：  创建一张2kw记录的表，快速创建的方法可以参考快速创建连续数</p>
-<p>本次对存储过程稍作修改，多添加几个字段，存储过程如下：</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">DELIMITER $$<span class="keyword">CREATE</span> <span class="keyword">PROCEDURE</span> `sp_createNum`(cnt <span class="type">INT</span>)<span class="keyword">BEGIN</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">DECLARE</span> i <span class="type">INT</span> <span class="keyword">DEFAULT</span> <span class="number">1</span>;<span class="keyword">DROP</span> <span class="keyword">TABLE</span> if existstb_add_columns;<span class="keyword">CREATE</span> <span class="keyword">TABLE</span> if <span class="keyword">not</span> <span class="keyword">exists</span> tb_add_columns(id <span class="type">int</span> <span class="keyword">primary</span> key,col1 <span class="type">int</span>,col2 <span class="type">varchar</span>(<span class="number">32</span>));<span class="keyword">INSERT</span> <span class="keyword">INTO</span> tb_add_columns(id,col1,col2) <span class="keyword">SELECT</span> i <span class="keyword">as</span> id ,i<span class="operator">%</span><span class="number">7</span> <span class="keyword">as</span> col1,md5(i) ascol2;WHILE i</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> tb_add_columns(id,col1,col2) <span class="keyword">SELECT</span> id <span class="operator">+</span> i <span class="keyword">as</span> id ,( id <span class="operator">+</span> i) <span class="operator">%</span><span class="number">7</span> <span class="keyword">as</span> col1,md5( id <span class="operator">+</span> i) <span class="keyword">as</span> col2 <span class="keyword">FROM</span> tb_add_columns <span class="keyword">WHERE</span> id <span class="operator">&lt;=</span>cnt <span class="operator">-</span>i ;<span class="keyword">SET</span> i <span class="operator">=</span> i<span class="operator">*</span><span class="number">2</span>;<span class="keyword">END</span>;<span class="keyword">END</span> WHILE;<span class="keyword">END</span>$$</span><br><span class="line"></span><br><span class="line">DELIMITER ;</span><br></pre></td></tr></table></figure>
-
-<p>调用存储过程，完成测试表及测试数据的创建。</p>
-<p>mysql&gt; call sp_createNum(20000000);</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/87bdadbe424114d34db82937e41cfb5b.png" alt="87bdadbe424114d34db82937e41cfb5b.png"></p>
-<h1><span id="直接添加字段">直接添加字段</span></h1><p>使用场景: 在系统不繁忙或者该表访问不多的情况下，如符合ONLINE DDL的情况下，可以直接添加。</p>
-<p>模拟场景： 创建一个测试脚本，每10s访问该表随机一条记录，然后给该表添加字段</p>
-<p>访问脚本如下：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># gjc</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> &#123;1..1000000000&#125;	 <span class="comment"># 访问次数1000000000，按需调整即可</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	id=<span class="variable">$RANDOM</span> <span class="comment">#生成随机数</span></span><br><span class="line">	mysql-uroot -p<span class="string">&#x27;123456&#x27;</span> --socket=/data/mysql3306/tmp/mysql.sock -e <span class="string">&quot;select a.*,now() from 		testdb.tb_add_columns a where id =&quot;</span><span class="variable">$id</span>	<span class="comment"># 访问数据</span></span><br><span class="line">	sleep 10	<span class="comment"># 暂停10s</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<p>运行脚本</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/c6ff5a37fbc48c3153a35cf69351bef6.png" alt="c6ff5a37fbc48c3153a35cf69351bef6.png"></p>
-<p>给表添加字段</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table testdb.tb_add_columns add col3 int;</span><br></pre></td></tr></table></figure>
-
-<p>此时，访问正常。</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/73682e6dab16b5c305a1fa91d49dcf06.png" alt="73682e6dab16b5c305a1fa91d49dcf06.png"></p>
-<p>附ONLINE DDL的场景如下，建议DBA必须弄清楚</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/f2e53cb8c2b6bc05f430b6128cd8dc24.png" alt="f2e53cb8c2b6bc05f430b6128cd8dc24.png"></p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/d14d5d1d03b44171c30b1ed091ae61cd.png" alt="d14d5d1d03b44171c30b1ed091ae61cd.png"></p>
-<h1><span id="使用工具在线添加">使用工具在线添加</span></h1><p>虽然Online DDL添加字段时，表依旧可以读写，但是生产环境使用场景中对大表操作使用最多的还是使用工具pt-osc或gh-ost添加。</p>
-<p>本文主要介绍 pt-osc(pt-online-schema-change) 来添加字段，该命令是Percona Toolkit工具中的使用频率最高的一种</p>
-<p>关于Percona Toolkit的安装及主要使用可以参考  五分钟学会Percona Toolkit 安装及使用</p>
-<p>添加字段</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@mha1 ~]<span class="comment"># pt-online-schema-change --alter &quot;ADD COLUMN col4 int&quot; h=localhost,P=3306,p=123456,u=root,D=testdb,t=tb_add_columns,S=/data/mysql3306/tmp/mysql.sock --charset=utf8mb4 --execute</span></span><br></pre></td></tr></table></figure>
-
-<p>主要过程如下：</p>
-<p>1&gt; Cannot connect to A=utf8mb4,P=3306,S=/data/mysql3306/tmp/mysql.sock,h=192.168.28.132,p=…,u=root1&gt; Cannot connect to A=utf8mb4,P=3306,S=/data/mysql3306/tmp/mysql.sock,h=192.168.28.131,p=…,u=root</p>
-<p>No slaves found. See–recursion-method ifhost mha1 has slaves. # 因为使用的是socket方式连接数据库 且未配置root远程连接账号，所以会有此提示</p>
-<h1><span id="a-software-update-is-available">A software update is available:</span></h1><p>Operation, tries,wait:</p>
-<p>analyze_table,10, 1copy_rows,10, 0.25create_triggers,10, 1drop_triggers,10, 1swap_tables,10, 1update_foreign_keys,10, 1Altering <code>testdb</code>.<code>tb_add_columns</code>…</p>
-<p>Creating new table… # 创建中间表，表名为”_原表名_new”</p>
-<p>Created new table testdb._tb_add_columns_new OK.</p>
-<p>Altering new table… # 修改表，也就是在新表上添加字段，因新表无数据，因此很快加完</p>
-<p>Altered <code>testdb</code>.<code>_tb_add_columns_new</code> OK.2020-06-20T12:23:43Creating triggers… # 创建触发器，用于在原表拷贝到新表的过程中原表有数据的变动(新增、修改、删除)时，也会自动同步至新表中2020-06-20T12:23:43Created triggers OK.2020-06-20T12:23:43 Copying approximately 19920500rows… # 拷贝数据，数据库量是统计信息里的，不准确</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:11% 03:50remain # 分批拷贝数据(根据表的size切分每批拷贝多少数据)，拷贝过程中可以用show processlist看到对应的sql</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:22% 03:22remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:32% 03:10remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:42% 02:45remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:51% 02:21remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:62% 01:48remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:72% 01:21remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:81% 00:53remain</p>
-<p>Copying <code>testdb</code>.<code>tb_add_columns</code>:91% 00:24remain2020-06-20T12:28:40Copied rows OK. # 拷贝数据完成2020-06-20T12:28:40Analyzing new table… # 优化新表2020-06-20T12:28:40Swapping tables… # 交换表名，将原表改为”_原表名_old”,然后把新表表名改为原表名2020-06-20T12:28:41Swapped original and new tables OK.2020-06-20T12:28:41Dropping old table… # 删除旧表(也可以添加参数不删除旧表)2020-06-20T12:28:41Dropped old table <code>testdb</code>.<code>_tb_add_columns_old</code> OK.2020-06-20T12:28:41Dropping triggers… # 删除触发器2020-06-20T12:28:41Dropped triggers OK.</p>
-<p>Successfully altered <code>testdb</code>.<code>tb_add_columns</code>. # 完成</p>
-<p>修改过程中，读写均不受影响，大家可以写个程序包含读写的</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/678a403b58bdfb769ccef6b4a54c24e6.png" alt="678a403b58bdfb769ccef6b4a54c24e6.png"></p>
-<p>注： 无论是直接添加字段还是用pt-osc添加字段，首先都得拿到该表的元数据锁，然后才能添加(包括pt-osc在创建触发器和最后交换表名时都涉及)，因此，如果一张表是热表，读写特别频繁或者添加时被其他会话占用，则无法添加。</p>
-<p>例如： 锁住一条记录</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/feaf73c449a899f46f11effcdda56749.png" alt="feaf73c449a899f46f11effcdda56749.png"></p>
-<p>用pt-osc添加字段，会发现一直卡在创建触发器那一步</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/8efdb583b44c92c70af4b93670b5acf0.png" alt="8efdb583b44c92c70af4b93670b5acf0.png"></p>
-<p>此时查看对应的SQL正在等待获取元数据锁</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/9883cc60021b61f23c0c16d7d08ee3e1.png" alt="9883cc60021b61f23c0c16d7d08ee3e1.png"></p>
-<p>换成直接添加也一样，例如</p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/108eedc707ece3d154b56326f0244fd1.png" alt="108eedc707ece3d154b56326f0244fd1.png"></p>
-<p><img src="/2021/11/02/db-resource/mysql/mysql-operation/online-add-column/857091e5068ceead8a44e8acbc95824b.png" alt="857091e5068ceead8a44e8acbc95824b.png"></p>
-<p>当达到锁等待后将会报错放弃添加字段</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line"></span><br><span class="line">ERROR1205 (HY000): Lock <span class="built_in">wait</span> timeout exceeded; try restarting transaction</span><br></pre></td></tr></table></figure>
-
-<p>对于此情况，需等待系统不繁忙情况下添加，或者使用后续的在从库创建再进行主从切换</p>
-<p>先在从库修改，再进行主从切换</p>
-<p>使用场景： 如果遇到上例中一张表数据量大且是热表(读写特别频繁)，则可以考虑先在从库添加，再进行主从切换，切换后再将其他几个节点上添加字段。</p>
-<p>先在从库添加(本文在备选节点添加)</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line">Query OK,0 rows affected (1 min 1.91sec)</span><br><span class="line">Records:0 Duplicates: 0 Warnings: 0</span><br></pre></td></tr></table></figure>
-
-<p>进行主从切换</p>
-<p>使用MHA脚本进行在线切换</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">masterha_master_switch --conf=/etc/masterha/app1.conf --master_state=alive --orig_master_is_new_slave --new_master_host=192.168.28.131 --new_master_port=3306</span><br></pre></td></tr></table></figure>
-
-<p>切换完成后再对其他节点添加字段</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/*原主库上添加192.168.28.128*/</span><br><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line">Query OK,0 rows affected (1 min 8.36sec)</span><br><span class="line">Records:0 Duplicates: 0 Warnings: 0</span><br><span class="line"></span><br><span class="line">/*另一个从库上添加192.168.28.132*/</span><br><span class="line">mysql&gt; alter table testdb.tb_add_columns add col5 int;</span><br><span class="line">Query OK,0 rows affected (1 min 8.64sec)</span><br><span class="line">Records:0 Duplicates: 0 Warnings: 0</span><br></pre></td></tr></table></figure>
-
-<p>这样就完成了字段添加。</p>
-<ol start="5">
-<li> 小结</li>
-</ol>
-<p>生产环境MySQL添加或修改字段主要通过如下三种方式进行，实际使用中还有很多注意事项，大家要多多总结。</p>
-<p>直接添加</p>
-<p>如果该表读写不频繁，数据量较小(通常1G以内或百万以内)，直接添加即可(可以了解一下online ddl的知识)</p>
-<p>使用pt_osc添加</p>
-<p>如果表较大 但是读写不是太大，且想尽量不影响原表的读写，可以用percona tools进行添加，相当于新建一张添加了字段的新表，再降原表的数据复制到新表中，复制历史数据期间的数据也会同步至新表，最后删除原表，将新表重命名为原表表名，实现字段添加</p>
-<p>先在从库添加 再进行主从切换</p>
-<p>如果一张表数据量大且是热表(读写特别频繁)，则可以考虑先在从库添加，再进行主从切换，切换后再将其他几个节点上添加字段</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1271,7 +1179,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-count">85</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

@@ -190,6 +190,88 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/timg.jpeg">
+      <meta itemprop="name" content="Winking">
+      <meta itemprop="description" content="记录工作生活">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Winking's blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/" class="post-title-link" itemprop="url">Resis布隆过滤器</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-09-11 11:33:27" itemprop="dateCreated datePublished" datetime="2021-09-11T11:33:27+08:00">2021-09-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-04-02 16:25:29" itemprop="dateModified" datetime="2023-04-02T16:25:29+08:00">2023-04-02</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java%E6%8A%80%E6%9C%AF%E6%A0%88/" itemprop="url" rel="index"><span itemprop="name">Java技术栈</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="什么是布隆过滤器"><a href="#什么是布隆过滤器" class="headerlink" title="什么是布隆过滤器"></a>什么是布隆过滤器</h1><p>布隆过滤器（Bloom Filter）是 1970 年由布隆提出的，是一种非常节省空间的概率数据结构，运行速度快，占用内存小，但是有一定的误判率且无法删除元素。它实际上是一个很长的二进制向量和一系列随机映射函数组成，主要用于判断一个元素是否在一个集合中。</p>
+<p>通常我们都会遇到判断一个元素是否在某个集合中的业务场景，这个时候我们可能都是采用 HashMap的Put方法或者其他集合将数据保存起来，然后进行比较确定，但是如果元素很多的情况下，采用这种方式就会非常浪费空间，最终达到瓶颈，检索速度也会越来越慢，这时布隆过滤器（Bloom Filter）就应运而生了。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/09/11/java/java-tec-stack/BloomFilter/RedisBloomFilter/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2021/09/05/db-resource/mysql/mysql-base/master-slave/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1078,109 +1160,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/timg.jpeg">
-      <meta itemprop="name" content="Winking">
-      <meta itemprop="description" content="记录工作生活">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Winking's blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/" class="post-title-link" itemprop="url">mysql mgr集群方案</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-08-03 11:33:27" itemprop="dateCreated datePublished" datetime="2021-08-03T11:33:27+08:00">2021-08-03</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-04-02 16:21:12" itemprop="dateModified" datetime="2023-04-02T16:21:12+08:00">2023-04-02</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Mysql/" itemprop="url" rel="index"><span itemprop="name">Mysql</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <!-- toc -->
-
-<ul>
-<li><a href="#%E9%9B%86%E7%BE%A4%E8%A7%84%E5%88%92">集群规划</a><ul>
-<li><a href="#%E8%8A%82%E7%82%B9%E8%A7%84%E5%88%92">节点规划</a></li>
-<li><a href="#mysql-server%E7%89%88%E6%9C%AC">Mysql Server版本</a></li>
-</ul>
-</li>
-<li><a href="#mysql%E9%83%A8%E7%BD%B2%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85">Mysql部署（离线安装）</a><ul>
-<li><a href="#server%E5%AE%89%E8%A3%85">Server安装</a></li>
-<li><a href="#%E9%83%A8%E7%BD%B2%E8%84%9A%E6%9C%AC">部署脚本</a></li>
-<li><a href="#%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6">默认配置文件</a></li>
-<li><a href="#%E9%85%8D%E7%BD%AE%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6">配置主从复制</a></li>
-<li><a href="#%E6%90%AD%E5%BB%BAgmr">搭建GMR</a></li>
-</ul>
-</li>
-</ul>
-<ul>
-<li><a href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98%E6%B1%87%E6%80%BB">常见问题汇总</a></li>
-</ul>
-<!-- tocstop -->
-
-<h2 id="集群规划"><a href="#集群规划" class="headerlink" title="集群规划"></a>集群规划</h2><h3 id="节点规划"><a href="#节点规划" class="headerlink" title="节点规划"></a>节点规划</h3><p>本示例地址以下,部署时候按照实际情况进行修改</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/08/03/db-resource/mysql/mysql-ha/Mysql-MGR/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1252,7 +1231,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">84</span>
+          <span class="site-state-item-count">85</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
